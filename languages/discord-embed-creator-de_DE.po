@@ -1,0 +1,677 @@
+﻿# Discord Embed Creator
+# Copyright (C) 2025 Zelika
+# This file is distributed under the same license as the Discord Embed Creator package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Discord Embed Creator 2.0.9\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-31 10:00+0000\n"
+"PO-Revision-Date: 2025-07-31 10:00+0000\n"
+"Last-Translator: Zelika\n"
+"Language-Team: German\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Plugin Header
+msgid "Discord Embed Creator"
+msgstr "Discord Embed Creator"
+
+msgid "Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators."
+msgstr "Erstelle und sende Discord-Embeds mit Live-Vorschau und Vorlagenverwaltung. Perfekt fÃ¼r Community-Manager und Server-Administratoren."
+
+# Menu
+msgid "Discord Embeds"
+msgstr "Discord Embeds"
+
+# Template Section
+msgid "Saved Templates"
+msgstr "Gespeicherte Vorlagen"
+
+msgid "No templates saved yet. Create your first template below!"
+msgstr "Noch keine Vorlagen gespeichert. Erstelle deine erste Vorlage unten!"
+
+msgid "Created"
+msgstr "Erstellt"
+
+msgid "Modified"
+msgstr "GeÃ¤ndert"
+
+msgid "Load"
+msgstr "Laden"
+
+msgid "Delete"
+msgstr "LÃ¶schen"
+
+# Embed Editor
+msgid "Embed Editor"
+msgstr "Embed Editor"
+
+msgid "Template Settings"
+msgstr "Template-Einstellungen"
+
+msgid "Template Name:"
+msgstr "Vorlagen Name:"
+
+msgid "Name for this template"
+msgstr "Name fÃ¼r diese Vorlage"
+
+# Webhook Settings
+msgid "Webhook Settings"
+msgstr "Webhook-Einstellungen"
+
+msgid "Webhook Configuration Status"
+msgstr "Webhook Konfiguration Status"
+
+msgid "Webhook URL:"
+msgstr "Webhook URL:"
+
+msgid "Bot Token:"
+msgstr "Bot Token:"
+
+msgid "Server ID:"
+msgstr "Server ID:"
+
+msgid "Not configured"
+msgstr "Nicht konfiguriert"
+
+msgid "Configured"
+msgstr "Konfiguriert"
+
+msgid "Configure webhook settings"
+msgstr "Webhook-Einstellungen konfigurieren"
+
+msgid "Webhook Type:"
+msgstr "Webhook Type:"
+
+msgid "Channel Webhook"
+msgstr "Channel Webhook"
+
+msgid "Server Webhook (with Channel Selection)"
+msgstr "Server Webhook (mit Channel-Auswahl)"
+
+msgid "Load Channels"
+msgstr "KanÃ¤le laden"
+
+msgid "Select Channel:"
+msgstr "Channel auswÃ¤hlen:"
+
+msgid "Select channel..."
+msgstr "Channel auswÃ¤hlen..."
+
+# Webhook Modal
+msgid "Configure Webhook Settings"
+msgstr "Webhook-Einstellungen konfigurieren"
+
+msgid "Discord Webhook URL:"
+msgstr "Discord Webhook URL:"
+
+msgid "Bot Token (for Server Webhook):"
+msgstr "Bot Token (fÃ¼r Server Webhook):"
+
+msgid "Server ID (for Server Webhook):"
+msgstr "Server ID (fÃ¼r Server Webhook):"
+
+msgid "Validation & Tips"
+msgstr "Validierung & Tipps"
+
+msgid "Webhook URL: Must start with \"https://discord.com/api/webhooks/\""
+msgstr "Webhook URL: Muss mit \"https://discord.com/api/webhooks/\" beginnen"
+
+msgid "Bot Token: Format: [Base64].[Part2].[Part3] separated by dots"
+msgstr "Bot Token: Format: [Base64].[Teil2].[Teil3] mit Punkten getrennt"
+
+msgid "Server ID: Numeric, 17-19 characters long"
+msgstr "Server ID: Numerisch, 17-19 Zeichen lang"
+
+msgid "Tip: All fields are automatically validated"
+msgstr "Tipp: Alle Felder werden automatisch validiert"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Test Connection"
+msgstr "Verbindung testen"
+
+msgid "Save"
+msgstr "Speichern"
+
+# Embed Content
+msgid "Embed Content"
+msgstr "Embed Content"
+
+msgid "Title:"
+msgstr "Titel:"
+
+msgid "Embed Title"
+msgstr "Embed Titel"
+
+msgid "Description:"
+msgstr "Beschreibung:"
+
+msgid "Embed Description (Markdown supported)"
+msgstr "Embed Beschreibung (Markdown unterstÃ¼tzt)"
+
+msgid "Supports: **bold**, *italic*, __underlined__, ~~strikethrough~~, `code`, [links](url)"
+msgstr "UnterstÃ¼tzt: **fett**, *kursiv*, __unterstrichen__, ~~durchgestrichen~~, `code`, [links](url)"
+
+# Role Mentions
+msgid "Role Mentions"
+msgstr "Role Mentions"
+
+msgid "Select roles:"
+msgstr "Rollen auswÃ¤hlen:"
+
+msgid "Bot Token and Server ID are automatically detected. Roles are loaded automatically."
+msgstr "Bot Token und Server ID werden automatisch erkannt. Rollen werden automatisch geladen."
+
+msgid "Tip: Roles are inserted as <@&ROLEID>. Example: <@&739772583179845653>"
+msgstr "Tipp: Rollen werden als <@&ROLEID> eingefÃ¼gt. Beispiel: <@&739772583179845653>"
+
+# Additional Embed Options
+msgid "Additional Embed Options"
+msgstr "Weitere Embed Optionen"
+
+msgid "URL:"
+msgstr "URL:"
+
+msgid "Color:"
+msgstr "Farbe:"
+
+msgid "Timestamp:"
+msgstr "Timestamp:"
+
+msgid "Set current date and time"
+msgstr "Aktuelles Datum und Uhrzeit setzen"
+
+msgid "Now"
+msgstr "Jetzt"
+
+msgid "Unix Timestamp"
+msgstr "Unix Timestamp"
+
+msgid "Enter Unix Timestamp or automatically generated"
+msgstr "Unix Timestamp eingeben oder automatisch generiert"
+
+msgid "Generate Discord Timestamps"
+msgstr "Discord Timestamps generieren"
+
+msgid "Discord Timestamps"
+msgstr "Discord Timestamps"
+
+msgid "Tip: With \"Discord Timestamps\" you can generate various time format codes for Discord"
+msgstr "Tipp: Mit \"Discord Timestamps\" kÃ¶nnen Sie verschiedene Zeitformat-Codes fÃ¼r Discord generieren"
+
+# Author
+msgid "Author"
+msgstr "Author"
+
+msgid "Author Name:"
+msgstr "Author Name:"
+
+msgid "Author Name"
+msgstr "Author Name"
+
+msgid "Author URL:"
+msgstr "Author URL:"
+
+msgid "Author Icon URL:"
+msgstr "Author Icon URL:"
+
+# Footer
+msgid "Footer"
+msgstr "Footer"
+
+msgid "Footer Text:"
+msgstr "Footer Text:"
+
+msgid "Footer Text"
+msgstr "Footer Text"
+
+msgid "Footer Icon URL:"
+msgstr "Footer Icon URL:"
+
+# Images
+msgid "Images"
+msgstr "Images"
+
+msgid "Image URL:"
+msgstr "Bild URL:"
+
+msgid "Thumbnail URL:"
+msgstr "Thumbnail URL:"
+
+# Fields
+msgid "Fields"
+msgstr "Fields"
+
+msgid "Add Field"
+msgstr "Field hinzufÃ¼gen"
+
+# Actions
+msgid "Save Template"
+msgstr "Vorlage speichern"
+
+msgid "Send to Discord"
+msgstr "An Discord senden"
+
+msgid "Edit Message"
+msgstr "Nachricht bearbeiten"
+
+msgid "Cancel Edit"
+msgstr "Bearbeitung abbrechen"
+
+# Message Edit
+msgid "Edit Message"
+msgstr "Nachricht bearbeiten"
+
+msgid "Load an existing Discord message for editing:"
+msgstr "Lade eine existierende Discord-Nachricht zum Bearbeiten:"
+
+msgid "Discord Message URL:"
+msgstr "Discord Nachrichten-URL:"
+
+msgid "Load Message"
+msgstr "Nachricht laden"
+
+# Live Preview
+msgid "Live Preview"
+msgstr "Live Vorschau"
+
+msgid "Webhook Bot"
+msgstr "Webhook Bot"
+
+# Message History
+msgid "Sent Messages"
+msgstr "Gesendete Nachrichten"
+
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+msgid "All Messages"
+msgstr "Alle Nachrichten"
+
+msgid "Today"
+msgstr "Heute"
+
+msgid "This Week"
+msgstr "Diese Woche"
+
+msgid "This Month"
+msgstr "Dieser Monat"
+
+msgid "Loading messages..."
+msgstr "Lade Nachrichten..."
+
+# Error Messages
+msgid "Unauthorized access"
+msgstr "Unbefugter Zugriff"
+
+msgid "Template name is required"
+msgstr "Vorlagen-Name ist erforderlich"
+
+msgid "Invalid template ID"
+msgstr "UngÃ¼ltige Vorlagen-ID"
+
+msgid "Template not found"
+msgstr "Vorlage nicht gefunden"
+
+msgid "Database error"
+msgstr "Datenbankfehler"
+
+msgid "Invalid embed data format"
+msgstr "UngÃ¼ltiges Embed-Datenformat"
+
+msgid "Bot token and channel ID are required for server webhooks. Please configure them in the settings."
+msgstr "Bot-Token und Channel-ID sind fÃ¼r Server-Webhooks erforderlich. Bitte konfiguriere sie in den Einstellungen."
+
+msgid "Webhook URL is required. Please configure it in the settings."
+msgstr "Webhook-URL ist erforderlich. Bitte konfiguriere sie in den Einstellungen."
+
+msgid "Server ID and bot token are required"
+msgstr "Server-ID und Bot-Token sind erforderlich"
+
+msgid "Invalid bot token. Check the token in the Discord Developer Portal."
+msgstr "UngÃ¼ltiger Bot Token. ÃœberprÃ¼fen Sie das Token im Discord Developer Portal."
+
+msgid "Bot has no permission to read channels. Make sure the bot has the right permissions."
+msgstr "Bot hat keine Berechtigung, KanÃ¤le zu lesen. Stellen Sie sicher, dass der Bot die richtigen Permissions hat."
+
+msgid "Server not found or bot is not a member of the server."
+msgstr "Server nicht gefunden oder Bot ist nicht Mitglied des Servers."
+
+msgid "Invalid response from Discord API"
+msgstr "UngÃ¼ltige Antwort von der Discord-API"
+
+# Success Messages
+msgid "Template saved successfully"
+msgstr "Vorlage erfolgreich gespeichert"
+
+msgid "Template deleted successfully"
+msgstr "Vorlage erfolgreich gelÃ¶scht"
+
+msgid "Message sent successfully"
+msgstr "Nachricht erfolgreich gesendet"
+
+msgid "Message edited successfully"
+msgstr "Nachricht erfolgreich bearbeitet"
+
+msgid "Webhook settings saved successfully"
+msgstr "Webhook-Einstellungen erfolgreich gespeichert"
+
+# Additional Admin Interface Labels
+msgid "Select Roles"
+msgstr "Rollen auswÃ¤hlen"
+
+msgid "Bot Token and Server ID are automatically detected. Roles are loaded automatically."
+msgstr "Bot Token und Server ID werden automatisch erkannt. Rollen werden automatisch geladen."
+
+msgid "Roles are inserted as"
+msgstr "Rollen werden eingefÃ¼gt als"
+
+msgid "Additional Embed Options"
+msgstr "Weitere Embed Optionen"
+
+msgid "Set current date and time"
+msgstr "Aktuelles Datum und Uhrzeit setzen"
+
+msgid "Now"
+msgstr "Jetzt"
+
+msgid "Unix Timestamp"
+msgstr "Unix Timestamp"
+
+msgid "Enter Unix Timestamp or automatically generated"
+msgstr "Unix Timestamp eingeben oder automatisch generiert"
+
+msgid "Generate Discord Timestamps"
+msgstr "Discord Timestamps generieren"
+
+msgid "Discord Timestamps"
+msgstr "Discord Timestamps"
+
+msgid "With \"Discord Timestamps\" you can generate various time format codes for Discord"
+msgstr "Mit \"Discord Timestamps\" kÃ¶nnen Sie verschiedene Zeitformat-Codes fÃ¼r Discord generieren"
+
+msgid "Bold"
+msgstr "Fett"
+
+msgid "Italic"
+msgstr "Kursiv"
+
+msgid "Underlined"
+msgstr "Unterstrichen"
+
+msgid "Strikethrough"
+msgstr "Durchgestrichen"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Link"
+msgstr "Link"
+
+msgid "Footer Text"
+msgstr "Footer Text"
+
+msgid "Footer Icon URL"
+msgstr "Footer Icon URL"
+
+msgid "Image URL"
+msgstr "Bild URL"
+
+msgid "Thumbnail URL"
+msgstr "Thumbnail URL"
+
+msgid "Add Field"
+msgstr "Field hinzufÃ¼gen"
+
+msgid "Save Template"
+msgstr "Vorlage speichern"
+
+msgid "Send to Discord"
+msgstr "An Discord senden"
+
+msgid "Edit Message"
+msgstr "Nachricht bearbeiten"
+
+msgid "Cancel Edit"
+msgstr "Bearbeitung abbrechen"
+
+msgid "Load an existing Discord message for editing"
+msgstr "Lade eine existierende Discord-Nachricht zum Bearbeiten"
+
+msgid "Discord Message URL"
+msgstr "Discord Nachrichten-URL"
+
+msgid "Load Message"
+msgstr "Nachricht laden"
+
+msgid "Live Preview"
+msgstr "Live Vorschau"
+
+msgid "Sent Messages"
+msgstr "Gesendete Nachrichten"
+
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+msgid "All Messages"
+msgstr "Alle Nachrichten"
+
+msgid "This Week"
+msgstr "Diese Woche"
+
+msgid "This Month"
+msgstr "Dieser Monat"
+
+msgid "Loading messages..."
+msgstr "Lade Nachrichten..."
+
+msgid "Load More"
+msgstr "Mehr laden"
+
+msgid "Template Settings"
+msgstr "Template Settings"
+
+msgid "Template Name"
+msgstr "Vorlagen Name"
+
+msgid "Name for this template"
+msgstr "Name fÃ¼r diese Vorlage"
+
+msgid "Webhook Settings"
+msgstr "Webhook Settings"
+
+msgid "Webhook Configuration Status"
+msgstr "Webhook Konfiguration Status"
+
+msgid "Not configured"
+msgstr "Nicht konfiguriert"
+
+msgid "Configure Webhook Settings"
+msgstr "Webhook-Einstellungen konfigurieren"
+
+msgid "Webhook Type"
+msgstr "Webhook Type"
+
+msgid "Channel Webhook"
+msgstr "Channel Webhook"
+
+msgid "Server Webhook (with Channel Selection)"
+msgstr "Server Webhook (mit Channel-Auswahl)"
+
+msgid "Load Channels"
+msgstr "KanÃ¤le laden"
+
+msgid "Select Channel"
+msgstr "Channel auswÃ¤hlen"
+
+msgid "Select Channel..."
+msgstr "Channel auswÃ¤hlen..."
+
+msgid "Embed Content"
+msgstr "Embed Content"
+
+msgid "Embed Title"
+msgstr "Embed Titel"
+
+msgid "Embed Description (Markdown supported)"
+msgstr "Embed Beschreibung (Markdown unterstÃ¼tzt)"
+
+msgid "Supports"
+msgstr "UnterstÃ¼tzt"
+
+msgid "bold"
+msgstr "fett"
+
+msgid "italic"
+msgstr "kursiv"
+
+msgid "underlined"
+msgstr "unterstrichen"
+
+msgid "strikethrough"
+msgstr "durchgestrichen"
+
+msgid "code"
+msgstr "code"
+
+msgid "links"
+msgstr "links"
+
+msgid "Load"
+msgstr "Laden"
+
+msgid "Embed Editor"
+msgstr "Embed Editor"
+
+# Webhook Modal Translations
+msgid "Target Channel ID"
+msgstr "Ziel-Channel ID"
+
+msgid "Channel ID (e.g. 123456789012345678)"
+msgstr "Channel ID (z.B. 123456789012345678)"
+
+msgid "Right-click on Channel â†’ \"Copy ID\" (Developer Mode must be enabled)"
+msgstr "Rechtsklick auf Channel â†’ \"ID kopieren\" (Developer Mode muss aktiviert sein)"
+
+msgid "Discord Webhook URL"
+msgstr "Discord Webhook URL"
+
+msgid "Bot Token (for Server Webhook)"
+msgstr "Bot Token (fÃ¼r Server Webhook)"
+
+msgid "Server ID (for Server Webhook)"
+msgstr "Server ID (fÃ¼r Server Webhook)"
+
+msgid "Server ID"
+msgstr "Server ID"
+
+msgid "Validation & Tips"
+msgstr "Validierung & Tipps"
+
+msgid "Must start with \"https://discord.com/api/webhooks/\""
+msgstr "Muss mit \"https://discord.com/api/webhooks/\" beginnen"
+
+msgid "Format: [Base64].[Part2].[Part3] separated by dots"
+msgstr "Format: [Base64].[Teil2].[Teil3] mit Punkten getrennt"
+
+msgid "Numeric, 17-19 characters long"
+msgstr "Numerisch, 17-19 Zeichen lang"
+
+msgid "All fields are automatically validated"
+msgstr "Alle Felder werden automatisch validiert"
+
+msgid "Cancel"
+msgstr "Abbrechen"
+
+msgid "Test Connection"
+msgstr "Verbindung testen"
+
+msgid "Save"
+msgstr "Speichern"
+#   J a v a S c r i p t   S t r i n g s 
+# JavaScript Strings
+msgid "Confirm"
+msgstr "BestÃ¤tigen"
+
+msgid "Do you really want to delete the template \"%s\"?"
+msgstr "MÃ¶chten Sie die Vorlage \"%s\" wirklich lÃ¶schen?"
+
+msgid "Cancel editing? All unsaved changes will be lost."
+msgstr "Bearbeitung abbrechen? Alle ungespeicherten Ã„nderungen gehen verloren."
+
+msgid "Error deleting template."
+msgstr "Fehler beim LÃ¶schen der Vorlage."
+
+msgid "Deletion cancelled."
+msgstr "LÃ¶schen abgebrochen."
+
+msgid "Error saving: %s"
+msgstr "Fehler beim Speichern: %s"
+
+msgid "Error sending: %s"
+msgstr "Fehler beim Senden: %s"
+
+msgid "Message sent successfully!"
+msgstr "Nachricht erfolgreich gesendet!"
+
+msgid "Unknown error"
+msgstr "Unbekannter Fehler"
+
+msgid "Error sending message. Check console for details."
+msgstr "Fehler beim Senden der Nachricht. PrÃ¼fen Sie die Konsole fÃ¼r Details."
+
+msgid "Send to Discord"
+msgstr "An Discord senden"
+
+msgid "Error: %s"
+msgstr "Fehler: %s"
+
+msgid "Message edited successfully!"
+msgstr "Nachricht erfolgreich bearbeitet!"
+
+msgid "Error editing: %s"
+msgstr "Fehler beim Bearbeiten: %s"
+
+msgid "Error editing message. See console for details."
+msgstr "Fehler beim Bearbeiten der Nachricht. Siehe Konsole fÃ¼r Details."
+
+msgid "Edit Message"
+msgstr "Nachricht bearbeiten"
+
+msgid "Message cannot be edited - missing IDs."
+msgstr "Nachricht kann nicht bearbeitet werden - fehlende IDs."
+
+msgid "Please configure Bot Token and Server ID in the webhook settings first."
+msgstr "Bitte konfigurieren Sie zuerst Bot Token und Server ID in den Webhook-Einstellungen."
+
+msgid "Please fill in Bot Token and Channel ID."
+msgstr "Bitte fÃ¼llen Sie Bot Token und Channel ID aus."
+
+msgid "Sending..."
+msgstr "Wird gesendet..."
+
+msgid "Please select a date and time first."
+msgstr "Bitte wÃ¤hlen Sie zuerst ein Datum und eine Uhrzeit aus."
+
+msgid "Copied!"
+msgstr "Kopiert!"
+
+msgid "Discord Timestamp Formats:"
+msgstr "Discord Timestamp Formate:"
+
+msgid "Embed data not found."
+msgstr "Embed-Daten nicht gefunden."
+
+msgid "pleaseSelectRole"
+msgstr "Bitte wählen Sie eine Rolle aus."
+
+msgid "noDataToLoad"
+msgstr "Keine Daten zum Laden gefunden"
+
+msgid "messageLoadedSuccessfully"
+msgstr "Nachricht wurde erfolgreich in den Editor geladen!"

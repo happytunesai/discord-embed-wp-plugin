@@ -1,0 +1,72 @@
+# JavaScript Strings
+msgid "Confirm"
+msgstr "Confirm"
+
+msgid "Do you really want to delete the template \"%s\"?"
+msgstr "Do you really want to delete the template \"%s\"?"
+
+msgid "Cancel editing? All unsaved changes will be lost."
+msgstr "Cancel editing? All unsaved changes will be lost."
+
+msgid "Error deleting template."
+msgstr "Error deleting template."
+
+msgid "Deletion cancelled."
+msgstr "Deletion cancelled."
+
+msgid "Error saving: %s"
+msgstr "Error saving: %s"
+
+msgid "Error sending: %s"
+msgstr "Error sending: %s"
+
+msgid "Message sent successfully!"
+msgstr "Message sent successfully!"
+
+msgid "Unknown error"
+msgstr "Unknown error"
+
+msgid "Error sending message. Check console for details."
+msgstr "Error sending message. Check console for details."
+
+msgid "Send to Discord"
+msgstr "Send to Discord"
+
+msgid "Error: %s"
+msgstr "Error: %s"
+
+msgid "Message edited successfully!"
+msgstr "Message edited successfully!"
+
+msgid "Error editing: %s"
+msgstr "Error editing: %s"
+
+msgid "Error editing message. See console for details."
+msgstr "Error editing message. See console for details."
+
+msgid "Edit Message"
+msgstr "Edit Message"
+
+msgid "Message cannot be edited - missing IDs."
+msgstr "Message cannot be edited - missing IDs."
+
+msgid "Please configure Bot Token and Server ID in the webhook settings first."
+msgstr "Please configure Bot Token and Server ID in the webhook settings first."
+
+msgid "Please fill in Bot Token and Channel ID."
+msgstr "Please fill in Bot Token and Channel ID."
+
+msgid "Sending..."
+msgstr "Sending..."
+
+msgid "Please select a date and time first."
+msgstr "Please select a date and time first."
+
+msgid "Copied!"
+msgstr "Copied!"
+
+msgid "Discord Timestamp Formats:"
+msgstr "Discord Timestamp Formats:"
+
+msgid "Embed data not found."
+msgstr "Embed data not found."

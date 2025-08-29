@@ -1,0 +1,267 @@
+/* Enhanced UI Fixes for Discord Embed Plugin */
+
+/* Template Cards Styling */
+.template-cards-container {
+    margin-top: 40px;
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+}
+
+.template-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.template-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.template-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.template-card-header {
+    padding: 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e1e5e9;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.template-card-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #23282d;
+    flex: 1;
+}
+
+.template-card-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.template-card-actions .button {
+    padding: 4px 12px;
+    font-size: 12px;
+    height: auto;
+    line-height: 1.4;
+}
+
+.template-card-preview {
+    padding: 15px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.template-card-description {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.template-card-meta {
+    padding: 12px 15px;
+    background: #f8f9fa;
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Message History Improvements */
+.message-history-list {
+    margin-top: 15px;
+}
+
+.message-history-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.message-status {
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.message-status.success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.message-status.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.message-meta {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Message Edit Section */
+.message-edit-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.message-edit-section.editing-active {
+    background: #e7f3ff;
+    border-color: #0073aa;
+}
+
+.message-edit-section.editing-active::before {
+    content: "📝 Bearbeitungsmodus aktiv";
+    display: block;
+    font-weight: bold;
+    color: #0073aa;
+    margin-bottom: 10px;
+}
+
+.history-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.history-date {
+    font-size: 12px;
+    color: #666;
+}
+
+.history-channel {
+    font-size: 11px;
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: #555;
+}
+
+.history-content {
+    font-size: 14px;
+    color: #333;
+}
+
+.load-for-edit {
+    font-size: 11px !important;
+    padding: 3px 8px !important;
+    height: auto !important;
+    line-height: 1.2 !important;
+}
+
+/* Enhanced Discord Preview */
+.discord-embed {
+    position: relative;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    background: #2f3136 !important;
+    border-radius: 4px;
+    overflow: hidden;
+    border-left: 4px solid #5865f2; /* Entfernt !important für dynamische Farben */
+    border-right: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+.discord-embed .embed-content {
+    padding: 16px;
+    position: relative;
+}
+
+.discord-embed .embed-image img,
+.discord-embed .embed-thumbnail img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+.discord-embed .embed-footer {
+    border-top: none;
+    margin-top: 12px;
+    padding-top: 8px;
+}
+
+/* Fix for nested embed issue - completely remove nested embeds */
+.discord-embed .discord-embed {
+    display: none !important;
+}
+
+/* Ensure preview container is wider */
+.embed-preview {
+    flex: 0 0 600px !important;
+    min-width: 600px;
+    max-width: none !important;
+}
+
+.discord-mockup {
+    width: 100%;
+    max-width: none;
+    padding: 20px;
+}
+
+.discord-embed-container {
+    gap: 30px !important;
+}
+
+/* Make editor section more compact to give preview more space */
+.embed-editor {
+    flex: 1;
+    max-width: calc(100% - 650px);
+}
+
+/* Remove any duplicate borders */
+.discord-embed *:not(.embed-content) {
+    border: none !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .template-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .template-card-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    
+    .template-card-actions {
+        justify-content: flex-end;
+    }
+}

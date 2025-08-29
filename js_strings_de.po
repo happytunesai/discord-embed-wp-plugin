@@ -1,0 +1,72 @@
+# JavaScript Strings
+msgid "Confirm"
+msgstr "Bestätigen"
+
+msgid "Do you really want to delete the template \"%s\"?"
+msgstr "Möchten Sie die Vorlage \"%s\" wirklich löschen?"
+
+msgid "Cancel editing? All unsaved changes will be lost."
+msgstr "Bearbeitung abbrechen? Alle ungespeicherten Änderungen gehen verloren."
+
+msgid "Error deleting template."
+msgstr "Fehler beim Löschen der Vorlage."
+
+msgid "Deletion cancelled."
+msgstr "Löschen abgebrochen."
+
+msgid "Error saving: %s"
+msgstr "Fehler beim Speichern: %s"
+
+msgid "Error sending: %s"
+msgstr "Fehler beim Senden: %s"
+
+msgid "Message sent successfully!"
+msgstr "Nachricht erfolgreich gesendet!"
+
+msgid "Unknown error"
+msgstr "Unbekannter Fehler"
+
+msgid "Error sending message. Check console for details."
+msgstr "Fehler beim Senden der Nachricht. Prüfen Sie die Konsole für Details."
+
+msgid "Send to Discord"
+msgstr "An Discord senden"
+
+msgid "Error: %s"
+msgstr "Fehler: %s"
+
+msgid "Message edited successfully!"
+msgstr "Nachricht erfolgreich bearbeitet!"
+
+msgid "Error editing: %s"
+msgstr "Fehler beim Bearbeiten: %s"
+
+msgid "Error editing message. See console for details."
+msgstr "Fehler beim Bearbeiten der Nachricht. Siehe Konsole für Details."
+
+msgid "Edit Message"
+msgstr "Nachricht bearbeiten"
+
+msgid "Message cannot be edited - missing IDs."
+msgstr "Nachricht kann nicht bearbeitet werden - fehlende IDs."
+
+msgid "Please configure Bot Token and Server ID in the webhook settings first."
+msgstr "Bitte konfigurieren Sie zuerst Bot Token und Server ID in den Webhook-Einstellungen."
+
+msgid "Please fill in Bot Token and Channel ID."
+msgstr "Bitte füllen Sie Bot Token und Channel ID aus."
+
+msgid "Sending..."
+msgstr "Wird gesendet..."
+
+msgid "Please select a date and time first."
+msgstr "Bitte wählen Sie zuerst ein Datum und eine Uhrzeit aus."
+
+msgid "Copied!"
+msgstr "Kopiert!"
+
+msgid "Discord Timestamp Formats:"
+msgstr "Discord Timestamp Formate:"
+
+msgid "Embed data not found."
+msgstr "Embed-Daten nicht gefunden."
