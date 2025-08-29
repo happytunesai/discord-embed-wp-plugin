@@ -3,7 +3,7 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.0.9
+ * Version: 2.1.0
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: Zelika
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.0.9');
+    define('DISCORD_EMBED_VERSION', '2.1.0');
 }
 
 class DiscordEmbedPlugin {
@@ -463,7 +463,7 @@ class DiscordEmbedPlugin {
             );
             $webhook_to_save = null; // Not using a webhook URL directly
         } else {
-            $webhook_url = sanitize_url($_POST['webhook_url'] ?? '') ?: get_option('discord_embed_webhook_url', '');
+            $webhook_url = esc_url_raw($_POST['webhook_url'] ?? '') ?: get_option('discord_embed_webhook_url', '');
             
             if (empty($webhook_url)) {
                 wp_send_json_error('Webhook URL is required. Please configure it in the settings.');
@@ -484,7 +484,7 @@ class DiscordEmbedPlugin {
         
         // Add username and avatar_url if they are set in the form
         $username = sanitize_text_field($_POST['username'] ?? '');
-        $avatar_url = sanitize_url($_POST['avatar_url'] ?? '');
+        $avatar_url = esc_url_raw($_POST['avatar_url'] ?? '');
 
         if (!empty($username)) {
             $payload['username'] = $username;
@@ -710,7 +710,7 @@ class DiscordEmbedPlugin {
         $bot_token = sanitize_text_field($_POST['bot_token'] ?? '');
         $server_id = sanitize_text_field($_POST['server_id'] ?? '');
         $channel_id = sanitize_text_field($_POST['channel_id'] ?? '');
-        $webhook_url = sanitize_url($_POST['webhook_url'] ?? '');
+        $webhook_url = esc_url_raw($_POST['webhook_url'] ?? '');
         
         // Save webhook settings to WordPress options
         update_option('discord_embed_webhook_type', $webhook_type);
@@ -849,7 +849,7 @@ class DiscordEmbedPlugin {
             return;
         }
         
-        $discord_url = sanitize_url($_POST['discord_url'] ?? '');
+        $discord_url = esc_url_raw($_POST['discord_url'] ?? '');
         $bot_token = sanitize_text_field($_POST['bot_token'] ?? '') ?: get_option('discord_embed_bot_token', '');
         
         if (empty($discord_url) || empty($bot_token)) {

@@ -100,7 +100,7 @@ jQuery(document).ready(function($) {
                             </div>
                             <div class="field-row">
                                 <label>
-                                    <input type="checkbox" class="field-inline" name="field_inline_${index}" ${field.inline ? 'checked' : ''}> Display inline
+                                    <input type="checkbox" class="inline-checkbox" name="field_inline_${index}" ${field.inline ? 'checked' : ''}> Display inline
                                 </label>
                             </div>
                         </div>
@@ -345,13 +345,6 @@ jQuery(document).ready(function($) {
     // Template management
     $('#save-template').on('click', saveTemplate);
     
-    // Template buttons event handlers
-    $(document).on('click', '.load-template', function() {
-        const templateId = $(this).data('template-id');
-        const templateName = $(this).closest('.template-card').find('h4').text().trim();
-        loadTemplateById(templateId, templateName);
-    });
-
     // Send message
     $('#send-embed').on('click', sendDiscordMessage);
 
@@ -562,8 +555,8 @@ jQuery(document).ready(function($) {
                     
                     response.data.channels.forEach(function(channel) {
                         if (channel.type === 0 || channel.type === 5) { // Text channel (0) or Announcement channel (5)
-                            const channelIcon = channel.type === 5 ? '📢 ' : '# ';
-                            channelSelect.append(`<option value="${channel.id}">${channelIcon}${channel.name}</option>`);
+                            const channelIcon = channel.type === 5 ? '📢' : '#';
+                            channelSelect.append(`<option value="${channel.id}">${channelIcon} ${channel.name}</option>`);
                         }
                     });
                     
@@ -1472,7 +1465,7 @@ jQuery(document).ready(function($) {
                             </div>
                             <div class="field-row">
                                 <label>
-                                    <input type="checkbox" class="field-inline" name="field_inline_${index}" ${field.inline ? 'checked' : ''}> Display inline
+                                    <input type="checkbox" class="inline-checkbox" name="field_inline_${index}" ${field.inline ? 'checked' : ''}> Display inline
                                 </label>
                             </div>
                         </div>
@@ -1872,4 +1865,7 @@ jQuery(document).ready(function($) {
         };
         return descriptions[format] || format;
     }
+
+    // Mark admin script initialized for other scripts (e.g., ui-fix.js)
+    window.discordEmbedAdminInitialized = true;
 });

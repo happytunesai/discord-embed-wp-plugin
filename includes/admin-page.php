@@ -460,16 +460,3 @@ jQuery(document).ready(function($) {
     debugLog('Debug console initialized', 'info');
 });
 </script>
-
-<!-- Debug Script für Frontend-Testing -->
-<script src="<?php echo DISCORD_EMBED_PLUGIN_URL; ?>debug-admin.js?v=<?php echo time(); ?>"></script>
-
-<!-- Webhook Configuration Modal -->
-<script src="<?php echo DISCORD_EMBED_PLUGIN_URL; ?>webhook-config-modal.js?v=<?php echo time(); ?>"></script>
-
-<!-- Toast Notification System -->
-<script src="<?php echo DISCORD_EMBED_PLUGIN_URL; ?>toast-notifications.js?v=<?php echo time(); ?>"></script>
-
-<!-- UI Enhancement Scripts -->
-<script src="<?php echo DISCORD_EMBED_PLUGIN_URL; ?>ui-fix.js?v=<?php echo time(); ?>"></script>
-<link rel="stylesheet" href="<?php echo DISCORD_EMBED_PLUGIN_URL; ?>ui-fix.css?v=<?php echo time(); ?>">

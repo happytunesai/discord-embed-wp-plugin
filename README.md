@@ -1,6 +1,6 @@
 # Discord Embed Creator
 
-**Version:** 2.0.9  
+**Version:** 2.1.0  
 **Requires PHP:** 7.4+  
 **Requires WordPress:** 5.0+  
 
@@ -137,7 +137,7 @@ On activation, the plugin creates/updates database tables:
 ## Support & License
 
 - **License:** GPL v2 or later  
-- **Author:** Zelika  
+- **Author:** happytunesai  
 - **Repository:** [https://github.com/happytunesai/discord-embed-wp-plugin](https://github.com/happytunesai/discord-embed-wp-plugin)
 
-© 2025 Zelika. All rights reserved.
+© 2025 happytunesai. All rights reserved.
