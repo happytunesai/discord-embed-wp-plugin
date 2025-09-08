@@ -11,6 +11,19 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
 <div class="wrap">
     <h1>Discord Embed Creator (<?php echo esc_html(DISCORD_EMBED_VERSION); ?>)</h1>
     
+    <!-- Tab Navigation -->
+    <div class="nav-tab-wrapper" style="margin-bottom: 20px;">
+        <a href="#tab-embed-creator" class="nav-tab nav-tab-active" id="tab-embed-creator-link">
+            📝 <?php echo esc_html(__('Embed Creator', 'discord-embed-creator')); ?>
+        </a>
+        <a href="#tab-live-notifications" class="nav-tab" id="tab-live-notifications-link">
+            🔴 <?php echo esc_html(__('Live Notifications', 'discord-embed-creator')); ?>
+        </a>
+    </div>
+    
+    <!-- Tab Content: Embed Creator -->
+    <div id="tab-embed-creator" class="tab-content active">
+    
     <!-- Gespeicherte Vorlagen Section - jetzt ganz oben -->
     <div class="form-section" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px; margin-bottom: 20px;">
         <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">📋 <?php echo esc_html(__('Saved Templates', 'discord-embed-creator')); ?></h2>
@@ -184,6 +197,8 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                             <button type="button" class="md-btn" data-md="~~" title="<?php echo esc_attr(__('Strikethrough', 'discord-embed-creator')); ?>"><del>S</del></button>
                             <button type="button" class="md-btn" data-md="`" title="<?php echo esc_attr(__('Code', 'discord-embed-creator')); ?>"><code>C</code></button>
                             <button type="button" class="md-btn" data-md="[text](url)" title="<?php echo esc_attr(__('Link', 'discord-embed-creator')); ?>">🔗</button>
+                            <!-- Emoji loader for main editor -->
+                            <button type="button" id="load-emojis-main-btn" class="md-btn" title="<?php echo esc_attr(__('Load Emojis', 'discord-embed-creator')); ?>">🔍</button>
                         </div>
                         <textarea id="embed-description" name="description" rows="4" placeholder="<?php echo esc_attr(__('Embed Description (Markdown supported)', 'discord-embed-creator')); ?>"></textarea>
                         <small><?php echo esc_html(__('Supports', 'discord-embed-creator')); ?>: **<?php echo esc_html(__('bold', 'discord-embed-creator')); ?>**, *<?php echo esc_html(__('italic', 'discord-embed-creator')); ?>*, __<?php echo esc_html(__('underlined', 'discord-embed-creator')); ?>__, ~~<?php echo esc_html(__('strikethrough', 'discord-embed-creator')); ?>~~, `<?php echo esc_html(__('code', 'discord-embed-creator')); ?>`, [<?php echo esc_html(__('links', 'discord-embed-creator')); ?>](url)</small>
@@ -393,6 +408,293 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
             <div id="debug-content"></div>
         </div>
     </div>
+    
+    </div> <!-- End tab-embed-creator -->
+    
+    <!-- Tab Content: Live Notifications -->
+    <div id="tab-live-notifications" class="tab-content" style="display: none;">
+        
+        <!-- StreamWeasels Integration Status -->
+        <div class="form-section" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px; margin-bottom: 20px;">
+            <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">🔗 StreamWeasels Integration Status</h2>
+            
+            <div id="streamweasels-status" style="display: grid; grid-template-columns: auto 1fr auto; gap: 15px; align-items: center;">
+                <span class="status-label"><strong>Twitch API:</strong></span>
+                <span class="status-text" id="twitch-api-status">Checking...</span>
+                <span class="status-icon" id="twitch-api-icon">⏳</span>
+                
+                <span class="status-label"><strong>YouTube API:</strong></span>
+                <span class="status-text" id="youtube-api-status">Checking...</span>
+                <span class="status-icon" id="youtube-api-icon">⏳</span>
+            </div>
+            
+            <div class="streamweasels-info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 15px 0; border-radius: 4px;">
+                <h4 style="margin: 0 0 10px 0; color: #1976d2;">💡 StreamWeasels Integration Info</h4>
+                <p style="margin: 0; color: #555;">
+                    Dieses Plugin nutzt die API-Credentials von StreamWeasels Plugin automatisch. 
+                    Stelle sicher, dass StreamWeasels konfiguriert und die APIs verbunden sind.
+                </p>
+                <ul style="margin: 10px 0 0 20px; color: #555;">
+                    <li><strong>Twitch:</strong> Benötigt Client-ID und Access Token</li>
+                    <li><strong>YouTube:</strong> Benötigt API Key</li>
+                </ul>
+            </div>
+            
+            <button type="button" id="refresh-streamweasels-status" class="button button-secondary">
+                🔄 Status aktualisieren
+            </button>
+        </div>
+        
+        <!-- Live Notification Settings -->
+        <div class="form-section" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px; margin-bottom: 20px;">
+            <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">⚙️ Live Notification Settings</h2>
+            
+            <form id="live-notification-form" onsubmit="return false;">
+                <!-- Global Enable/Disable -->
+                <div class="form-row" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <label style="display: flex; align-items: center; font-weight: bold; color: #495057; cursor: pointer;">
+                        <input type="checkbox" id="live-notifications-enabled" name="enabled" style="margin-right: 10px; width: auto; height: auto; transform: scale(1.2);">
+                        🚀 Live Benachrichtigungen aktivieren
+                    </label>
+                    <small style="color: #666; display: block; margin-top: 8px;">
+                        Automatische Discord-Benachrichtigungen wenn dein Stream live geht (alle 3 Minuten geprüft)
+                    </small>
+                </div>
+                
+                <!-- Platform Settings -->
+                <div class="platform-settings" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    
+                    <!-- Twitch Settings -->
+                    <div class="platform-card" style="background: #f0f8ff; border: 2px solid #9146ff; border-radius: 12px; padding: 20px;">
+                        <h3 style="margin: 0 0 15px 0; color: #9146ff; display: flex; align-items: center;">
+                            🟣 Twitch Integration
+                        </h3>
+                        
+                        <div class="form-row">
+                            <label style="display: flex; align-items: center; font-weight: bold; cursor: pointer;">
+                                <input type="checkbox" id="twitch-enabled" name="twitch_enabled" style="margin-right: 8px; width: auto; height: auto; cursor: pointer;">
+                                Twitch Live-Benachrichtigungen aktivieren
+                            </label>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="twitch-channel">Twitch Channel Name:</label>
+                            <input type="text" id="twitch-channel" name="twitch_channel" 
+                                   placeholder="deinusername" 
+                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <small style="color: #666; display: block; margin-top: 4px;">
+                                Nur der Username, ohne "twitch.tv/" - z.B. "shroud"
+                            </small>
+                        </div>
+                        
+                        <button type="button" class="test-platform" data-platform="twitch" 
+                                style="background: #9146ff; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 10px;">
+                            🧪 Twitch Status testen
+                        </button>
+                    </div>
+                    
+                    <!-- YouTube Settings -->
+                    <div class="platform-card" style="background: #fff0f0; border: 2px solid #ff0000; border-radius: 12px; padding: 20px;">
+                        <h3 style="margin: 0 0 15px 0; color: #ff0000; display: flex; align-items: center;">
+                            🔴 YouTube Integration
+                        </h3>
+                        
+                        <div class="form-row">
+                            <label style="display: flex; align-items: center; font-weight: bold; cursor: pointer;">
+                                <input type="checkbox" id="youtube-enabled" name="youtube_enabled" style="margin-right: 8px; width: auto; height: auto; cursor: pointer;">
+                                YouTube Live-Benachrichtigungen aktivieren
+                            </label>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="youtube-channel-id">YouTube Channel ID:</label>
+                            <input type="text" id="youtube-channel-id" name="youtube_channel_id" 
+                                   placeholder="UCxxxxxxxxxxxxxxxxxxxxxx" 
+                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <small style="color: #666; display: block; margin-top: 4px;">
+                                YouTube Channel ID (beginnt mit UC...) - findest du in YouTube Studio
+                            </small>
+                        </div>
+                        
+                        <button type="button" class="test-platform" data-platform="youtube" 
+                                style="background: #ff0000; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 10px;">
+                            🧪 YouTube Status testen
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Discord Settings -->
+                <div class="form-row">
+                    <h3>Discord Ziel-Konfiguration</h3>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <label for="live-webhook-type">Webhook Type:</label>
+                        <select id="live-webhook-type" name="webhook_type" style="width: 100%; padding: 8px;">
+                            <option value="channel">Channel Webhook URL</option>
+                            <option value="server">Bot Token + Channel Selection</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Channel Webhook Settings -->
+                    <div id="live-channel-webhook-config" class="webhook-config-section" style="display: none;">
+                        <label for="live-webhook-url">Discord Webhook URL:</label>
+                        <input type="url" id="live-webhook-url" name="webhook_url" 
+                               placeholder="https://discord.com/api/webhooks/..." 
+                               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;">
+                    </div>
+                    
+                    <!-- Server Webhook Settings -->
+                    <div id="live-server-webhook-config" class="webhook-config-section" style="display: none;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label for="live-bot-token">Bot Token:</label>
+                                <input type="password" id="live-bot-token" name="bot_token" 
+                                       placeholder="Bot Token" 
+                                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;">
+                            </div>
+                            <div>
+                                <label for="live-server-id">Server ID:</label>
+                                <input type="text" id="live-server-id" name="server_id" 
+                                       placeholder="Server ID" 
+                                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;">
+                            </div>
+                        </div>
+                        
+                        <div style="margin-top: 15px;">
+                            <button type="button" id="load-live-channels" class="button">Channel laden</button>
+                            <label for="live-channel-id" style="margin-left: 15px;">Ziel-Channel:</label>
+                            <select id="live-channel-id" name="channel_id" style="margin-left: 10px; padding: 8px;">
+                                <option value="">Channel auswählen...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Role Mentions Settings -->
+                <div class="form-section" style="background: #f0f8ff; border-left: 4px solid #5865f2; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                    <h3 style="color: #5865f2; margin-top: 0;">🏷️ Rolle Mentions für Live-Benachrichtigungen</h3>
+                    <div id="live-role-selector-container">
+                        <p class="description" style="color: #666; font-style: italic;">
+                            Rollen werden automatisch geladen wenn Bot Token und Server ID konfiguriert sind.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Embed Template Editor -->
+                <div class="form-section" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                    <h3>📝 Live-Benachrichtigung Embed Template</h3>
+                    <p style="color: #666; margin-bottom: 15px;">
+                        Gestalte das Embed für Live-Benachrichtigungen. Du kannst die gleichen Felder wie im Haupt-Editor verwenden.
+                        Verfügbare Platzhalter: <code>{platform}</code>, <code>{title}</code>, <code>{url}</code>, <code>{thumbnail}</code>
+                    </p>
+                    
+                    <!-- Embed Template Fields (reusing existing embed editor components) -->
+                    <div class="embed-template-editor">
+                        <div class="form-row">
+                            <label for="live-embed-title">Template Titel:</label>
+                            <input type="text" id="live-embed-title" placeholder="🟣 Live auf {platform}!" 
+                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="live-embed-description">Template Beschreibung:</label>
+                            <div class="markdown-toolbar">
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="**" title="Bold"><strong>B</strong></button>
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="*" title="Italic"><em>I</em></button>
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="__" title="Underlined"><u>U</u></button>
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="~~" title="Strikethrough"><del>S</del></button>
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="`" title="Code"><code>C</code></button>
+                            </div>
+                            <textarea id="live-embed-description" rows="4" 
+                                      placeholder="**{title}**&#10;&#10;Komm vorbei und schau zu!&#10;&#10;[Zum Stream]({url})"
+                                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="live-embed-color">Embed Farbe:</label>
+                            <input type="color" id="live-embed-color" value="#9146ff" style="width: 60px; height: 40px; border: none; border-radius: 4px;">
+                            <span id="live-color-preview" style="margin-left: 10px; padding: 5px 10px; background: #9146ff; color: white; border-radius: 4px;">Live Stream</span>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="live-embed-footer">Footer Text:</label>
+                            <input type="text" id="live-embed-footer" placeholder="Live seit" 
+                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Saved Live Notification Templates -->
+                <div class="form-section" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <h3>💾 Gespeicherte Live-Benachrichtigungen</h3>
+                    <p style="color: #666;">Speichere unterschiedliche Benachrichtigungs-Varianten und sende sie gezielt in verschiedene Channels.</p>
+
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                        <input type="hidden" id="live-template-id" value="0">
+                        <input type="text" id="live-template-name" placeholder="Template-Name" style="padding:8px; flex:1;">
+                        <select id="live-template-platform" style="padding:8px;">
+                            <option value="twitch">Twitch</option>
+                            <option value="youtube">YouTube</option>
+                        </select>
+                        <button type="button" id="save-live-template" class="button">💾 Aktuelle als Template speichern</button>
+                        <label style="display:flex; align-items:center; gap:6px; margin-left:6px; font-size:13px; color:#444;">
+                            <input type="checkbox" id="save-live-as-new" style="margin-right:6px;"> Als neues speichern
+                        </label>
+                    </div>
+
+                    <div id="saved-live-templates" style="display:grid; grid-template-columns: 1fr; gap:8px;">
+                        <div style="color:#666;">Lade Templates...</div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Settings -->
+                <div class="form-section" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <h3>⚙️ Erweiterte Einstellungen</h3>
+                    <div class="form-row">
+                        <label for="cooldown-minutes">Cooldown zwischen Benachrichtigungen (Minuten):</label>
+                        <input type="number" id="cooldown-minutes" name="cooldown_minutes" value="10" min="1" max="120" 
+                               style="width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        <small style="color: #666; margin-left: 10px;">
+                            Verhindert mehrfache Benachrichtigungen für den gleichen Stream
+                        </small>
+                    </div>
+                    <div class="form-row" style="margin-top:10px;">
+                        <label style="display:block; font-weight:600; margin-bottom:6px;">Emoji Formatierung & Verwendung</label>
+                        <p style="color:#666; margin:0 0 8px 0;">Benutze entweder das volle Emoji-Format <code>&lt;:name:ID&gt;</code> oder ein kurzer Platzhalter <code>:shortcode:</code>. Beispiel: <code>&lt;:twitch_logo:944912608136417293&gt;</code> oder <code>:twitch_logo:</code>.</p>
+                        <div style="margin-top:6px;">
+                            <button type="button" id="load-emojis-btn" class="button">🔍 Emojis laden</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-actions" style="display: flex; gap: 15px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+                    <button type="button" id="save-live-settings" class="button button-primary">
+                        💾 Einstellungen speichern
+                    </button>
+                    <button type="button" id="test-live-notification" class="button button-secondary">
+                        🧪 Test-Benachrichtigung senden
+                    </button>
+                    <div class="live-status-indicator" style="margin-left: auto; display: flex; align-items: center;">
+                        <span id="live-status-text" style="margin-right: 10px; font-weight: bold;">Status: Deaktiviert</span>
+                        <div id="live-status-dot" style="width: 12px; height: 12px; border-radius: 50%; background: #dc3545;"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Live Notification History -->
+        <div class="form-section" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
+            <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">📈 Live Benachrichtigung History</h2>
+            
+            <div id="live-notification-history" style="min-height: 200px;">
+                <div style="text-align: center; color: #666; padding: 40px;">
+                    <p>Hier werden die letzten Live-Benachrichtigungen angezeigt...</p>
+                    <small>History wird implementiert sobald die ersten Benachrichtigungen gesendet wurden.</small>
+                </div>
+            </div>
+        </div>
+        
+    </div> <!-- End tab-live-notifications -->
 </div>
 
 <script>
@@ -460,3 +762,187 @@ jQuery(document).ready(function($) {
     debugLog('Debug console initialized', 'info');
 });
 </script>
+
+<style>
+/* Tab System Styles */
+.nav-tab-wrapper {
+    border-bottom: 1px solid #ccd0d4;
+    margin-bottom: 20px;
+}
+
+.nav-tab {
+    position: relative;
+    display: inline-block;
+    padding: 12px 20px;
+    text-decoration: none;
+    border: 1px solid #ccd0d4;
+    border-bottom: none;
+    background: #f1f1f1;
+    color: #555;
+    margin-right: 5px;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.2s ease;
+}
+
+.nav-tab:hover {
+    background: #fff;
+    color: #5865f2;
+}
+
+.nav-tab-active {
+    background: #fff !important;
+    color: #5865f2 !important;
+    border-bottom: 1px solid #fff;
+    position: relative;
+    z-index: 10;
+}
+
+.nav-tab-active:after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #fff;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Live Notifications Specific Styles */
+.platform-card {
+    transition: all 0.3s ease;
+}
+
+.platform-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.webhook-config-section {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.live-roles-grid label:hover {
+    background: #f0f8ff !important;
+    border-color: #5865f2;
+}
+
+.everyone-role {
+    opacity: 0.7;
+}
+
+.live-status-indicator {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+}
+
+#live-status-dot {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Enhanced form styles */
+.form-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-section h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-grid {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.status-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.status-text {
+    font-weight: 500;
+}
+
+.status-icon {
+    font-size: 16px;
+    text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .platform-settings {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .nav-tab {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    
+    .status-grid {
+        grid-template-columns: auto 1fr !important;
+        gap: 10px;
+    }
+    
+    .status-icon {
+        grid-column: 2;
+        justify-self: end;
+    }
+}
+
+/* Loading states */
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Success/Error states */
+.platform-card.success {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.platform-card.error {
+    border-color: #dc3545;
+    background: #f8d7da;
+}
+</style>
+
+<!-- Emoji Picker Modal -->
+<div id="emoji-picker-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:20000; padding:20px; box-sizing:border-box;">
+    <div style="background:#fff; border-radius:8px; padding:16px; width:100%; max-width:900px; max-height:calc(100vh - 120px); overflow:auto; margin:auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="margin:0;">Emoji Picker</h3>
+            <div>
+                <button type="button" id="close-emoji-picker" class="button">Schließen</button>
+            </div>
+        </div>
+        <div id="emoji-picker-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:8px;"></div>
+    </div>
+</div>

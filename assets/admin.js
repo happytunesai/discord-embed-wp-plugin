@@ -328,6 +328,119 @@ jQuery(document).ready(function($) {
         }
     });
 
+    // --- Emoji picker for main editor (reuses server endpoint used by live notifications) ---
+    $('#load-emojis-main-btn').on('click', function() {
+        // Prefer bot token/server id from main webhook fields, fallback to live fields
+        const botToken = $('#bot-token').val() || $('#live-bot-token').val();
+        const serverId = $('#server-id').val() || $('#live-server-id').val();
+
+        if (!botToken || !serverId) {
+            alert('Bitte Bot Token und Server ID eingeben (Webhook settings)');
+            return;
+        }
+
+        const btn = $(this).prop('disabled', true).text('Lade Emojis...');
+
+        $.ajax({
+            url: discordEmbed.ajaxUrl,
+            method: 'POST',
+            data: {
+                action: 'load_server_emojis',
+                nonce: discordEmbed.nonce,
+                bot_token: botToken,
+                server_id: serverId
+            },
+            success: function(response) {
+                if (response.success && response.data && response.data.emojis) {
+                    renderEmojiPickerMain(response.data.emojis);
+                    openEmojiPickerMain();
+                } else {
+                    alert('Fehler beim Laden der Emojis: ' + (response.data || 'Unbekannter Fehler'));
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Fehler beim Laden der Emojis: ' + error);
+            },
+            complete: function() {
+                btn.prop('disabled', false).text('🔍');
+            }
+        });
+    });
+
+    function renderEmojiPickerMain(emojis) {
+        // Reuse the same modal container used by live-notifications if present,
+        // otherwise create a minimal one here
+        let modal = $('#emoji-picker-modal');
+        if (modal.length === 0) {
+            $('body').append(`
+                <div id="emoji-picker-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:20000; padding:20px; box-sizing:border-box;">
+                    <div style="background:#fff; border-radius:8px; padding:16px; width:100%; max-width:900px; max-height:calc(100vh - 120px); overflow:auto; margin:auto;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <h3 style="margin:0;">Emoji Picker</h3>
+                            <div><button type="button" id="close-emoji-picker" class="button">Schließen</button></div>
+                        </div>
+                        <div id="emoji-picker-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:8px;"></div>
+                    </div>
+                </div>
+            `);
+            modal = $('#emoji-picker-modal');
+        }
+
+        const grid = modal.find('#emoji-picker-grid');
+        grid.empty();
+        emojis.forEach(function(e) {
+            const code = (e.animated ? '<a:' : '<:') + e.name + ':' + e.id + '>';
+            const el = $(
+                `<div class="emoji-item" title="${e.name}" style="text-align:center; padding:6px; border:1px solid #eee; border-radius:6px; cursor:pointer;">
+                    <img src="${e.url}" style="width:48px; height:48px; object-fit:cover; display:block; margin:0 auto 4px;">
+                    <div style="font-size:11px; color:#333; word-break:break-word;">${e.name}</div>
+                </div>`
+            );
+            el.on('click', function() {
+                insertEmojiCodeIntoActiveField(code);
+                modal.hide();
+            });
+            grid.append(el);
+        });
+    }
+
+    function insertEmojiCodeIntoActiveField(code) {
+        const active = document.activeElement;
+        if (!active) return;
+        if (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text')) {
+            const start = active.selectionStart || 0;
+            const end = active.selectionEnd || 0;
+            const val = active.value;
+            const newVal = val.substring(0, start) + code + val.substring(end);
+            active.value = newVal;
+            const pos = start + code.length;
+            try { active.setSelectionRange(pos, pos); } catch (e) {}
+            $(active).trigger('input');
+            return;
+        }
+
+        // Default: append to main description
+        const desc = $('#embed-description')[0];
+        if (desc) {
+            desc.value = desc.value + '\n' + code;
+            $(desc).trigger('input');
+        }
+    }
+
+    function openEmojiPickerMain() {
+        const modal = $('#emoji-picker-modal');
+        modal.css('display', 'flex');
+        $('body').css('overflow', 'hidden');
+        modal.attr('tabindex', '-1').focus();
+    }
+
+    // Close button handler (works for both pickers)
+    $(document).on('click', '#close-emoji-picker', function() {
+        $('#emoji-picker-modal').hide();
+        $('body').css('overflow', '');
+    });
+    // --- End Emoji picker main ---
+
     // Event handler for webhook settings updates from modal
     $(document).on('discord-webhook-settings-updated', function(e, data) {
         debugLog('Webhook settings updated from modal', 'info', {
