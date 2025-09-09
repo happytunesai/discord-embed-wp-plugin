@@ -89,13 +89,13 @@
 
 ```
 🔴 LIVE    📺 Twitch/YouTube Monitor    🔴 LIVE
-┌─────────────────────────────────────────────┐
-│  StreamWeasels Integration ✅               │
-│  Twitch Helix API ✅                        │
-│  YouTube Data API v3 ✅                     │
-│  WordPress Cron (3min) ✅                   │
-│  Anti-Spam Cooldown ✅                      │
-└─────────────────────────────────────────────┘
+┌───────────────────────────────────────────────┐
+│     ◉ StreamWeasels Integration  ✓           │
+│     ◉ Twitch Helix API           ✓           │
+│     ◉ YouTube Data API v3        ✓           │
+│     ◉ WordPress Cron (3min)      ✓           │
+│     ◉ Anti-Spam Cooldown         ✓           │
+└───────────────────────────────────────────────┘
 ```
 
 This plugin includes a Live Notifications module that can periodically check Twitch and YouTube for live streams and post a customizable Discord embed when a channel goes live.
@@ -130,10 +130,10 @@ Template placeholders:
 ```
    😀 😃 😄 😁 😆    CUSTOM GUILD EMOJIS    🎉 🎊 🎈 ✨ 🌟
 ┌────────────────────────────────────────────────────────────┐
-│  🔗 Discord Bot API Integration                            │
-│  💾 Server-side Caching (60min)                            │
-│  🖱️  Click-to-Insert Emoji Picker                           │
-│  🌍 Fully Localized UI                                     │
+│  ◉ Discord Bot API Integration  ✓                         │
+│  ◉ Server-side Caching (60min)  ✓                         │
+│  ◉ Click-to-Insert Emoji Picker ✓                         │
+│  ◉ Fully Localized UI           ✓                         │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -208,14 +208,14 @@ If you maintain self-hosted copies and need the original migration scripts, chec
 ## 🚀 Usage
 
 ```
-    🎯 QUICK START GUIDE 🎯
-┌─────────────────────────────────┐
-│  1️⃣  Select/create template      │
-│  2️⃣  Build embed                 │
-│  3️⃣  Configure webhook           │
-│  4️⃣  Save or send                │
-│  5️⃣  Live Notifications setup    │
-└─────────────────────────────────┘
+        🎯 QUICK START GUIDE 🎯
+┌──────────────────────────────────────┐
+│  1️⃣  Select/create template   ✓     │
+│  2️⃣  Build embed              ✓     │
+│  3️⃣  Configure webhook        ✓     │
+│  4️⃣  Save or send             ✓     │
+│  5️⃣  Live Notifications setup ✓     │
+└──────────────────────────────────────┘
 ```
 
 1. **Template Management:** Select an existing template or start a new one
@@ -375,7 +375,7 @@ Recent fixes you should know about:
 ┌─────────────────────────────┐
 │  License: MIT License       │
 │  Author: happytunesai       │
-│  GitHub: 🔗 Repository      │
+│  GitHub: Repository         │
 └─────────────────────────────┘
 ```
 
