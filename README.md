@@ -3,14 +3,14 @@
 ```
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║    ██████╗ ██╗███████╗ ██████╗ ██████╗ ██████╗ ██████╗       ║
-║    ██╔══██╗██║██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔══██╗      ║
-║    ██║  ██║██║███████╗██║     ██║   ██║██████╔╝██║  ██║      ║
-║    ██║  ██║██║╚════██║██║     ██║   ██║██╔══██╗██║  ██║      ║
-║    ██████╔╝██║███████║╚██████╗╚██████╔╝██║  ██║██████╔╝      ║
-║    ╚═════╝ ╚═╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝       ║
+║    ██████╗ ██╗███████╗ ██████╗ ██████╗ ██████╗ ██████╗        ║
+║    ██╔══██╗██║██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔══██╗       ║
+║    ██║  ██║██║███████╗██║     ██║   ██║██████╔╝██║  ██║       ║
+║    ██║  ██║██║╚════██║██║     ██║   ██║██╔══██╗██║  ██║       ║
+║    ██████╔╝██║███████║╚██████╗╚██████╔╝██║  ██║██████╔╝       ║
+║    ╚═════╝ ╚═╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝        ║
 ║                                                               ║
-║           🚀 EMBED CREATOR FOR WORDPRESS 🚀                   ║
+║           🚀 EMBED CREATOR FOR WORDPRESS 🚀                  ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
@@ -129,12 +129,12 @@ Template placeholders:
 
 ```
    😀 😃 😄 😁 😆    CUSTOM GUILD EMOJIS    🎉 🎊 🎈 ✨ 🌟
-┌─────────────────────────────────────────────────────────────┐
-│  🔗 Discord Bot API Integration                             │
+┌────────────────────────────────────────────────────────────┐
+│  🔗 Discord Bot API Integration                            │
 │  💾 Server-side Caching (60min)                            │
-│  🖱️  Click-to-Insert Emoji Picker                          │
+│  🖱️  Click-to-Insert Emoji Picker                           │
 │  🌍 Fully Localized UI                                     │
-└─────────────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────────────┘
 ```
 
 - The plugin can load custom guild emojis from Discord so you can insert them into descriptions or fields. Key points:
@@ -176,8 +176,8 @@ Recent fixes and UX improvements related to emojis:
    📥 INSTALLATION METHODS 📥
 ┌─────────────────────────────────┐
 │  Method 1: WordPress Dashboard  │  ⭐ RECOMMENDED
-│  Method 2: FTP Upload          │
-│  Method 3: WP-CLI              │
+│  Method 2: FTP Upload           │
+│  Method 3: WP-CLI               │
 └─────────────────────────────────┘
 ```
 
@@ -210,11 +210,11 @@ If you maintain self-hosted copies and need the original migration scripts, chec
 ```
     🎯 QUICK START GUIDE 🎯
 ┌─────────────────────────────────┐
-│  1️⃣  Select/create template     │
-│  2️⃣  Build embed               │
-│  3️⃣  Configure webhook         │
-│  4️⃣  Save or send              │
-│  5️⃣  Live Notifications setup   │
+│  1️⃣  Select/create template      │
+│  2️⃣  Build embed                 │
+│  3️⃣  Configure webhook           │
+│  4️⃣  Save or send                │
+│  5️⃣  Live Notifications setup    │
 └─────────────────────────────────┘
 ```
 
@@ -373,9 +373,9 @@ Recent fixes you should know about:
 ```
    📋 PROJECT INFO 📋
 ┌─────────────────────────────┐
-│  License: MIT License      │
-│  Author: happytunesai      │
-│  GitHub: 🔗 Repository     │
+│  License: MIT License       │
+│  Author: happytunesai       │
+│  GitHub: 🔗 Repository      │
 └─────────────────────────────┘
 ```
 
@@ -385,6 +385,6 @@ Recent fixes you should know about:
 
 ```
 ┌─────────────────────────────────────────────┐
-│  © 2025 happytunesai. All rights reserved. │
+│  © 2025 happytunesai. All rights reserved.  │
 └─────────────────────────────────────────────┘
 ```
