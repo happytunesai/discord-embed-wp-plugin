@@ -3,7 +3,7 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.2.9
+ * Version: 2.2.5
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: Zelika
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.2.9');
+    define('DISCORD_EMBED_VERSION', '2.2.5');
 }
 
 class DiscordEmbedPlugin {
@@ -238,85 +238,46 @@ class DiscordEmbedPlugin {
             'pleaseFillBotToken' => __('Please fill in Bot Token and Channel ID.', 'discord-embed-creator'),
             'sending' => __('Sending...', 'discord-embed-creator'),
             'pleaseSelectDateTime' => __('Please select a date and time first.', 'discord-embed-creator'),
-            // Live Notifications translations
-            'connectedAndReady' => __('Connected and ready', 'discord-embed-creator'),
-            'notConfiguredOrMissingCredentials' => __('Not configured or missing credentials', 'discord-embed-creator'),
-            'updating' => __('🔄 Updating...', 'discord-embed-creator'),
-            'refreshStatus' => __('🔄 Refresh Status', 'discord-embed-creator'),
-            'pleaseBotTokenServerId' => __('Please enter Bot Token and Server ID', 'discord-embed-creator'),
-            'errorLoadingChannels' => __('Error loading channels: %s', 'discord-embed-creator'),
-            'errorLoadingRoles' => __('Error loading roles', 'discord-embed-creator'),
-            'loadChannels' => __('Load Channels', 'discord-embed-creator'),
-            'testPlatform' => __('Test Platform', 'discord-embed-creator'),
-            'saveLiveSettings' => __('Save Live Settings', 'discord-embed-creator'),
-            'testLiveNotification' => __('Test Live Notification', 'discord-embed-creator'),
-            'saveAsTemplate' => __('Save as Template', 'discord-embed-creator'),
             'copied' => __('Copied!', 'discord-embed-creator'),
             'discordTimestampFormats' => __('Discord Timestamp Formats:', 'discord-embed-creator'),
             'embedDataNotFound' => __('Embed data not found.', 'discord-embed-creator')
             // Live notifications localization
-            , 'loadingEmojis' => __('Loading Emojis...', 'discord-embed-creator')
-            , 'pleaseEnterBotTokenServerId' => __('Please enter Bot Token and Server ID', 'discord-embed-creator')
-            , 'refreshing' => __('🔄 Refreshing...', 'discord-embed-creator')
-            , 'refreshStatus' => __('🔄 Refresh Status', 'discord-embed-creator')
-            , 'statusActive' => __('Status: Active', 'discord-embed-creator')
-            , 'statusDisabled' => __('Status: Disabled', 'discord-embed-creator')
-            , 'loadingGeneric' => __('Loading...', 'discord-embed-creator')
-            , 'errorLoadingChannels' => __('Error loading channels: ', 'discord-embed-creator')
-            , 'loadChannels' => __('Load Channels', 'discord-embed-creator')
-            , 'errorLoadingRoles' => __('Error loading roles', 'discord-embed-creator')
-            , 'errorLoadingEmojis' => __('Error loading emojis: ', 'discord-embed-creator')
-            , 'errorProcessingEmojis' => __('Error processing emojis: ', 'discord-embed-creator')
-            , 'enterTwitchChannelName' => __('Please enter Twitch Channel Name', 'discord-embed-creator')
-            , 'enterYoutubeChannelId' => __('Please enter YouTube Channel ID', 'discord-embed-creator')
-            , 'testingPlatform' => __('🧪 Testing...', 'discord-embed-creator')
-            , 'testStatusButtonTwitch' => __('🧪 Test Twitch Status', 'discord-embed-creator')
-            , 'testStatusButtonYouTube' => __('🧪 Test YouTube Status', 'discord-embed-creator')
-            , 'saving' => __('💾 Saving...', 'discord-embed-creator')
-            , 'saveSettings' => __('💾 Save Settings', 'discord-embed-creator')
-            , 'errorSavingGeneric' => __('❌ Error saving: ', 'discord-embed-creator')
-            , 'pleaseEnterChannelForPlatform' => __('Please enter Channel/ID for the platform.', 'discord-embed-creator')
-            , 'testingSend' => __('🧪 Test sending...', 'discord-embed-creator')
-            , 'testNotificationSend' => __('🧪 Send Test Notification', 'discord-embed-creator')
-            , 'errorGeneric' => __('Error: ', 'discord-embed-creator')
-            , 'errorLoadingTemplates' => __('Error loading templates.', 'discord-embed-creator')
-            , 'loadTemplate' => __('Load', 'discord-embed-creator')
-            , 'load' => __('Load', 'discord-embed-creator')
-            , 'send' => __('Send', 'discord-embed-creator')
+            , 'loadingEmojis' => __('Lade Emojis...', 'discord-embed-creator')
+            , 'pleaseEnterBotTokenServerId' => __('Bitte Bot Token und Server ID eingeben', 'discord-embed-creator')
+            , 'refreshing' => __('🔄 Aktualisiere...', 'discord-embed-creator')
+            , 'refreshStatus' => __('🔄 Status aktualisieren', 'discord-embed-creator')
+            , 'statusActive' => __('Status: Aktiv', 'discord-embed-creator')
+            , 'statusDisabled' => __('Status: Deaktiviert', 'discord-embed-creator')
+            , 'loadingGeneric' => __('Lade...', 'discord-embed-creator')
+            , 'errorLoadingChannels' => __('Fehler beim Laden der Channels: ', 'discord-embed-creator')
+            , 'loadChannels' => __('Channel laden', 'discord-embed-creator')
+            , 'errorLoadingRoles' => __('Fehler beim Laden der Rollen', 'discord-embed-creator')
+            , 'errorLoadingEmojis' => __('Fehler beim Laden der Emojis: ', 'discord-embed-creator')
+            , 'errorProcessingEmojis' => __('Fehler beim Verarbeiten der Emojis: ', 'discord-embed-creator')
+            , 'enterTwitchChannelName' => __('Bitte Twitch Channel Name eingeben', 'discord-embed-creator')
+            , 'enterYoutubeChannelId' => __('Bitte YouTube Channel ID eingeben', 'discord-embed-creator')
+            , 'testingPlatform' => __('🧪 Teste...', 'discord-embed-creator')
+            , 'testStatusButtonTwitch' => __('🧪 Twitch Status testen', 'discord-embed-creator')
+            , 'testStatusButtonYouTube' => __('🧪 YouTube Status testen', 'discord-embed-creator')
+            , 'saving' => __('💾 Speichere...', 'discord-embed-creator')
+            , 'saveSettings' => __('💾 Einstellungen speichern', 'discord-embed-creator')
+            , 'errorSavingGeneric' => __('❌ Fehler beim Speichern: ', 'discord-embed-creator')
+            , 'pleaseEnterChannelForPlatform' => __('Bitte Channel/ID für die Plattform eingeben.', 'discord-embed-creator')
+            , 'testingSend' => __('🧪 Test sende...', 'discord-embed-creator')
+            , 'testNotificationSend' => __('🧪 Test-Benachrichtigung senden', 'discord-embed-creator')
+            , 'errorGeneric' => __('Fehler: ', 'discord-embed-creator')
+            , 'errorLoadingTemplates' => __('Fehler beim Laden der Templates.', 'discord-embed-creator')
+            , 'load' => __('Laden', 'discord-embed-creator')
+            , 'send' => __('Senden', 'discord-embed-creator')
             , 'pause' => __('Pause', 'discord-embed-creator')
-            , 'activate' => __('Activate', 'discord-embed-creator')
-            , 'delete' => __('Delete', 'discord-embed-creator')
-            , 'enterTemplateName' => __('Please enter a template name', 'discord-embed-creator')
-            , 'savingTemplate' => __('Saving...', 'discord-embed-creator')
-            , 'saveCurrentAsTemplate' => __('💾 Save Current as Template', 'discord-embed-creator')
-            , 'errorLoadingTemplate' => __('Error loading template', 'discord-embed-creator')
-            , 'messageSent' => __('Message sent', 'discord-embed-creator')
-            , 'confirmSendTemplateNow' => __('Send template now?', 'discord-embed-creator')
-            , 'confirmDeleteTemplate' => __('Really delete template?', 'discord-embed-creator')
-            , 'notMentionable' => __('not mentionable', 'discord-embed-creator')
-            , 'activate' => __('Activate', 'discord-embed-creator')
-            , 'pause' => __('Pause', 'discord-embed-creator')
-            , 'testSuccessful' => __('Test successful', 'discord-embed-creator')
-            , 'connectionSuccessful' => __('API connection successful', 'discord-embed-creator')
-            , 'statusLive' => __('Status: LIVE', 'discord-embed-creator')
-            , 'statusOffline' => __('Status: OFFLINE', 'discord-embed-creator')
-            , 'channelNotLive' => __('Channel is currently not live.', 'discord-embed-creator')
-            , 'testFailed' => __('Test failed', 'discord-embed-creator')
-            , 'saveError' => __('Error saving', 'discord-embed-creator')
-            , 'unknownError' => __('Unknown error', 'discord-embed-creator')
-            , 'saveSettings' => __('💾 Save Settings', 'discord-embed-creator')
-            , 'sendTestNotification' => __('🧪 Send Test Notification', 'discord-embed-creator')
-            , 'saveCurrentAsTemplate' => __('💾 Save Current as Template', 'discord-embed-creator')
-            , 'loadChannels' => __('Load Channels', 'discord-embed-creator')
-            , 'loading' => __('Loading...', 'discord-embed-creator')
-            , 'errorLoadingChannels' => __('Error loading channels', 'discord-embed-creator')
-            , 'errorLoadingRoles' => __('Error loading roles', 'discord-embed-creator')
-            , 'title' => __('Title', 'discord-embed-creator')
-            , 'url' => __('URL', 'discord-embed-creator')
-            , 'error' => __('Error', 'discord-embed-creator')
-            , 'deleteFailed' => __('Delete failed', 'discord-embed-creator')
-            , 'toggleFailed' => __('Toggle failed', 'discord-embed-creator')
-            , 'sendFailed' => __('Send failed', 'discord-embed-creator')
+            , 'activate' => __('Aktivieren', 'discord-embed-creator')
+            , 'delete' => __('Löschen', 'discord-embed-creator')
+            , 'enterTemplateName' => __('Bitte einen Template-Namen angeben', 'discord-embed-creator')
+            , 'savingTemplate' => __('Speichere...', 'discord-embed-creator')
+            , 'saveCurrentAsTemplate' => __('💾 Aktuelle als Template speichern', 'discord-embed-creator')
+            , 'errorLoadingTemplate' => __('Fehler beim Laden des Templates', 'discord-embed-creator')
+            , 'messageSent' => __('Nachricht gesendet', 'discord-embed-creator')
+            , 'confirmSendTemplateNow' => __('Template jetzt senden?', 'discord-embed-creator')
         ));
     }
 

@@ -203,8 +203,8 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                         <textarea id="embed-description" name="description" rows="4" placeholder="<?php echo esc_attr(__('Embed Description (Markdown supported)', 'discord-embed-creator')); ?>"></textarea>
                         <small><?php echo esc_html(__('Supports', 'discord-embed-creator')); ?>: **<?php echo esc_html(__('bold', 'discord-embed-creator')); ?>**, *<?php echo esc_html(__('italic', 'discord-embed-creator')); ?>*, __<?php echo esc_html(__('underlined', 'discord-embed-creator')); ?>__, ~~<?php echo esc_html(__('strikethrough', 'discord-embed-creator')); ?>~~, `<?php echo esc_html(__('code', 'discord-embed-creator')); ?>`, [<?php echo esc_html(__('links', 'discord-embed-creator')); ?>](url)</small>
                         <div style="margin-top:8px;">
-                            <label style="display:block; font-weight:600; margin-bottom:4px;"><?php echo esc_html(__('Emoji Format & Usage', 'discord-embed-creator')); ?></label>
-                            <p style="color:#666; margin:0;"><?php echo esc_html(__('Use either the full emoji format <code>&lt;:name:ID&gt;</code> or a short placeholder <code>:shortcode:</code>. Example: <code>&lt;:twitch_logo:944912608136417293&gt;</code> or <code>:twitch_logo:</code>.', 'discord-embed-creator')); ?></p>
+                            <label style="display:block; font-weight:600; margin-bottom:4px;">Emoji Formatierung & Verwendung</label>
+                            <p style="color:#666; margin:0;">Benutze entweder das volle Emoji-Format <code>&lt;:name:ID&gt;</code> oder ein kurzer Platzhalter <code>:shortcode:</code>. Beispiel: <code>&lt;:twitch_logo:944912608136417293&gt;</code> oder <code>:twitch_logo:</code>.</p>
                         </div>
                     </div>
                 </div>
@@ -420,47 +420,48 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
         
         <!-- StreamWeasels Integration Status -->
         <div class="form-section" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px; margin-bottom: 20px;">
-            <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">🔗 <?php echo esc_html(__('StreamWeasels Integration Status', 'discord-embed-creator')); ?></h2>
+            <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">🔗 StreamWeasels Integration Status</h2>
             
             <div id="streamweasels-status" style="display: grid; grid-template-columns: auto 1fr auto; gap: 15px; align-items: center;">
                 <span class="status-label"><strong>Twitch API:</strong></span>
-                <span class="status-text" id="twitch-api-status"><?php echo esc_html(__('Checking...', 'discord-embed-creator')); ?></span>
+                <span class="status-text" id="twitch-api-status">Checking...</span>
                 <span class="status-icon" id="twitch-api-icon">⏳</span>
                 
                 <span class="status-label"><strong>YouTube API:</strong></span>
-                <span class="status-text" id="youtube-api-status"><?php echo esc_html(__('Checking...', 'discord-embed-creator')); ?></span>
+                <span class="status-text" id="youtube-api-status">Checking...</span>
                 <span class="status-icon" id="youtube-api-icon">⏳</span>
             </div>
             
             <div class="streamweasels-info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 15px; margin: 15px 0; border-radius: 4px;">
-                <h4 style="margin: 0 0 10px 0; color: #1976d2;">💡 <?php echo esc_html(__('StreamWeasels Integration Info', 'discord-embed-creator')); ?></h4>
+                <h4 style="margin: 0 0 10px 0; color: #1976d2;">💡 StreamWeasels Integration Info</h4>
                 <p style="margin: 0; color: #555;">
-                    <?php echo esc_html(__('This plugin uses the API credentials from StreamWeasels plugin automatically. Make sure that StreamWeasels is configured and the APIs are connected.', 'discord-embed-creator')); ?>
+                    Dieses Plugin nutzt die API-Credentials von StreamWeasels Plugin automatisch. 
+                    Stelle sicher, dass StreamWeasels konfiguriert und die APIs verbunden sind.
                 </p>
                 <ul style="margin: 10px 0 0 20px; color: #555;">
-                    <li><strong>Twitch:</strong> <?php echo esc_html(__('Requires Client ID and Access Token', 'discord-embed-creator')); ?></li>
-                    <li><strong>YouTube:</strong> <?php echo esc_html(__('Requires API Key', 'discord-embed-creator')); ?></li>
+                    <li><strong>Twitch:</strong> Benötigt Client-ID und Access Token</li>
+                    <li><strong>YouTube:</strong> Benötigt API Key</li>
                 </ul>
             </div>
             
             <button type="button" id="refresh-streamweasels-status" class="button button-secondary">
-                <?php echo esc_html(__('🔄 Refresh Status', 'discord-embed-creator')); ?>
+                🔄 Status aktualisieren
             </button>
         </div>
         
         <!-- Live Notification Settings -->
         <div class="form-section" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px; margin-bottom: 20px;">
-            <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">⚙️ <?php echo esc_html(__('Live Notification Settings', 'discord-embed-creator')); ?></h2>
+            <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">⚙️ Live Notification Settings</h2>
             
             <form id="live-notification-form" onsubmit="return false;">
                 <!-- Global Enable/Disable -->
                 <div class="form-row" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
                     <label style="display: flex; align-items: center; font-weight: bold; color: #495057; cursor: pointer;">
                         <input type="checkbox" id="live-notifications-enabled" name="enabled" style="margin-right: 10px; width: auto; height: auto; transform: scale(1.2);">
-                        🚀 <?php echo esc_html(__('Enable Live Notifications', 'discord-embed-creator')); ?>
+                        🚀 Live Benachrichtigungen aktivieren
                     </label>
                     <small style="color: #666; display: block; margin-top: 8px;">
-                        <?php echo esc_html(__('Automatic Discord notifications when your stream goes live (checked every 3 minutes)', 'discord-embed-creator')); ?>
+                        Automatische Discord-Benachrichtigungen wenn dein Stream live geht (alle 3 Minuten geprüft)
                     </small>
                 </div>
                 
@@ -476,23 +477,23 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                         <div class="form-row">
                             <label style="display: flex; align-items: center; font-weight: bold; cursor: pointer;">
                                 <input type="checkbox" id="twitch-enabled" name="twitch_enabled" style="margin-right: 8px; width: auto; height: auto; cursor: pointer;">
-                                <?php echo esc_html(__('Enable Twitch Live Notifications', 'discord-embed-creator')); ?>
+                                Twitch Live-Benachrichtigungen aktivieren
                             </label>
                         </div>
                         
                         <div class="form-row">
-                            <label for="twitch-channel"><?php echo esc_html(__('Twitch Channel Name:', 'discord-embed-creator')); ?></label>
+                            <label for="twitch-channel">Twitch Channel Name:</label>
                             <input type="text" id="twitch-channel" name="twitch_channel" 
-                                   placeholder="<?php echo esc_attr(__('yourusername', 'discord-embed-creator')); ?>" 
+                                   placeholder="deinusername" 
                                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             <small style="color: #666; display: block; margin-top: 4px;">
-                                <?php echo esc_html(__('Only the username, without "twitch.tv/" - e.g. "shroud"', 'discord-embed-creator')); ?>
+                                Nur der Username, ohne "twitch.tv/" - z.B. "shroud"
                             </small>
                         </div>
                         
                         <button type="button" class="test-platform" data-platform="twitch" 
                                 style="background: #9146ff; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 10px;">
-                            <?php echo esc_html(__('🧪 Test Twitch Status', 'discord-embed-creator')); ?>
+                            🧪 Twitch Status testen
                         </button>
                     </div>
                     
@@ -505,41 +506,41 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                         <div class="form-row">
                             <label style="display: flex; align-items: center; font-weight: bold; cursor: pointer;">
                                 <input type="checkbox" id="youtube-enabled" name="youtube_enabled" style="margin-right: 8px; width: auto; height: auto; cursor: pointer;">
-                                <?php echo esc_html(__('Enable YouTube Live Notifications', 'discord-embed-creator')); ?>
+                                YouTube Live-Benachrichtigungen aktivieren
                             </label>
                         </div>
                         
                         <div class="form-row">
-                            <label for="youtube-channel-id"><?php echo esc_html(__('YouTube Channel ID:', 'discord-embed-creator')); ?></label>
+                            <label for="youtube-channel-id">YouTube Channel ID:</label>
                             <input type="text" id="youtube-channel-id" name="youtube_channel_id" 
                                    placeholder="UCxxxxxxxxxxxxxxxxxxxxxx" 
                                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             <small style="color: #666; display: block; margin-top: 4px;">
-                                <?php echo esc_html(__('YouTube Channel ID (starts with UC...) - you can find it in YouTube Studio', 'discord-embed-creator')); ?>
+                                YouTube Channel ID (beginnt mit UC...) - findest du in YouTube Studio
                             </small>
                         </div>
                         
                         <button type="button" class="test-platform" data-platform="youtube" 
                                 style="background: #ff0000; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-top: 10px;">
-                            <?php echo esc_html(__('🧪 Test YouTube Status', 'discord-embed-creator')); ?>
+                            🧪 YouTube Status testen
                         </button>
                     </div>
                 </div>
                 
                 <!-- Discord Settings -->
                 <div class="form-row">
-                    <h3><?php echo esc_html(__('Discord Target Configuration', 'discord-embed-creator')); ?></h3>
+                    <h3>Discord Ziel-Konfiguration</h3>
                     <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                        <label for="live-webhook-type"><?php echo esc_html(__('Webhook Type:', 'discord-embed-creator')); ?></label>
+                        <label for="live-webhook-type">Webhook Type:</label>
                         <select id="live-webhook-type" name="webhook_type" style="width: 100%; padding: 8px;">
-                            <option value="channel"><?php echo esc_html(__('Channel Webhook URL', 'discord-embed-creator')); ?></option>
-                            <option value="server"><?php echo esc_html(__('Bot Token + Channel Selection', 'discord-embed-creator')); ?></option>
+                            <option value="channel">Channel Webhook URL</option>
+                            <option value="server">Bot Token + Channel Selection</option>
                         </select>
                     </div>
                     
                     <!-- Channel Webhook Settings -->
                     <div id="live-channel-webhook-config" class="webhook-config-section" style="display: none;">
-                        <label for="live-webhook-url"><?php echo esc_html(__('Discord Webhook URL:', 'discord-embed-creator')); ?></label>
+                        <label for="live-webhook-url">Discord Webhook URL:</label>
                         <input type="url" id="live-webhook-url" name="webhook_url" 
                                placeholder="https://discord.com/api/webhooks/..." 
                                style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;">
@@ -549,24 +550,24 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                     <div id="live-server-webhook-config" class="webhook-config-section" style="display: none;">
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div>
-                                <label for="live-bot-token"><?php echo esc_html(__('Bot Token:', 'discord-embed-creator')); ?></label>
+                                <label for="live-bot-token">Bot Token:</label>
                                 <input type="password" id="live-bot-token" name="bot_token" 
-                                       placeholder="<?php echo esc_attr(__('Bot Token', 'discord-embed-creator')); ?>" 
+                                       placeholder="Bot Token" 
                                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;">
                             </div>
                             <div>
-                                <label for="live-server-id"><?php echo esc_html(__('Server ID:', 'discord-embed-creator')); ?></label>
+                                <label for="live-server-id">Server ID:</label>
                                 <input type="text" id="live-server-id" name="server_id" 
-                                       placeholder="<?php echo esc_attr(__('Server ID', 'discord-embed-creator')); ?>" 
+                                       placeholder="Server ID" 
                                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-family: monospace;">
                             </div>
                         </div>
                         
                         <div style="margin-top: 15px;">
-                            <button type="button" id="load-live-channels" class="button"><?php echo esc_html(__('Load Channels', 'discord-embed-creator')); ?></button>
-                            <label for="live-channel-id" style="margin-left: 15px;"><?php echo esc_html(__('Target Channel:', 'discord-embed-creator')); ?></label>
+                            <button type="button" id="load-live-channels" class="button">Channel laden</button>
+                            <label for="live-channel-id" style="margin-left: 15px;">Ziel-Channel:</label>
                             <select id="live-channel-id" name="channel_id" style="margin-left: 10px; padding: 8px;">
-                                <option value=""><?php echo esc_html(__('Select Channel...', 'discord-embed-creator')); ?></option>
+                                <option value="">Channel auswählen...</option>
                             </select>
                         </div>
                     </div>
@@ -574,55 +575,55 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                 
                 <!-- Role Mentions Settings -->
                 <div class="form-section" style="background: #f0f8ff; border-left: 4px solid #5865f2; padding: 15px; margin: 20px 0; border-radius: 4px;">
-                    <h3 style="color: #5865f2; margin-top: 0;">🏷️ <?php echo esc_html(__('Role Mentions for Live Notifications', 'discord-embed-creator')); ?></h3>
+                    <h3 style="color: #5865f2; margin-top: 0;">🏷️ Rolle Mentions für Live-Benachrichtigungen</h3>
                     <div id="live-role-selector-container">
                         <p class="description" style="color: #666; font-style: italic;">
-                            <?php echo esc_html(__('Roles will be automatically loaded when Bot Token and Server ID are configured.', 'discord-embed-creator')); ?>
+                            Rollen werden automatisch geladen wenn Bot Token und Server ID konfiguriert sind.
                         </p>
                     </div>
                 </div>
                 
                 <!-- Embed Template Editor -->
                 <div class="form-section" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                    <h3>📝 <?php echo esc_html(__('Live Notification Embed Template', 'discord-embed-creator')); ?></h3>
+                    <h3>📝 Live-Benachrichtigung Embed Template</h3>
                     <p style="color: #666; margin-bottom: 15px;">
-                        <?php echo esc_html(__('Design the embed for live notifications. You can use the same fields as in the main editor.', 'discord-embed-creator')); ?>
-                        <?php echo esc_html(__('Available placeholders: <code>{platform}</code>, <code>{title}</code>, <code>{url}</code>, <code>{thumbnail}</code>', 'discord-embed-creator')); ?>
+                        Gestalte das Embed für Live-Benachrichtigungen. Du kannst die gleichen Felder wie im Haupt-Editor verwenden.
+                        Verfügbare Platzhalter: <code>{platform}</code>, <code>{title}</code>, <code>{url}</code>, <code>{thumbnail}</code>
                     </p>
                     
                     <!-- Embed Template Fields (reusing existing embed editor components) -->
                     <div class="embed-template-editor">
                         <div class="form-row">
-                            <label for="live-embed-title"><?php echo esc_html(__('Template Title:', 'discord-embed-creator')); ?></label>
-                            <input type="text" id="live-embed-title" placeholder="🟣 <?php echo esc_attr(__('Live on {platform}!', 'discord-embed-creator')); ?>" 
+                            <label for="live-embed-title">Template Titel:</label>
+                            <input type="text" id="live-embed-title" placeholder="🟣 Live auf {platform}!" 
                                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         </div>
                         
                         <div class="form-row">
-                            <label for="live-embed-description"><?php echo esc_html(__('Template Description:', 'discord-embed-creator')); ?></label>
+                            <label for="live-embed-description">Template Beschreibung:</label>
                             <div class="markdown-toolbar">
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="**" title="<?php echo esc_attr(__('Bold', 'discord-embed-creator')); ?>"><strong>B</strong></button>
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="*" title="<?php echo esc_attr(__('Italic', 'discord-embed-creator')); ?>"><em>I</em></button>
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="__" title="<?php echo esc_attr(__('Underlined', 'discord-embed-creator')); ?>"><u>U</u></button>
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="~~" title="<?php echo esc_attr(__('Strikethrough', 'discord-embed-creator')); ?>"><del>S</del></button>
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="`" title="<?php echo esc_attr(__('Code', 'discord-embed-creator')); ?>"><code>C</code></button>
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="**" title="Bold"><strong>B</strong></button>
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="*" title="Italic"><em>I</em></button>
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="__" title="Underlined"><u>U</u></button>
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="~~" title="Strikethrough"><del>S</del></button>
+                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="`" title="Code"><code>C</code></button>
                                 <!-- Emoji loader for live editor (same as main editor) -->
-                                <button type="button" class="md-btn open-emoji-picker" title="<?php echo esc_attr(__('Open Emoji Picker', 'discord-embed-creator')); ?>">😃</button>
+                                <button type="button" class="md-btn open-emoji-picker" title="Open Emoji Picker">😃</button>
                             </div>
                             <textarea id="live-embed-description" rows="4" 
-                                      placeholder="**{title}**&#10;&#10;<?php echo esc_attr(__('Come by and watch!', 'discord-embed-creator')); ?>&#10;&#10;[<?php echo esc_attr(__('To Stream', 'discord-embed-creator')); ?>]({url})"
+                                      placeholder="**{title}**&#10;&#10;Komm vorbei und schau zu!&#10;&#10;[Zum Stream]({url})"
                                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
                         </div>
                         
                         <div class="form-row">
-                            <label for="live-embed-color"><?php echo esc_html(__('Embed Color:', 'discord-embed-creator')); ?></label>
+                            <label for="live-embed-color">Embed Farbe:</label>
                             <input type="color" id="live-embed-color" value="#9146ff" style="width: 60px; height: 40px; border: none; border-radius: 4px;">
-                            <span id="live-color-preview" style="margin-left: 10px; padding: 5px 10px; background: #9146ff; color: white; border-radius: 4px;"><?php echo esc_html(__('Live Stream', 'discord-embed-creator')); ?></span>
+                            <span id="live-color-preview" style="margin-left: 10px; padding: 5px 10px; background: #9146ff; color: white; border-radius: 4px;">Live Stream</span>
                         </div>
                         
                         <div class="form-row">
-                            <label for="live-embed-footer"><?php echo esc_html(__('Footer Text:', 'discord-embed-creator')); ?></label>
-                            <input type="text" id="live-embed-footer" placeholder="<?php echo esc_attr(__('Live since', 'discord-embed-creator')); ?>" 
+                            <label for="live-embed-footer">Footer Text:</label>
+                            <input type="text" id="live-embed-footer" placeholder="Live seit" 
                                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         </div>
                     </div>
@@ -630,55 +631,55 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
 
                 <!-- Saved Live Notification Templates -->
                 <div class="form-section" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                    <h3>💾 <?php echo esc_html(__('Saved Live Notifications', 'discord-embed-creator')); ?></h3>
-                    <p style="color: #666;"><?php echo esc_html(__('Save different notification variants and send them specifically to different channels.', 'discord-embed-creator')); ?></p>
+                    <h3>💾 Gespeicherte Live-Benachrichtigungen</h3>
+                    <p style="color: #666;">Speichere unterschiedliche Benachrichtigungs-Varianten und sende sie gezielt in verschiedene Channels.</p>
 
                     <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
                         <input type="hidden" id="live-template-id" value="0">
-                        <input type="text" id="live-template-name" placeholder="<?php echo esc_attr(__('Template Name', 'discord-embed-creator')); ?>" style="padding:8px; flex:1;">
+                        <input type="text" id="live-template-name" placeholder="Template-Name" style="padding:8px; flex:1;">
                         <select id="live-template-platform" style="padding:8px;">
                             <option value="twitch">Twitch</option>
                             <option value="youtube">YouTube</option>
                         </select>
-                        <button type="button" id="save-live-template" class="button">💾 <?php echo esc_html(__('Save Current as Template', 'discord-embed-creator')); ?></button>
+                        <button type="button" id="save-live-template" class="button">💾 Aktuelle als Template speichern</button>
                         <label style="display:flex; align-items:center; gap:6px; margin-left:6px; font-size:13px; color:#444;">
-                            <input type="checkbox" id="save-live-as-new" style="margin-right:6px;"> <?php echo esc_html(__('Save as New', 'discord-embed-creator')); ?>
+                            <input type="checkbox" id="save-live-as-new" style="margin-right:6px;"> Als neues speichern
                         </label>
                     </div>
 
                     <div id="saved-live-templates" style="display:grid; grid-template-columns: 1fr; gap:8px;">
-                        <div style="color:#666;"><?php echo esc_html(__('Loading Templates...', 'discord-embed-creator')); ?></div>
+                        <div style="color:#666;">Lade Templates...</div>
                     </div>
                 </div>
                 
                 <!-- Advanced Settings -->
                 <div class="form-section" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                    <h3>⚙️ <?php echo esc_html(__('Advanced Settings', 'discord-embed-creator')); ?></h3>
+                    <h3>⚙️ Erweiterte Einstellungen</h3>
                     <div class="form-row">
-                        <label for="cooldown-minutes"><?php echo esc_html(__('Cooldown between notifications (minutes):', 'discord-embed-creator')); ?></label>
+                        <label for="cooldown-minutes">Cooldown zwischen Benachrichtigungen (Minuten):</label>
                         <input type="number" id="cooldown-minutes" name="cooldown_minutes" value="10" min="1" max="120" 
                                style="width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         <small style="color: #666; margin-left: 10px;">
-                            <?php echo esc_html(__('Prevents multiple notifications for the same stream', 'discord-embed-creator')); ?>
+                            Verhindert mehrfache Benachrichtigungen für den gleichen Stream
                         </small>
                     </div>
                             <div class="form-row" style="margin-top:10px;">
                         <!-- Emoji hint for live embed editor and unified picker button is provided in the editor toolbar -->
-                        <label style="display:block; font-weight:600; margin-bottom:6px;"><?php echo esc_html(__('Emoji Format & Usage', 'discord-embed-creator')); ?></label>
-                        <p style="color:#666; margin:0 0 8px 0;"><?php echo esc_html(__('Use either the full emoji format <code>&lt;:name:ID&gt;</code> or a short placeholder <code>:shortcode:</code>. Example: <code>&lt;:twitch_logo:944912608136417293&gt;</code> or <code>:twitch_logo:</code>.', 'discord-embed-creator')); ?></p>
+                        <label style="display:block; font-weight:600; margin-bottom:6px;">Emoji Formatierung & Verwendung</label>
+                        <p style="color:#666; margin:0 0 8px 0;">Benutze entweder das volle Emoji-Format <code>&lt;:name:ID&gt;</code> oder ein kurzer Platzhalter <code>:shortcode:</code>. Beispiel: <code>&lt;:twitch_logo:944912608136417293&gt;</code> oder <code>:twitch_logo:</code>.</p>
                     </div>
                 </div>
                 
                 <!-- Form Actions -->
                 <div class="form-actions" style="display: flex; gap: 15px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
                     <button type="button" id="save-live-settings" class="button button-primary">
-                        💾 <?php echo esc_html(__('Save Settings', 'discord-embed-creator')); ?>
+                        💾 Einstellungen speichern
                     </button>
                     <button type="button" id="test-live-notification" class="button button-secondary">
-                        🧪 <?php echo esc_html(__('Send Test Notification', 'discord-embed-creator')); ?>
+                        🧪 Test-Benachrichtigung senden
                     </button>
                     <div class="live-status-indicator" style="margin-left: auto; display: flex; align-items: center;">
-                        <span id="live-status-text" style="margin-right: 10px; font-weight: bold;"><?php echo esc_html(__('Status: Disabled', 'discord-embed-creator')); ?></span>
+                        <span id="live-status-text" style="margin-right: 10px; font-weight: bold;">Status: Deaktiviert</span>
                         <div id="live-status-dot" style="width: 12px; height: 12px; border-radius: 50%; background: #dc3545;"></div>
                     </div>
                 </div>
@@ -687,7 +688,7 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
         
         <!-- Live Notification History -->
         <div class="form-section" style="background: #fff; padding: 20px; border: 1px solid #ccd0d4; border-radius: 4px;">
-            <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">📈 <?php echo esc_html(__('Live Notification History', 'discord-embed-creator')); ?></h2>
+            <h2 style="margin-top: 0; color: #5865f2; border-bottom: 2px solid #5865f2; padding-bottom: 10px;">📈 Live Benachrichtigung History</h2>
             
             <div id="live-notification-history" style="min-height: 200px;">
                 <div style="text-align: center; color: #666; padding: 40px;">
@@ -943,7 +944,7 @@ jQuery(document).ready(function($) {
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
             <h3 style="margin:0;">Emoji Picker</h3>
             <div>
-                <button type="button" id="close-emoji-picker" class="button"><?php echo esc_html(__('Close', 'discord-embed-creator')); ?></button>
+                <button type="button" id="close-emoji-picker" class="button">Schließen</button>
             </div>
         </div>
         <div id="emoji-picker-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap:8px;"></div>

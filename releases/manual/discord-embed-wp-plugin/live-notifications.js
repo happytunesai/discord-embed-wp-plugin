@@ -74,11 +74,11 @@ jQuery(document).ready(function($) {
     // Update StreamWeasels status display
     function updateStreamWeaselsStatus(status) {
         const twitchIcon = status.twitch_available ? '✅' : '❌';
-        const twitchText = status.twitch_available ? discordEmbedL10n.connectedAndReady : discordEmbedL10n.notConfiguredOrMissingCredentials;
+        const twitchText = status.twitch_available ? 'Connected and ready' : 'Not configured or missing credentials';
         const twitchColor = status.twitch_available ? 'green' : 'red';
         
         const youtubeIcon = status.youtube_available ? '✅' : '❌';
-        const youtubeText = status.youtube_available ? discordEmbedL10n.connectedAndReady : discordEmbedL10n.notConfiguredOrMissingCredentials;
+        const youtubeText = status.youtube_available ? 'Connected and ready' : 'Not configured or missing credentials';
         const youtubeColor = status.youtube_available ? 'green' : 'red';
         
         $('#twitch-api-status').text(twitchText).css('color', twitchColor);
@@ -185,11 +185,11 @@ jQuery(document).ready(function($) {
         
         // Refresh StreamWeasels status
         $('#refresh-streamweasels-status').on('click', function() {
-            $(this).prop('disabled', true).text(discordEmbedL10n.updating);
+            $(this).prop('disabled', true).text('🔄 Aktualisiere...');
             checkStreamWeaselsStatus();
             
             setTimeout(() => {
-                $(this).prop('disabled', false).text(discordEmbedL10n.refreshStatus);
+                $(this).prop('disabled', false).text('🔄 Status aktualisieren');
             }, 2000);
         });
         
@@ -287,11 +287,11 @@ jQuery(document).ready(function($) {
         const serverId = $('#live-server-id').val();
         
         if (!botToken || !serverId) {
-            alert(discordEmbedL10n.pleaseBotTokenServerId);
+            alert('Bitte Bot Token und Server ID eingeben');
             return;
         }
         
-        $('#load-live-channels').prop('disabled', true).text(discordEmbedL10n.loadingGeneric);
+        $('#load-live-channels').prop('disabled', true).text('Lade...');
         
         $.ajax({
             url: discordEmbed.ajaxUrl,
@@ -316,15 +316,15 @@ jQuery(document).ready(function($) {
                     // Load roles as well
                     loadLiveRoles(botToken, serverId);
                 } else {
-                    alert(discordEmbedL10n.errorLoadingChannels.replace('%s', response.data || discordEmbedL10n.unknownError));
+                    alert('Fehler beim Laden der Channels: ' + (response.data || 'Unbekannter Fehler'));
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Channel load error:', error);
-                alert(discordEmbedL10n.errorLoadingChannels.replace('%s', error));
+                alert('Fehler beim Laden der Channels: ' + error);
             },
             complete: function() {
-                $('#load-live-channels').prop('disabled', false).text(discordEmbedL10n.loadChannels);
+                $('#load-live-channels').prop('disabled', false).text('Channel laden');
             }
         });
     }
@@ -349,12 +349,12 @@ jQuery(document).ready(function($) {
                     renderLiveRoleSelector(response.data.roles, selectedRoles);
                 } else {
                     console.error('Failed to load live roles:', response.data);
-                    $('#live-role-selector-container').html('<p style="color: red;">' + discordEmbedL10n.errorLoadingRoles + '</p>');
+                    $('#live-role-selector-container').html('<p style="color: red;">Fehler beim Laden der Rollen</p>');
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Live roles load error:', error);
-                $('#live-role-selector-container').html('<p style="color: red;">' + discordEmbedL10n.errorLoadingRoles + '</p>');
+                $('#live-role-selector-container').html('<p style="color: red;">Fehler beim Laden der Rollen</p>');
             }
         });
     }
@@ -377,7 +377,7 @@ jQuery(document).ready(function($) {
             }
         });
     // set loading state
-    $('.open-emoji-picker').prop('disabled', true).text(discordEmbedL10n.loadingEmojis);
+    $('.open-emoji-picker').prop('disabled', true).text('Lade Emojis...');
 
         $.ajax({
             url: discordEmbed.ajaxUrl,
@@ -395,15 +395,15 @@ jQuery(document).ready(function($) {
                         // Use the centralized opener so body overflow is handled consistently
                         openEmojiPicker();
                     } else {
-                        alert(discordEmbedL10n.errorLoadingEmojis + (response.data || 'Unknown error'));
+                        alert('Fehler beim Laden der Emojis: ' + (response.data || 'Unbekannter Fehler'));
                     }
                 } catch (e) {
                     console.error('Error processing emoji response', e);
-                    alert(discordEmbedL10n.errorProcessingEmojis + e.message);
+                    alert('Fehler beim Verarbeiten der Emojis: ' + e.message);
                 }
             },
             error: function(xhr, status, error) {
-                alert(discordEmbedL10n.errorLoadingEmojis + error);
+                alert('Fehler beim Laden der Emojis: ' + error);
             },
             complete: function() {
                 // Restore each button to its stored original text and remove the stored data
@@ -473,7 +473,7 @@ jQuery(document).ready(function($) {
             const $btn = $(this);
             $('.open-emoji-picker').each(function() { $(this).data('original-text', $(this).text() || '😃'); });
             // temporarily disable and show loading on all open-emoji-picker buttons for consistent UX
-            $('.open-emoji-picker').prop('disabled', true).text(discordEmbedL10n.loadingEmojis);
+            $('.open-emoji-picker').prop('disabled', true).text('Lade Emojis...');
             // call loader (loader will restore text on complete)
             loadServerEmojis();
         });
@@ -520,7 +520,7 @@ jQuery(document).ready(function($) {
                     <span style="${colorStyle}; font-weight: ${role.hoist ? 'bold' : 'normal'};">
                         ${role.everyone ? '@everyone' : role.name}
                     </span>
-                    ${role.mentionable ? '' : '<span style="color: #999; font-size: 11px; margin-left: auto;">' + discordEmbedL10n.notMentionable + '</span>'}
+                    ${role.mentionable ? '' : '<span style="color: #999; font-size: 11px; margin-left: auto;">nicht erwähnbar</span>'}
                 </label>
             `;
         });
@@ -567,12 +567,12 @@ jQuery(document).ready(function($) {
                 if (response.success) {
                     const data = response.data;
                     if (data.is_live) {
-                        alert(`✅ ${platform.toUpperCase()} ${discordEmbedL10n.testSuccessful}!\n\n${discordEmbedL10n.statusLive}\n${discordEmbedL10n.title}: ${data.title}\n${discordEmbedL10n.url}: ${data.url}`);
+                        alert(`✅ ${platform.toUpperCase()} Test erfolgreich!\n\nStatus: LIVE\nTitel: ${data.title}\nURL: ${data.url}`);
                     } else {
-                        alert(`✅ ${platform.toUpperCase()} ${discordEmbedL10n.connectionSuccessful}!\n\n${discordEmbedL10n.statusOffline}\n${discordEmbedL10n.channelNotLive}`);
+                        alert(`✅ ${platform.toUpperCase()} API-Verbindung erfolgreich!\n\nStatus: OFFLINE\nKanal ist derzeit nicht live.`);
                     }
                 } else {
-                    alert(`❌ ${platform.toUpperCase()} ${discordEmbedL10n.testFailed}:\n${response.data || discordEmbedL10n.unknownError}`);
+                    alert(`❌ ${platform.toUpperCase()} Test fehlgeschlagen:\n${response.data || 'Unbekannter Fehler'}`);
                 }
             },
             error: function(xhr, status, error) {
@@ -639,15 +639,15 @@ jQuery(document).ready(function($) {
                     alert('✅ Live-Benachrichtigung Einstellungen gespeichert!');
                     updateLiveStatus(settings.enabled);
                 } else {
-                    alert(`❌ ${discordEmbedL10n.saveError}: ` + (response.data || discordEmbedL10n.unknownError));
+                    alert('❌ Fehler beim Speichern: ' + (response.data || 'Unbekannter Fehler'));
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Live settings save error:', error);
-                alert(`❌ ${discordEmbedL10n.saveError}: ` + error);
+                alert('❌ Fehler beim Speichern: ' + error);
             },
             complete: function() {
-                $('#save-live-settings').prop('disabled', false).text(discordEmbedL10n.saveSettings);
+                $('#save-live-settings').prop('disabled', false).text('💾 Einstellungen speichern');
             }
         });
     }
@@ -677,16 +677,16 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    alert(response.data || discordEmbedL10n.testSuccessful);
+                    alert(response.data || 'Test erfolgreich');
                 } else {
-                    alert(`${discordEmbedL10n.error}: ` + (response.data || discordEmbedL10n.unknownError));
+                    alert('Fehler: ' + (response.data || 'Unbekannter Fehler'));
                 }
             },
             error: function(xhr, status, error) {
-                alert(`${discordEmbedL10n.error}: ` + error);
+                alert('Fehler: ' + error);
             },
             complete: function() {
-                button.prop('disabled', false).text(discordEmbedL10n.sendTestNotification);
+                button.prop('disabled', false).text('🧪 Test-Benachrichtigung senden');
             }
         });
     }
@@ -704,11 +704,11 @@ jQuery(document).ready(function($) {
                 if (response.success) {
                     renderSavedTemplates(response.data || []);
                 } else {
-                    $('#saved-live-templates').html('<div style="color:red;">' + discordEmbedL10n.errorLoadingTemplates + '</div>');
+                    $('#saved-live-templates').html('<div style="color:red;">Fehler beim Laden der Templates.</div>');
                 }
             },
             error: function() {
-                $('#saved-live-templates').html('<div style="color:red;">' + discordEmbedL10n.errorLoadingTemplates + '</div>');
+                $('#saved-live-templates').html('<div style="color:red;">Fehler beim Laden der Templates.</div>');
             }
         });
     }
@@ -725,10 +725,10 @@ jQuery(document).ready(function($) {
             html += `<div style="display:flex; align-items:center; gap:8px; padding:8px; border:1px solid #e0e0e0; border-radius:6px; background:${enabled ? '#fff' : '#f6f6f6'};">
                 <div style="flex:1;"> <strong>${t.name}</strong> <br><small style="color:#666;">${t.platform}</small></div>
                 <div style="display:flex; gap:6px;">
-                    <button type="button" class="button button-secondary load-live-template" data-id="${t.id}">${discordEmbedL10n.loadTemplate}</button>
-                    <button type="button" class="button send-live-template" data-id="${t.id}">${discordEmbedL10n.send}</button>
-                    <button type="button" class="button toggle-live-template" data-id="${t.id}" data-enabled="${enabled}">${enabled ? discordEmbedL10n.pause : discordEmbedL10n.activate}</button>
-                    <button type="button" class="button button-danger delete-live-template" data-id="${t.id}">${discordEmbedL10n.delete}</button>
+                    <button type="button" class="button button-secondary load-live-template" data-id="${t.id}">Laden</button>
+                    <button type="button" class="button send-live-template" data-id="${t.id}">Senden</button>
+                    <button type="button" class="button toggle-live-template" data-id="${t.id}" data-enabled="${enabled}">${enabled ? 'Pause' : 'Aktivieren'}</button>
+                    <button type="button" class="button button-danger delete-live-template" data-id="${t.id}">Löschen</button>
                 </div>
             </div>`;
         });
@@ -744,7 +744,7 @@ jQuery(document).ready(function($) {
         $('.delete-live-template').on('click', function(e) {
             e.preventDefault();
             const id = $(this).data('id');
-            window.showCustomConfirm(discordEmbedL10n.confirmDeleteTemplate, function() {
+            window.showCustomConfirm('Template wirklich löschen?', function() {
                 deleteTemplate(id);
             }, function() {
                 // cancelled
@@ -759,7 +759,7 @@ jQuery(document).ready(function($) {
         $('.send-live-template').on('click', function(e) {
             e.preventDefault();
             const id = $(this).data('id');
-            window.showCustomConfirm(discordEmbedL10n.confirmSendTemplateNow, function() {
+            window.showCustomConfirm('Template jetzt senden?', function() {
                 sendSavedTemplate(id);
             }, function() {
                 // cancelled
@@ -825,14 +825,14 @@ jQuery(document).ready(function($) {
                     if (saveAsNew) { $('#live-template-id').val('0'); $('#save-live-as-new').prop('checked', false); }
                     alert('Template gespeichert');
                 } else {
-                    alert(`${discordEmbedL10n.error}: ` + (response.data || discordEmbedL10n.unknownError));
+                    alert('Fehler: ' + (response.data || 'Unbekannter Fehler'));
                 }
             },
             error: function(xhr, status, error) {
-                alert(`${discordEmbedL10n.error}: ` + error);
+                alert('Fehler: ' + error);
             },
             complete: function() {
-                $('#save-live-template').prop('disabled', false).text(discordEmbedL10n.saveCurrentAsTemplate);
+                $('#save-live-template').prop('disabled', false).text('💾 Aktuelle als Template speichern');
             }
         });
     }
@@ -885,10 +885,10 @@ jQuery(document).ready(function($) {
 
                     updateLiveWebhookTypeDisplay();
                 } else {
-                    alert(discordEmbedL10n.errorLoadingTemplate);
+                    alert('Fehler beim Laden des Templates');
                 }
             },
-            error: function() { alert(discordEmbedL10n.errorLoadingTemplate); }
+            error: function() { alert('Fehler beim Laden des Templates'); }
         });
     }
 
@@ -897,8 +897,8 @@ jQuery(document).ready(function($) {
             url: discordEmbed.ajaxUrl,
             method: 'POST',
             data: { action: 'delete_live_notification_template', nonce: discordEmbed.nonce, template_id: id },
-            success: function(response) { if (response.success) loadSavedTemplates(); else alert(`${discordEmbedL10n.error}: ` + (response.data || discordEmbedL10n.unknownError)); },
-            error: function() { alert(`${discordEmbedL10n.error}: ${discordEmbedL10n.deleteFailed}`); }
+            success: function(response) { if (response.success) loadSavedTemplates(); else alert('Fehler: ' + (response.data || 'Unbekannter Fehler')); },
+            error: function() { alert('Fehler beim Löschen'); }
         });
     }
 
@@ -908,7 +908,7 @@ jQuery(document).ready(function($) {
             method: 'POST',
             data: { action: 'toggle_live_notification_template', nonce: discordEmbed.nonce, template_id: id, enabled: enabled ? 1 : 0 },
             success: function(response) { if (response.success) { loadSavedTemplates(); } else { alert('Fehler: ' + (response.data || 'Unbekannter Fehler')); } },
-            error: function() { alert(`${discordEmbedL10n.error}: ${discordEmbedL10n.toggleFailed}`); }
+            error: function() { alert('Fehler beim Umschalten'); }
         });
     }
 
@@ -920,7 +920,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) alert('Nachricht gesendet'); else alert('Fehler: ' + (response.data || 'Unbekannter Fehler'));
             },
-            error: function() { alert(`${discordEmbedL10n.error}: ${discordEmbedL10n.sendFailed}`); }
+            error: function() { alert('Fehler beim Senden'); }
         });
     }
     

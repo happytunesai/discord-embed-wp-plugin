@@ -361,7 +361,7 @@ jQuery(document).ready(function($) {
         const $btn = $(this);
         const originalText = $btn.text() || '😃';
         // Disable all picker buttons and show loading state (keeps UI consistent)
-        $('.open-emoji-picker').prop('disabled', true).text(discordEmbedL10n.loadingEmojis);
+        $('.open-emoji-picker').prop('disabled', true).text('Lade Emojis...');
 
         $.ajax({
             url: discordEmbed.ajaxUrl,
@@ -378,15 +378,15 @@ jQuery(document).ready(function($) {
                         renderEmojiPickerMain(response.data.emojis);
                         openEmojiPickerMain();
                     } else {
-                        alert(discordEmbedL10n.errorLoadingEmojis + (response.data || 'Unknown error'));
+                        alert('Fehler beim Laden der Emojis: ' + (response.data || 'Unbekannter Fehler'));
                     }
                 } catch (e) {
                     console.error('Error handling emoji response', e);
-                    alert(discordEmbedL10n.errorProcessingEmojis + e.message);
+                    alert('Fehler beim Verarbeiten der Emojis: ' + e.message);
                 }
             },
             error: function(xhr, status, error) {
-                alert(discordEmbedL10n.errorLoadingEmojis + error);
+                alert('Fehler beim Laden der Emojis: ' + error);
             },
             complete: function() {
                 // Restore each button to its stored original text and remove the stored data
@@ -1475,7 +1475,7 @@ jQuery(document).ready(function($) {
         }
         
         const button = $(this);
-        button.prop('disabled', true).text(discordEmbedL10n.loadingGeneric);
+        button.prop('disabled', true).text('Lade...');
         
         debugLog('Loading message from URL', 'info', {url: discordUrl});
         
