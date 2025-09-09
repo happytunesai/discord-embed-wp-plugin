@@ -5,8 +5,8 @@ msgstr "Debug Console"
 msgid "Plugin Status"
 msgstr "Plugin Status"
 
-msgid "Version 1.2.0 Active"
-msgstr "Version 1.2.0 Aktiv"
+msgid "Version %s Active"
+msgstr "Version %s Aktiv"
 
 msgid "Database Tables"
 msgstr "Database Tables"

@@ -204,7 +204,7 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                         <small><?php echo esc_html(__('Supports', 'discord-embed-creator')); ?>: **<?php echo esc_html(__('bold', 'discord-embed-creator')); ?>**, *<?php echo esc_html(__('italic', 'discord-embed-creator')); ?>*, __<?php echo esc_html(__('underlined', 'discord-embed-creator')); ?>__, ~~<?php echo esc_html(__('strikethrough', 'discord-embed-creator')); ?>~~, `<?php echo esc_html(__('code', 'discord-embed-creator')); ?>`, [<?php echo esc_html(__('links', 'discord-embed-creator')); ?>](url)</small>
                         <div style="margin-top:8px;">
                             <label style="display:block; font-weight:600; margin-bottom:4px;"><?php echo esc_html(__('Emoji Format & Usage', 'discord-embed-creator')); ?></label>
-                            <p style="color:#666; margin:0;"><?php echo esc_html(__('Use either the full emoji format <code>&lt;:name:ID&gt;</code> or a short placeholder <code>:shortcode:</code>. Example: <code>&lt;:twitch_logo:944912608136417293&gt;</code> or <code>:twitch_logo:</code>.', 'discord-embed-creator')); ?></p>
+                            <p style="color:#666; margin:0;"><?php echo __('Use either the full emoji format <code>&lt;:name:ID&gt;</code> or a short placeholder <code>:shortcode:</code>. Example: <code>&lt;:twitch_logo:944912608136417293&gt;</code> or <code>:twitch_logo:</code>.', 'discord-embed-creator'); ?></p>
                         </div>
                     </div>
                 </div>
@@ -388,7 +388,7 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
         <div style="background: #f0f0f0; padding: 15px; border-radius: 4px; font-family: monospace;">
             <div>
                 <strong><?php echo esc_html(__('Plugin Status', 'discord-embed-creator')); ?>:</strong> 
-                <span style="color: green;">✅ <?php echo esc_html(__('Version 1.2.0 Active', 'discord-embed-creator')); ?></span>
+                <span style="color: green;">✅ <?php echo esc_html(sprintf(__('Version %s Active', 'discord-embed-creator'), DISCORD_EMBED_VERSION)); ?></span>
             </div>
             <div>
                 <strong><?php echo esc_html(__('Database Tables', 'discord-embed-creator')); ?>:</strong>
@@ -587,14 +587,14 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                     <h3>📝 <?php echo esc_html(__('Live Notification Embed Template', 'discord-embed-creator')); ?></h3>
                     <p style="color: #666; margin-bottom: 15px;">
                         <?php echo esc_html(__('Design the embed for live notifications. You can use the same fields as in the main editor.', 'discord-embed-creator')); ?>
-                        <?php echo esc_html(__('Available placeholders: <code>{platform}</code>, <code>{title}</code>, <code>{url}</code>, <code>{thumbnail}</code>', 'discord-embed-creator')); ?>
+                        <?php echo __('Available placeholders: <code>{platform}</code>, <code>{title}</code>, <code>{url}</code>, <code>{thumbnail}</code>', 'discord-embed-creator'); ?>
                     </p>
                     
                     <!-- Embed Template Fields (reusing existing embed editor components) -->
                     <div class="embed-template-editor">
                         <div class="form-row">
                             <label for="live-embed-title"><?php echo esc_html(__('Template Title:', 'discord-embed-creator')); ?></label>
-                            <input type="text" id="live-embed-title" placeholder="🟣 <?php echo esc_attr(__('Live on {platform}!', 'discord-embed-creator')); ?>" 
+                            <input type="text" id="live-embed-title" placeholder="✨ <?php echo esc_attr(__('STREAMER is Live!', 'discord-embed-creator')); ?>" 
                                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         </div>
                         
@@ -610,7 +610,7 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                                 <button type="button" class="md-btn open-emoji-picker" title="<?php echo esc_attr(__('Open Emoji Picker', 'discord-embed-creator')); ?>">😃</button>
                             </div>
                             <textarea id="live-embed-description" rows="4" 
-                                      placeholder="**{title}**&#10;&#10;<?php echo esc_attr(__('Come by and watch!', 'discord-embed-creator')); ?>&#10;&#10;[<?php echo esc_attr(__('To Stream', 'discord-embed-creator')); ?>]({url})"
+                                      placeholder="✨ Hey , STREAMER is live now at:&#10;📺 {url} !&#10;&#10;<?php echo esc_attr(__('Come join the fun! 🚀', 'discord-embed-creator')); ?>"
                                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
                         </div>
                         
@@ -622,7 +622,7 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                         
                         <div class="form-row">
                             <label for="live-embed-footer"><?php echo esc_html(__('Footer Text:', 'discord-embed-creator')); ?></label>
-                            <input type="text" id="live-embed-footer" placeholder="<?php echo esc_attr(__('Live since', 'discord-embed-creator')); ?>" 
+                            <input type="text" id="live-embed-footer" placeholder="<?php echo esc_attr(__('Live now - Powered by Discord Embed Creator', 'discord-embed-creator')); ?>" 
                                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         </div>
                     </div>
@@ -665,7 +665,7 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                             <div class="form-row" style="margin-top:10px;">
                         <!-- Emoji hint for live embed editor and unified picker button is provided in the editor toolbar -->
                         <label style="display:block; font-weight:600; margin-bottom:6px;"><?php echo esc_html(__('Emoji Format & Usage', 'discord-embed-creator')); ?></label>
-                        <p style="color:#666; margin:0 0 8px 0;"><?php echo esc_html(__('Use either the full emoji format <code>&lt;:name:ID&gt;</code> or a short placeholder <code>:shortcode:</code>. Example: <code>&lt;:twitch_logo:944912608136417293&gt;</code> or <code>:twitch_logo:</code>.', 'discord-embed-creator')); ?></p>
+                        <p style="color:#666; margin:0 0 8px 0;"><?php echo __('Use either the full emoji format <code>&lt;:name:ID&gt;</code> or a short placeholder <code>:shortcode:</code>. Example: <code>&lt;:twitch_logo:944912608136417293&gt;</code> or <code>:twitch_logo:</code>.', 'discord-embed-creator'); ?></p>
                     </div>
                 </div>
                 
@@ -691,8 +691,8 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
             
             <div id="live-notification-history" style="min-height: 200px;">
                 <div style="text-align: center; color: #666; padding: 40px;">
-                    <p>Hier werden die letzten Live-Benachrichtigungen angezeigt...</p>
-                    <small>History wird implementiert sobald die ersten Benachrichtigungen gesendet wurden.</small>
+                    <p><?php echo esc_html(__('Recent live notifications will be displayed here...', 'discord-embed-creator')); ?></p>
+                    <small><?php echo esc_html(__('History will be implemented once the first notifications are sent.', 'discord-embed-creator')); ?></small>
                 </div>
             </div>
         </div>

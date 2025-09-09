@@ -3,10 +3,10 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.3.0
+ * Version: 2.3.4
  * Requires at least: 5.0
  * Requires PHP: 7.4
- * Author: Zelika
+ * Author: HappyTunesAI
  * Author URI: https://github.com/happytunesai
  * License: MIT License
  * License URI: https://opensource.org/licenses/MIT
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.3.0');
+    define('DISCORD_EMBED_VERSION', '2.3.4');
 }
 
 class DiscordEmbedPlugin {
@@ -1737,11 +1737,11 @@ class DiscordEmbedPlugin {
             'server_id' => '',
             'channel_id' => '',
             'embed_template' => json_encode(array(
-                'title' => '🟣 Live auf {platform}!',
-                'description' => '**{title}**\n\nKomm vorbei und schau zu!\n\n[Zum Stream]({url})',
+                'title' => '✨ ' . __('STREAMER is Live!', 'discord-embed-creator'),
+                'description' => "✨ " . __('Hey , STREAMER is live now at:', 'discord-embed-creator') . "\n📺 {url} !\n\n" . __('Come join the fun! 🚀', 'discord-embed-creator'),
                 'color' => 9442302, // Purple color
                 'thumbnail' => array('url' => '{thumbnail}'),
-                'footer' => array('text' => 'Live seit')
+                'footer' => array('text' => __('Live now - Powered by Discord Embed Creator', 'discord-embed-creator'))
             )),
             'selected_roles' => array(),
             'cooldown_minutes' => 10
@@ -1867,28 +1867,31 @@ class DiscordEmbedPlugin {
         }
 
         // Build test embed using provided channel (fallback to generic)
-        $title = '🧪 Test: Live auf ' . ucfirst($platform) . '!';
-        $stream_url = '';
-        $thumbnail = '';
-
         if ($platform === 'twitch') {
-            $chan = $channel ?: ($settings['twitch_channel'] ?? 'testchannel');
+            $chan = $channel ?: ($settings['twitch_channel'] ?? 'STREAMER');
             $stream_url = 'https://twitch.tv/' . $chan;
-            $thumbnail = 'https://static-cdn.jtvnw.net/previews-ttv/live_user_' . $chan . '-1920x1080.jpg';
+            $thumbnail = null; // No thumbnail for test
+            
+            $test_embed = array(
+                'title' => 'ᴛᴡɪᴛᴄʜ 🔴 🅻🅸🆅🅴 🎧',
+                'description' => '✨ Hey , ' . strtoupper($chan) . " is live now at:\n📺 " . esc_url($stream_url) . " !\n\nCome join the fun! 🚀",
+                'color' => 9442302, // Purple
+                'footer' => array('text' => 'Test-Benachrichtigung'),
+                'timestamp' => date('c')
+            );
         } else {
-            $chan = $channel ?: ($settings['youtube_channel_id'] ?? '');
-            $stream_url = $chan ? 'https://www.youtube.com/watch?v=' . $chan : '';
-            $thumbnail = '';
+            $chan = $channel ?: ($settings['youtube_channel_id'] ?? 'YOURCHANNEL');
+            $stream_url = 'https://youtube.com/@' . $chan;
+            $thumbnail = null; // No thumbnail for test
+            
+            $test_embed = array(
+                'title' => 'ʏᴏᴜᴛᴜʙᴇ 🔴 🅻🅸🆅🅴 🎧',
+                'description' => "✨ Hey , STREAMER is live now at:\n📺 " . esc_url($stream_url) . " !\n\n🎶 Come join the fun! 🚀",
+                'color' => 16711680, // Red
+                'footer' => array('text' => 'Test-Benachrichtigung'),
+                'timestamp' => date('c')
+            );
         }
-
-        $test_embed = array(
-            'title' => $title,
-            'description' => '**Dies ist eine Test-Benachrichtigung**\n\nFalls du diese Nachricht siehst, funktioniert die Integration! 🎉\n\n[Zum Stream](' . esc_url($stream_url) . ')',
-            'color' => 9442302,
-            'thumbnail' => array('url' => $thumbnail),
-            'footer' => array('text' => 'Test-Benachrichtigung'),
-            'timestamp' => date('c')
-        );
 
         // Add role mentions if selected
         $selected_roles = $_POST['selected_roles'] ?? $settings['selected_roles'] ?? array();
@@ -2106,8 +2109,8 @@ class DiscordEmbedPlugin {
 
         if (!$template) {
             $template = array(
-                'title' => '🟣 Live auf {platform}!',
-                'description' => '**{title}**\n\nKomm vorbei und schau zu!\n\n[Zum Stream]({url})',
+                'title' => 'ᴛᴡɪᴛᴄʜ � 🅻🅸🆅🅴 🎧',
+                'description' => '✨ Hey , STREAMER is live now at:\n📺 {url} !\n\nCome join the fun! 🚀',
                 'color' => 9442302
             );
         }

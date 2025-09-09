@@ -1,5 +1,5 @@
 ﻿# Discord Embed Creator
-# Copyright (C) 2025 Zelika
+# Copyright (C) 2025 HappyTunesAI
 # This file is distributed under the same license as the Discord Embed Creator package.
 msgid ""
 msgstr ""
@@ -7,7 +7,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-07-31 10:00+0000\n"
 "PO-Revision-Date: 2025-07-31 10:00+0000\n"
-"Last-Translator: Zelika\n"
+"Last-Translator: HappyTunesAI\n"
 "Language-Team: English\n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
@@ -918,8 +918,8 @@ msgstr "Message was successfully loaded into the editor!"
 msgid "Live on {platform}!"
 msgstr "Live on {platform}!"
 
-msgid "Come by and watch!"
-msgstr "Come by and watch!"
+msgid "Come join the fun! 🚀"
+msgstr "Come join the fun! 🚀"
 
 msgid "To Stream"
 msgstr "To Stream"
@@ -1103,3 +1103,15 @@ msgstr "Toggle failed"
 
 msgid "Send failed"
 msgstr "Send failed"
+
+msgid "Come join the fun!"
+msgstr "Come join the fun!"
+
+msgid "Hey everyone, {streamer} is live now!"
+msgstr "Hey everyone, {streamer} is live now!"
+
+msgid "Join the stream:"
+msgstr "Join the stream:"
+
+msgid "Live since"
+msgstr "Live since"

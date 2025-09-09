@@ -577,10 +577,10 @@ jQuery(document).ready(function($) {
             },
             error: function(xhr, status, error) {
                 console.error(`${platform} test error:`, error);
-                alert(`❌ ${platform.toUpperCase()} Test fehlgeschlagen:\n${error}`);
+                alert(`❌ ${platform.toUpperCase()} Test failed:\n${error}`);
             },
             complete: function() {
-                button.prop('disabled', false).text(`🧪 ${platform === 'twitch' ? 'Twitch' : 'YouTube'} Status testen`);
+                button.prop('disabled', false).text(`🧪 ${platform === 'twitch' ? 'Twitch' : 'YouTube'} Status test`);
             }
         });
     }
@@ -590,11 +590,11 @@ jQuery(document).ready(function($) {
         console.log('Saving live notification settings...');
         
         const embedTemplate = {
-            title: $('#live-embed-title').val() || '🟣 Live auf {platform}!',
-            description: $('#live-embed-description').val() || '**{title}**\n\nKomm vorbei und schau zu!\n\n[Zum Stream]({url})',
+            title: $('#live-embed-title').val() || 'ᴛᴡɪᴛᴄʜ � 🅻🅸🆅🅴 🎧',
+            description: $('#live-embed-description').val() || '✨ Hey , STREAMER is live now at:\n📺 {url} !\n\nCome join the fun! 🚀',
             color: parseInt($('#live-embed-color').val().replace('#', ''), 16),
             footer: {
-                text: $('#live-embed-footer').val() || 'Live seit'
+                text: $('#live-embed-footer').val() || 'Live'
             }
         };
         
@@ -664,7 +664,7 @@ jQuery(document).ready(function($) {
         }
 
         const button = $('#test-live-notification');
-        button.prop('disabled', true).text('🧪 Test sende...');
+        button.prop('disabled', true).text('🧪 Test send...');
 
         $.ajax({
             url: discordEmbed.ajaxUrl,
@@ -715,7 +715,7 @@ jQuery(document).ready(function($) {
 
     function renderSavedTemplates(templates) {
         if (!templates || templates.length === 0) {
-            $('#saved-live-templates').html('<div style="color:#666;">Keine gespeicherten Templates gefunden.</div>');
+            $('#saved-live-templates').html('<div style="color:#666;">No saved templates found.</div>');
             return;
         }
 
@@ -770,7 +770,7 @@ jQuery(document).ready(function($) {
     function saveCurrentAsTemplate() {
         const name = $('#live-template-name').val().trim();
         if (!name) {
-            alert('Bitte einen Template-Namen angeben');
+            alert('Please enter a template name');
             return;
         }
 

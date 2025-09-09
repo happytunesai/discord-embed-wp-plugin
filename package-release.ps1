@@ -1,27 +1,27 @@
 <#
 package-release.ps1
 
-Erstellt eine ZIP‑Package des Plugins für WordPress Upload:
-- schließt aus: alle .zip Dateien, .gitattributes, .gitignore, README.md, package-release.ps1
-- erstellt ZIP mit korrekter WordPress Plugin-Struktur (Dateien im ZIP-Root)
-- verwendet Plugin Text Domain als eindeutigen Identifier
+Creates a ZIP package of the plugin for WordPress upload:
+- excludes: all .zip files, .gitattributes, .gitignore, README.md, package-release.ps1
+- creates ZIP with correct WordPress plugin structure (files in ZIP root)
+- uses plugin text domain as unique identifier
 
 Usage (PowerShell):
 .\package-release.ps1
 
-Das Skript arbeitet im Verzeichnis, in dem es liegt (Plugin-Root).
+The script works in the directory where it is located (plugin root).
 #>
 
-# --- Konfiguration ---
+# --- Configuration ---
 $excludeNames = @('.gitattributes', '.gitignore', 'README.md')
 $excludeExtensions = @('.zip')
 $fileListName = 'package-filelist.txt'
 # Output directory for zips
 $outputDir = 'releases'
 
-# Plugin identifiers - muss mit Plugin Header übereinstimmen
-$pluginTextDomain = 'discord-embed-creator'  # Text Domain aus Plugin Header
-$pluginSlug = 'discord-embed-creator'       # WordPress Plugin Slug (für Ordnername)
+# Plugin identifiers - must match plugin header
+$pluginTextDomain = 'discord-embed-creator'  # Text Domain from Plugin Header
+$pluginSlug = 'discord-embed-creator'       # WordPress Plugin Slug (for folder name)
 
 # Ensure the generated file list is not included in the archive
 $excludeNames += $fileListName
@@ -66,7 +66,7 @@ try {
     $releaseDir = Join-Path $outputDir $releaseId
     if (-not (Test-Path $releaseDir)) { New-Item -ItemType Directory -Path $releaseDir | Out-Null }
 
-    # Fixed zip name mit Plugin Text Domain für eindeutige WordPress Identifikation
+    # Fixed zip name with Plugin Text Domain for unique WordPress identification
     $zipBaseName = "$pluginSlug.zip"
     $zipPath = Join-Path $releaseDir $zipBaseName
 
@@ -78,25 +78,25 @@ try {
     # Ensure any existing zip with same name is removed
     if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 
-    # Gather files to include - mit besserer Filterung und Existenz-Check
+    # Gather files to include - with better filtering and existence check
     $allFiles = Get-ChildItem -Path $root -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object {
         # exclude .git folder contents
         $_.FullName -notmatch "\\.git\\" -and
-        # Stelle sicher, dass die Datei wirklich existiert und lesbar ist
+        # Make sure the file really exists and is readable
         (Test-Path $_.FullName -PathType Leaf) -and
-        # Prüfe dass es kein Symlink oder Placeholder ist und nicht leer ist
+        # Check that it's not a symlink or placeholder and not empty
         $_.Length -ne $null -and $_.Length -gt 0
     }
 
     $filesToInclude = @()
     foreach ($f in $allFiles) {
-        # Nochmalige Existenz-Prüfung vor Verarbeitung
+        # Additional existence check before processing
         if (-not (Test-Path $f.FullName -PathType Leaf)) { 
             Write-Warning "Skipping non-existent file: $($f.FullName)"
             continue 
         }
         
-        # Überspringe leere Dateien
+        # Skip empty files
         if ($f.Length -eq 0) {
             Write-Warning "Skipping empty file: $($f.FullName)"
             continue
@@ -105,7 +105,7 @@ try {
         if ($excludeNames -contains $f.Name) { continue }
         if ($excludeExtensions -contains $f.Extension.ToLower()) { continue }
         if ($f.FullName -match "\\\.git\\") { continue }
-        # skip files inside output dir (korrigierte Pfad-Prüfung)
+        # skip files inside output dir (corrected path check)
         $outputDirFullPath = (Resolve-Path (Join-Path $root $outputDir) -ErrorAction SilentlyContinue)
         if ($outputDirFullPath -and $f.FullName.StartsWith($outputDirFullPath.Path)) { continue }
         # Skip the package script itself
@@ -124,10 +124,10 @@ try {
     Write-Host "Wrote file list to $fileListPath (count: $($relPaths.Count))"
 
     # Create zip from staging folder (include all files, preserve folders)
-    # WordPress benötigt explizite Ordner-Einträge im ZIP!
+    # WordPress requires explicit folder entries in ZIP!
     if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
     
-    # Erstelle ZIP mit .NET Methoden für bessere Kontrolle über Ordnerstruktur
+    # Create ZIP with .NET methods for better control over folder structure
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     Add-Type -AssemblyName System.IO.Compression
     
@@ -135,7 +135,7 @@ try {
     $zip = New-Object System.IO.Compression.ZipArchive($zipStream, [System.IO.Compression.ZipArchiveMode]::Create)
     
     try {
-        # Sammle alle benötigten Ordner aus den Dateipfaden
+        # Collect all required folders from file paths
         $directories = @()
         foreach ($f in $filesToInclude) {
             $relative = $f.FullName.Substring($root.Length + 1)
@@ -145,10 +145,10 @@ try {
             }
         }
         
-        # Entferne Duplikate und sortiere
+        # Remove duplicates and sort
         $uniqueDirs = $directories | Sort-Object | Get-Unique
         
-        # Erstelle explizite Ordner-Einträge im ZIP (wichtig für WordPress!)
+        # Create explicit folder entries in ZIP (important for WordPress!)
         foreach ($dir in $uniqueDirs) {
             $dirEntry = $dir.Replace('\', '/') + '/'
             Write-Host "Creating directory entry: $dirEntry"
@@ -156,7 +156,7 @@ try {
             $entry.LastWriteTime = (Get-Date)
         }
         
-        # Füge alle Dateien hinzu
+        # Add all files
         foreach ($f in $filesToInclude) {
             if (-not (Test-Path $f.FullName -PathType Leaf)) {
                 Write-Warning "Skipping file during ZIP creation - no longer exists: $($f.FullName)"
@@ -166,11 +166,11 @@ try {
             $relative = $f.FullName.Substring($root.Length + 1).Replace('\', '/')
             Write-Host "Adding file: $relative"
             
-            # Erstelle Datei-Eintrag
+            # Create file entry
             $entry = $zip.CreateEntry($relative)
             $entry.LastWriteTime = $f.LastWriteTime
             
-            # Kopiere Dateiinhalt
+            # Copy file content
             $entryStream = $entry.Open()
             $fileStream = [System.IO.File]::OpenRead($f.FullName)
             try {
@@ -191,12 +191,12 @@ try {
     Write-Host "Note: $fileListPath contains the exact included file list."
     Write-Host ""
     Write-Host "WordPress Upload Instructions:"
-    Write-Host "1. Deaktiviere das bestehende Plugin in WordPress Admin"
-    Write-Host "2. Lösche das bestehende Plugin komplett (WordPress Admin > Plugins > Löschen)"
-    Write-Host "3. Lade $zipBaseName über WordPress Admin > Plugins > Plugin hochladen hoch"
-    Write-Host "4. Aktiviere das Plugin"
+    Write-Host "1. Deactivate the existing plugin in WordPress Admin"
+    Write-Host "2. Delete the existing plugin completely (WordPress Admin > Plugins > Delete)"
+    Write-Host "3. Upload $zipBaseName via WordPress Admin > Plugins > Add New > Upload Plugin"
+    Write-Host "4. Activate the plugin"
     Write-Host ""
-    Write-Host "WICHTIG: Altes Plugin zuerst löschen um Cache-Konflikte zu vermeiden!"
+    Write-Host "IMPORTANT: Delete old plugin first to avoid cache conflicts!"
 
 } catch {
     Write-Error $_.Exception.Message
