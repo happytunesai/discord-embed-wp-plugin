@@ -290,11 +290,11 @@ key={youtube_api_key}
 Embed template example:
 ```json
 {
-  "title": "ᴛᴡɪᴛᴄʜ � 🅻🅸🆅🅴 🎧",
+  "title": "ᴛᴡɪᴛᴄʜ 🔴 🅻🅸🆅🅴 🎧",
   "description": "✨ Hey , STREAMER is live now at:\n📺 {url} !\n\nCome join the fun! 🚀",
   "color": 9442302,
   "thumbnail": {"url": "{thumbnail}"},
-  "footer": {"text": "Live seit"},
+  "footer": {"text": "Live - "},
   "timestamp": "2024-01-01T12:00:00Z"
 }
 ```
@@ -342,7 +342,7 @@ Recent fixes you should know about:
 
 ## 📝 Changelog
 
-### 🎉 v2.3.0 (current)
+### 🎉 v2.3.4 (current)
 ```
 🚀 MAJOR FEATURE UPDATE 🚀
 ├─ 🌍 Complete internationalization (EN/DE)
