@@ -3,13 +3,13 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.2.9
+ * Version: 2.3.0
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: Zelika
  * Author URI: https://github.com/happytunesai
- * License: GPL v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * License: MIT License
+ * License URI: https://opensource.org/licenses/MIT
  * Text Domain: discord-embed-creator
  * Domain Path: /languages
  * Network: false
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.2.9');
+    define('DISCORD_EMBED_VERSION', '2.3.0');
 }
 
 class DiscordEmbedPlugin {

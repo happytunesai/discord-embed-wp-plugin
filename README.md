@@ -1,75 +1,102 @@
-# Discord Embed Creator
+# 🎮 Discord Embed Creator
 
-**Version:** 2.2.5 
-**Requires PHP:** 7.4+  
-**Requires WordPress:** 5.0+  
+```
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║    ██████╗ ██╗███████╗ ██████╗ ██████╗ ██████╗ ██████╗       ║
+║    ██╔══██╗██║██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔══██╗      ║
+║    ██║  ██║██║███████╗██║     ██║   ██║██████╔╝██║  ██║      ║
+║    ██║  ██║██║╚════██║██║     ██║   ██║██╔══██╗██║  ██║      ║
+║    ██████╔╝██║███████║╚██████╗╚██████╔╝██║  ██║██████╔╝      ║
+║    ╚═════╝ ╚═╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚═════╝       ║
+║                                                               ║
+║           🚀 EMBED CREATOR FOR WORDPRESS 🚀                   ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+```
 
-A WordPress plugin to create and send Discord embeds with a live preview, template management, flexible webhook/bot configurations and an optional Live Notifications system for Twitch & YouTube.
+**📊 Version:** 2.3.0  
+**⚡ Requires PHP:** 7.4+  
+**🌐 Requires WordPress:** 5.0+  
 
----
-
-## Table of contents
-- Features
-- Live Notifications (Twitch & YouTube)
-- Emoji fetcher (server guild emojis)
-- Requirements
-- Installation
-- Usage
-- Configuration Details
-- Database
-- Cron
-- API Integration
-- Template System
-- JavaScript Integration
-- Debugging & Troubleshooting
-- Changelog
-- Support & License
+> 🎯 **The ultimate WordPress plugin** for Discord embeds with live preview, template management, flexible webhook/bot configurations and optional live notifications system for Twitch & YouTube!
 
 ---
 
-## Features
+## 📋 Table of contents
+- [✨ Features](#-features)
+- [📺 Live Notifications (Twitch & YouTube)](#-live-notifications-twitch--youtube)
+- [😀 Emoji fetcher (server guild emojis)](#-emoji-fetcher-server-guild-emojis)
+- [⚙️ Requirements](#️-requirements)
+- [📦 Installation](#-installation)
+- [🚀 Usage](#-usage)
+- [🔧 Configuration Details](#-configuration-details)
+- [🗄️ Database](#️-database)
+- [⏰ Cron](#-cron)
+- [🔌 API Integration](#-api-integration)
+- [📄 Template System](#-template-system)
+- [💻 JavaScript Integration](#-javascript-integration)
+- [🐛 Debugging & Troubleshooting](#-debugging--troubleshooting)
+- [📝 Changelog](#-changelog)
+- [📞 Support & License](#-support--license)
 
-- **Embed Builder**
+---
+
+## ✨ Features
+
+- **🎨 Embed Builder**
   - Title, description (Markdown), URL, color, timestamp, author, footer, images, custom fields
   - Live preview styled like Discord
   - Role mentions helper (inserts <@&ROLEID>)
 
-- **Template Management**
+- **📚 Template Management**
   - Save, load, and delete embed templates
   - Stored in the database and loaded via AJAX
 
-- **Webhook Configuration**
+- **🔗 Webhook Configuration**
   - Channel Webhook: use a standard webhook URL
   - Server Webhook: use Bot Token + Server ID and select channels via Discord API
   - Test connection in a configuration modal
   - Persistent settings saved via WordPress options
 
-- **Message Management**
+- **📩 Message Management**
   - Send via channel webhook or Bot API
   - History of sent messages with filters (today, week, month)
   - Load an existing Discord message by URL and edit it
 
-- **Live Notifications (optional)**
+- **🔴 Live Notifications (optional)**
   - Monitor Twitch and YouTube channels and post live notifications automatically
   - Integrates with StreamWeasels for Twitch/YouTube credentials (optional)
   - Configurable templates, role mentions and cooldown anti-spam
 
-- **Emoji Fetcher**
+- **😀 Emoji Fetcher**
   - Load guild emojis via Bot Token + Server ID (for custom emoji insertion into templates)
   - Client-side emoji picker with transient caching on the server
 
-- **UI/UX**
+- **🎭 UI/UX**
   - Toast notifications instead of alert() (where available)
   - Autofill prevention and small admin UI fixes
   - Responsive layout: editor and live preview side by side
+  - Full internationalization support (English/German)
 
-- **Debug & Logging**
+- **🐛 Debug & Logging**
   - Optional console logs and PHP error_log entries for AJAX and API calls
   - Built-in Debug Console on the admin page
 
 ---
 
-## Live Notifications (Twitch & YouTube)
+## 📺 Live Notifications (Twitch & YouTube)
+
+```
+🔴 LIVE    📺 Twitch/YouTube Monitor    🔴 LIVE
+┌─────────────────────────────────────────────┐
+│  StreamWeasels Integration ✅               │
+│  Twitch Helix API ✅                        │
+│  YouTube Data API v3 ✅                     │
+│  WordPress Cron (3min) ✅                   │
+│  Anti-Spam Cooldown ✅                      │
+└─────────────────────────────────────────────┘
+```
 
 This plugin includes a Live Notifications module that can periodically check Twitch and YouTube for live streams and post a customizable Discord embed when a channel goes live.
 
@@ -98,27 +125,44 @@ Template placeholders:
 
 ---
 
-## Emoji fetcher (guild emojis)
+## 😀 Emoji fetcher (guild emojis)
 
-The plugin can load custom guild emojis from Discord so you can insert them into descriptions or fields. Key points:
+```
+   😀 😃 😄 😁 😆    CUSTOM GUILD EMOJIS    🎉 🎊 🎈 ✨ 🌟
+┌─────────────────────────────────────────────────────────────┐
+│  🔗 Discord Bot API Integration                             │
+│  💾 Server-side Caching (60min)                            │
+│  🖱️  Click-to-Insert Emoji Picker                          │
+│  🌍 Fully Localized UI                                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+- The plugin can load custom guild emojis from Discord so you can insert them into descriptions or fields. Key points:
 
 - Server endpoint: AJAX action `load_server_emojis` (requires `nonce`, `bot_token`, `server_id`).
 - The server caches emoji lists in a transient (default: 60 minutes) to avoid rate limits.
 - Client behavior:
   - Buttons with class `.open-emoji-picker` open a centralized emoji picker modal.
   - The picker renders guild emojis in a grid and inserts codes like `<:name:id>` or `<a:name:id>` into the currently focused textarea or a target description.
-  - Buttons temporarily show `Lade Emojis...` while loading; recent fixes ensure the original button labels are preserved and restored correctly.
+  - Fully localized loading states and error messages.
 
 Recent fixes and UX improvements related to emojis:
 - Server: `load_server_emojis` returns `emojis` array and caches results using transients.
 - Client:
   - Per-tab scoped handlers so main editor and live notifications handlers don't conflict.
   - Per-button original-label capture (`data('original-text')`) before changing to the loading label; restore in the AJAX `complete` handler.
-  - Defensive insertion functions (accept jQuery elements, safe selection/position handling) to avoid runtime exceptions that previously caused 'undefined' to be inserted.
+  - Defensive insertion functions (accept jQuery elements, safe selection/position handling) to avoid runtime exceptions.
+  - Complete internationalization of all user-facing text.
 
 ---
 
-## Requirements
+## ⚙️ Requirements
+
+```
+✅ WordPress 5.0+        ✅ PHP 7.4+
+✅ Discord Bot Token     ✅ HTTP Outbound Requests  
+✅ Server Permissions    ✅ StreamWeasels (optional)
+```
 
 - WordPress 5.0+ and PHP 7.4+
 - For "Server Webhook" mode: a Discord Bot with proper permissions and the bot added to your server
@@ -126,11 +170,34 @@ Recent fixes and UX improvements related to emojis:
 
 ---
 
-## Installation
+## 📦 Installation
 
-1. Copy this folder into `wp-content/plugins/` (or install a zipped archive via the WordPress dashboard).
-2. Activate the plugin under **Plugins**.
-3. Open the new menu item: **Discord Embeds**.
+```
+   📥 INSTALLATION METHODS 📥
+┌─────────────────────────────────┐
+│  Method 1: WordPress Dashboard  │  ⭐ RECOMMENDED
+│  Method 2: FTP Upload          │
+│  Method 3: WP-CLI              │
+└─────────────────────────────────┘
+```
+
+### 🎯 Method 1: WordPress Dashboard (Recommended!)
+1. **Add Plugin:** Go to **Plugins** → **Add New** in your WordPress Admin
+2. **Upload ZIP:** Click **Upload Plugin** 
+3. **Choose File:** Select the `discord-embed-wp-plugin.zip` file
+4. **Install:** Click **Install Now**
+5. **Activate:** Click **Activate Plugin**
+6. **Done!** The new **Discord Embeds** menu is available
+
+### 🗂️ Method 2: FTP Upload
+1. Extract the ZIP file
+2. Upload the folder to `wp-content/plugins/`
+3. Activate the plugin under **Plugins**
+
+### 💻 Method 3: WP-CLI
+```bash
+wp plugin install discord-embed-wp-plugin.zip --activate
+```
 
 If upgrading from an earlier version that added live notifications, run any required database migrations via the plugin's automatic updater or via WP-CLI. One‑off migration scripts that were previously included in the repository have been removed from the plugin root and are no longer bundled with releases.
 
@@ -138,19 +205,30 @@ If you maintain self-hosted copies and need the original migration scripts, chec
 
 ---
 
-## Usage
+## 🚀 Usage
 
-1. Select an existing template or start a new one.
-2. Build your embed (title, description with Markdown, color, images, fields, author/footer, timestamp).
-3. Configure the webhook:
-   - Channel Webhook: paste the webhook URL.
-   - Server Webhook: enter Bot Token + Server ID, then load and select a channel.
-4. Save the template or send the embed to Discord.
-5. For Live Notifications, configure templates and enable monitoring in the Live Notifications tab.
+```
+    🎯 QUICK START GUIDE 🎯
+┌─────────────────────────────────┐
+│  1️⃣  Select/create template     │
+│  2️⃣  Build embed               │
+│  3️⃣  Configure webhook         │
+│  4️⃣  Save or send              │
+│  5️⃣  Live Notifications setup   │
+└─────────────────────────────────┘
+```
+
+1. **Template Management:** Select an existing template or start a new one
+2. **Embed Builder:** Build your embed (title, description with Markdown, color, images, fields, author/footer, timestamp)
+3. **Webhook Configuration:**
+   - **Channel Webhook:** paste the webhook URL
+   - **Server Webhook:** enter Bot Token + Server ID, then load and select a channel
+4. **Send or Save:** Save the template or send the embed to Discord
+5. **Live Notifications:** Configure templates and enable monitoring in the Live Notifications tab
 
 ---
 
-## Configuration Details
+## 🔧 Configuration Details
 
 - **Webhook types**
   - Channel Webhook: posts directly to a webhook URL.
@@ -255,25 +333,58 @@ Server-side debugging:
 - Enable WordPress debug logging (`WP_DEBUG` & `WP_DEBUG_LOG`) to see PHP error_log entries generated by the plugin.
 
 Recent fixes you should know about:
+- Complete internationalization: All German hardcoded strings replaced with WordPress i18n system
 - Hardened markdown/insert functions to accept jQuery objects and avoid selection-related TypeErrors.
-- Scoped emoji click handlers and per-button label capture/restore to prevent the "Lade Emojis..." label from becoming permanent.
+- Scoped emoji click handlers and per-button label capture/restore to prevent loading labels from becoming permanent.
+- Fixed syntax errors in live-notifications.js that occurred during translation updates.
 
 ---
 
-## Changelog
+## 📝 Changelog
 
-### v2.2.3.1 (current)
+### 🎉 v2.3.0 (current)
+```
+🚀 MAJOR FEATURE UPDATE 🚀
+├─ 🌍 Complete internationalization (EN/DE)
+├─ 📄 MIT License migration from GPL
+├─ 🎨 Redesigned README with ASCII art
+├─ ✅ 20+ new localization strings
+├─ 🔧 JavaScript syntax fixes
+├─ 📦 Improved installation guide
+└─ 🌟 Enhanced user experience
+```
+
+### 🌍 v2.2.9
+- Complete internationalization: All user-facing text now uses WordPress i18n system
+- Added localization strings for buttons, error messages, and status text
+- Fixed JavaScript syntax errors in live-notifications.js
+- Updated German and English .po translation files
+
+### 🔧 v2.2.8
 - Updated Live Notifications and emoji picker UX; defensive JS improvements; various bugfixes.
 
-### v2.1.0
+### 🚀 v2.1.0
 - Added Live Notifications: StreamWeasels integration, Twitch/YouTube checks, templates, roles, cooldowns, cron scheduling.
 
 ---
 
-## Support & License
+## 📞 Support & License
 
-- **License:** GPL v2 or later
-- **Author:** happytunesai
-- **Repository:** https://github.com/happytunesai/discord-embed-wp-plugin
+```
+   📋 PROJECT INFO 📋
+┌─────────────────────────────┐
+│  License: MIT License      │
+│  Author: happytunesai      │
+│  GitHub: 🔗 Repository     │
+└─────────────────────────────┘
+```
 
-© 2025 happytunesai. All rights reserved.
+- **📄 License:** MIT License
+- **👨‍💻 Author:** happytunesai  
+- **🔗 Repository:** https://github.com/happytunesai/discord-embed-wp-plugin
+
+```
+┌─────────────────────────────────────────────┐
+│  © 2025 happytunesai. All rights reserved. │
+└─────────────────────────────────────────────┘
+```
