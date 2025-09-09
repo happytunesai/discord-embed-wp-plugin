@@ -319,17 +319,36 @@ jQuery(document).ready(function($) {
     $(document).on('input', '.field-input', updatePreview);
     $(document).on('change', '.inline-checkbox', updatePreview);
 
+    // Store original emoji picker button text so we can restore it after loading
+    let originalEmojiPickerText = $('.open-emoji-picker').first().text() || '😃';
+
     // Markdown toolbar buttons
     $(document).on('click', '.md-btn', function() {
-        const markdown = $(this).data('md');
-        const textarea = $(this).parent().next('textarea, input[type="text"]');
-        if (textarea.length) {
+        const markdownRaw = $(this).data('md');
+        const markdown = (typeof markdownRaw === 'string') ? markdownRaw : '';
+        // try to find a textarea or input next to the toolbar
+        let textarea = $(this).closest('.markdown-toolbar').next('textarea, input[type="text"]');
+        if (!textarea || textarea.length === 0) {
+            // fallback: try a parent form row, then any focused input/textarea
+            textarea = $(this).closest('form').find('textarea:visible, input[type="text"]:visible').first();
+        }
+        if (textarea && textarea.length) {
             insertMarkdown(textarea[0], markdown);
+        } else {
+            // As last resort try active element
+            const active = document.activeElement;
+            if (active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text'))) {
+                insertMarkdown(active, markdown);
+            } else {
+                // Nothing found - show gentle notice
+                showToast(__l('noTargetForMarkdown', 'No target field found for markdown insertion.'), 'warning');
+            }
         }
     });
 
     // --- Emoji picker for main editor (reuses server endpoint used by live notifications) ---
-    $('#load-emojis-main-btn').on('click', function() {
+    // Unified emoji picker handler for main editor and live notifications
+    $(document).on('click', '#tab-embed-creator .open-emoji-picker', function() {
         // Prefer bot token/server id from main webhook fields, fallback to live fields
         const botToken = $('#bot-token').val() || $('#live-bot-token').val();
         const serverId = $('#server-id').val() || $('#live-server-id').val();
@@ -339,7 +358,10 @@ jQuery(document).ready(function($) {
             return;
         }
 
-        const btn = $(this).prop('disabled', true).text('Lade Emojis...');
+        const $btn = $(this);
+        const originalText = $btn.text() || '😃';
+        // Disable all picker buttons and show loading state (keeps UI consistent)
+        $('.open-emoji-picker').prop('disabled', true).text('Lade Emojis...');
 
         $.ajax({
             url: discordEmbed.ajaxUrl,
@@ -351,18 +373,28 @@ jQuery(document).ready(function($) {
                 server_id: serverId
             },
             success: function(response) {
-                if (response.success && response.data && response.data.emojis) {
-                    renderEmojiPickerMain(response.data.emojis);
-                    openEmojiPickerMain();
-                } else {
-                    alert('Fehler beim Laden der Emojis: ' + (response.data || 'Unbekannter Fehler'));
+                try {
+                    if (response.success && response.data && response.data.emojis) {
+                        renderEmojiPickerMain(response.data.emojis);
+                        openEmojiPickerMain();
+                    } else {
+                        alert('Fehler beim Laden der Emojis: ' + (response.data || 'Unbekannter Fehler'));
+                    }
+                } catch (e) {
+                    console.error('Error handling emoji response', e);
+                    alert('Fehler beim Verarbeiten der Emojis: ' + e.message);
                 }
             },
             error: function(xhr, status, error) {
                 alert('Fehler beim Laden der Emojis: ' + error);
             },
             complete: function() {
-                btn.prop('disabled', false).text('🔍');
+                // Restore each button to its stored original text and remove the stored data
+                $('.open-emoji-picker').each(function() {
+                    const $el = $(this);
+                    const txt = $el.data('original-text') || '😃';
+                    $el.prop('disabled', false).text(txt).removeData('original-text');
+                });
             }
         });
     });
@@ -398,7 +430,8 @@ jQuery(document).ready(function($) {
             );
             el.on('click', function() {
                 insertEmojiCodeIntoActiveField(code);
-                modal.hide();
+                // Use centralized close so body overflow is restored consistently
+                closeEmojiPickerMain();
             });
             grid.append(el);
         });
@@ -434,10 +467,17 @@ jQuery(document).ready(function($) {
         modal.attr('tabindex', '-1').focus();
     }
 
+    function closeEmojiPickerMain() {
+        const modal = $('#emoji-picker-modal');
+        // hide with same display manipulation used by opener
+        modal.css('display', 'none');
+        // restore page scrolling explicitly
+        $('body').css('overflow', 'auto');
+    }
+
     // Close button handler (works for both pickers)
     $(document).on('click', '#close-emoji-picker', function() {
-        $('#emoji-picker-modal').hide();
-        $('body').css('overflow', '');
+        closeEmojiPickerMain();
     });
     // --- End Emoji picker main ---
 
@@ -687,10 +727,31 @@ jQuery(document).ready(function($) {
     }
 
     function insertMarkdown(element, markdown) {
-        const start = element.selectionStart;
-        const end = element.selectionEnd;
-        const selectedText = element.value.substring(start, end);
-        
+        // Accept jQuery objects
+        if (element && element.jquery) element = element[0];
+
+        // Defensive: element may be undefined or not support .value
+        if (!element || !(element instanceof HTMLTextAreaElement || (element instanceof HTMLInputElement && element.type === 'text'))) {
+            // Try to fall back to active element
+            const active = document.activeElement;
+            if (active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text'))) {
+                element = active;
+            } else {
+                // Nothing to insert into
+                return;
+            }
+        }
+
+        // Safely read value
+        const value = (typeof element.value === 'string') ? element.value : '';
+
+        // Compute selection positions defensively
+        const start = (typeof element.selectionStart === 'number') ? element.selectionStart : value.length;
+        const end = (typeof element.selectionEnd === 'number') ? element.selectionEnd : start;
+        const safeStart = Math.max(0, Math.min(start, value.length));
+        const safeEnd = Math.max(0, Math.min(end, value.length));
+        const selectedText = value.substring(safeStart, safeEnd);
+
         let replacement;
         if (markdown === '') {
             replacement = '' + selectedText + '';
@@ -699,15 +760,18 @@ jQuery(document).ready(function($) {
         } else {
             replacement = markdown + selectedText + markdown;
         }
-        
-        element.value = element.value.substring(0, start) + replacement + element.value.substring(end);
-        element.focus();
-        
-        // Set cursor position
-        const newPos = selectedText ? start + replacement.length : start + markdown.length;
-        element.setSelectionRange(newPos, newPos);
-        
-        updatePreview();
+
+        // Build new value
+        const newValue = value.substring(0, safeStart) + replacement + value.substring(safeEnd);
+        try { element.value = newValue; } catch (e) { /* ignore */ }
+
+        // Focus and set cursor position
+        try { element.focus(); } catch (e) {}
+        const newPos = selectedText ? safeStart + replacement.length : safeStart + (markdown ? markdown.length : 0);
+        try { element.setSelectionRange(newPos, newPos); } catch (e) {}
+
+        // Trigger preview update
+        try { updatePreview(); } catch (e) {}
     }
 
     function addField(name = '', value = '', inline = false) {

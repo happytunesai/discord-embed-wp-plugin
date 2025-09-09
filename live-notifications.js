@@ -234,9 +234,20 @@ jQuery(document).ready(function($) {
         
         // Markdown toolbar for live description
         $('.md-btn[data-target="live-embed-description"]').on('click', function() {
-            const markdown = $(this).data('md');
+            const markdownRaw = $(this).data('md');
+            const markdown = (typeof markdownRaw === 'string') ? markdownRaw : '';
             const target = $('#' + $(this).data('target'));
-            insertMarkdown(target[0], markdown);
+            if (target && target.length) {
+                insertMarkdown(target[0], markdown);
+            } else {
+                // fallback to active element
+                const active = document.activeElement;
+                if (active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text'))) {
+                    insertMarkdown(active, markdown);
+                } else {
+                    showNotification('Kein Ziel für Markdown gefunden', 'warning');
+                }
+            }
         });
     }
     
@@ -358,7 +369,15 @@ jQuery(document).ready(function($) {
             return;
         }
 
-        $('#load-emojis-btn').prop('disabled', true).text('Lade Emojis...');
+    // Disable any open-emoji-picker buttons while loading
+        // Do NOT overwrite an already-saved original label (the click handler saves it).
+        $('.open-emoji-picker').each(function() {
+            if (typeof $(this).data('original-text') === 'undefined') {
+                $(this).data('original-text', $(this).text() || '😃');
+            }
+        });
+    // set loading state
+    $('.open-emoji-picker').prop('disabled', true).text('Lade Emojis...');
 
         $.ajax({
             url: discordEmbed.ajaxUrl,
@@ -370,18 +389,29 @@ jQuery(document).ready(function($) {
                 server_id: serverId
             },
             success: function(response) {
-                if (response.success && response.data && response.data.emojis) {
-                    renderEmojiPicker(response.data.emojis);
-                    $('#emoji-picker-modal').show();
-                } else {
-                    alert('Fehler beim Laden der Emojis: ' + (response.data || 'Unbekannter Fehler'));
+                try {
+                    if (response.success && response.data && response.data.emojis) {
+                        renderEmojiPicker(response.data.emojis);
+                        // Use the centralized opener so body overflow is handled consistently
+                        openEmojiPicker();
+                    } else {
+                        alert('Fehler beim Laden der Emojis: ' + (response.data || 'Unbekannter Fehler'));
+                    }
+                } catch (e) {
+                    console.error('Error processing emoji response', e);
+                    alert('Fehler beim Verarbeiten der Emojis: ' + e.message);
                 }
             },
             error: function(xhr, status, error) {
                 alert('Fehler beim Laden der Emojis: ' + error);
             },
             complete: function() {
-                $('#load-emojis-btn').prop('disabled', false).text('🔍 Emojis laden');
+                // Restore each button to its stored original text and remove the stored data
+                $('.open-emoji-picker').each(function() {
+                    const $el = $(this);
+                    const txt = $el.data('original-text') || '😃';
+                    $el.prop('disabled', false).text(txt).removeData('original-text');
+                });
             }
         });
     }
@@ -399,7 +429,8 @@ jQuery(document).ready(function($) {
             `);
             el.on('click', function() {
                 insertEmojiCodeAtCursor(code);
-                $('#emoji-picker-modal').hide();
+                // Ensure the centralized closer runs so page scrolling is restored
+                closeEmojiPicker();
             });
             grid.append(el);
         });
@@ -410,40 +441,60 @@ jQuery(document).ready(function($) {
         const active = document.activeElement;
         if (!active) return;
         if (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text')) {
-            const start = active.selectionStart || 0;
-            const end = active.selectionEnd || 0;
-            const val = active.value;
-            const newVal = val.substring(0, start) + code + val.substring(end);
-            active.value = newVal;
-            // set cursor after inserted code
-            const pos = start + code.length;
-            active.setSelectionRange(pos, pos);
-            $(active).trigger('input');
+            try {
+                const start = (typeof active.selectionStart === 'number') ? active.selectionStart : 0;
+                const end = (typeof active.selectionEnd === 'number') ? active.selectionEnd : start;
+                const val = (typeof active.value === 'string') ? active.value : '';
+                const newVal = val.substring(0, start) + code + val.substring(end);
+                active.value = newVal;
+                // set cursor after inserted code
+                const pos = start + code.length;
+                try { active.setSelectionRange(pos, pos); } catch (e) {}
+                $(active).trigger('input');
+            } catch (e) {
+                console.error('Error inserting emoji code at cursor', e);
+            }
         } else {
             // If nothing focused, append to description
             const desc = $('#live-embed-description')[0];
-            desc.value = desc.value + '\n' + code;
-            $(desc).trigger('input');
+            if (desc) {
+                desc.value = (desc.value || '') + '\n' + code;
+                $(desc).trigger('input');
+            }
         }
     }
 
     // Emoji modal handlers
-    $(document).on('click', '#load-emojis-btn', function() { loadServerEmojis(); });
+        // Ensure this handler only triggers from within the Live Notifications tab toolbar to avoid double-calls
+        $(document).on('click', '#tab-live-notifications .open-emoji-picker', function() {
+            // Ensure we capture the ORIGINAL label for each picker BEFORE we set the loading text.
+            // If we set the loading text first, the loader would capture that as the "original"
+            // and then restore the loading label permanently. Capture first, then set loading.
+            const $btn = $(this);
+            $('.open-emoji-picker').each(function() { $(this).data('original-text', $(this).text() || '😃'); });
+            // temporarily disable and show loading on all open-emoji-picker buttons for consistent UX
+            $('.open-emoji-picker').prop('disabled', true).text('Lade Emojis...');
+            // call loader (loader will restore text on complete)
+            loadServerEmojis();
+        });
+        $(document).on('click', '#close-emoji-picker', function() { closeEmojiPicker(); });
     $(document).on('click', '#close-emoji-picker', function() { closeEmojiPicker(); });
 
     function openEmojiPicker() {
         const modal = $('#emoji-picker-modal');
         // Use flex-style centered layout and prevent body scroll
-        modal.css('display', 'flex');
-        $('body').css('overflow', 'hidden');
+    modal.css('display', 'flex');
+    $('body').css('overflow', 'hidden');
         // ensure focus is on modal for accessibility
         modal.attr('tabindex', '-1').focus();
     }
 
     function closeEmojiPicker() {
         const modal = $('#emoji-picker-modal');
-        modal.hide();
-        $('body').css('overflow', '');
+    // Hide using the same display manipulation as openEmojiPicker
+    modal.css('display', 'none');
+    // Explicitly restore page scrolling to avoid missing scrollbar in some browsers
+    $('body').css('overflow', 'auto');
     }
     
     // Render role selector for live notifications
@@ -875,23 +926,41 @@ jQuery(document).ready(function($) {
     
     // Helper function for markdown insertion
     function insertMarkdown(textarea, markdown) {
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const selectedText = textarea.value.substring(start, end);
-        
+        // Accept jQuery objects
+        if (textarea && textarea.jquery) textarea = textarea[0];
+
+        // Defensive: ensure textarea is valid
+        if (!textarea || !(textarea instanceof HTMLTextAreaElement || (textarea instanceof HTMLInputElement && textarea.type === 'text'))) {
+            const active = document.activeElement;
+            if (active && (active.tagName === 'TEXTAREA' || (active.tagName === 'INPUT' && active.type === 'text'))) {
+                textarea = active;
+            } else {
+                showNotification('Kein Ziel für Markdown gefunden', 'warning');
+                return;
+            }
+        }
+
+        const value = (typeof textarea.value === 'string') ? textarea.value : '';
+        const start = (typeof textarea.selectionStart === 'number') ? textarea.selectionStart : value.length;
+        const end = (typeof textarea.selectionEnd === 'number') ? textarea.selectionEnd : start;
+        const safeStart = Math.max(0, Math.min(start, value.length));
+        const safeEnd = Math.max(0, Math.min(end, value.length));
+        const selectedText = value.substring(safeStart, safeEnd);
+
         let newText;
         if (markdown === '[text](url)') {
             newText = selectedText ? `[${selectedText}](url)` : '[text](url)';
         } else {
             newText = selectedText ? `${markdown}${selectedText}${markdown}` : `${markdown}text${markdown}`;
         }
-        
-        textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-        
+
+        try { textarea.value = value.substring(0, safeStart) + newText + value.substring(safeEnd); } catch (e) {}
+
         // Set cursor position
-        const newCursorPos = start + newText.length;
-        textarea.setSelectionRange(newCursorPos, newCursorPos);
-        textarea.focus();
+        const newCursorPos = safeStart + newText.length;
+        try { textarea.setSelectionRange(newCursorPos, newCursorPos); } catch (e) {}
+        try { textarea.focus(); } catch (e) {}
+        try { $(textarea).trigger('input'); } catch (e) {}
     }
     
     // Show notification

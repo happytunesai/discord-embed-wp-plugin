@@ -198,10 +198,14 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                             <button type="button" class="md-btn" data-md="`" title="<?php echo esc_attr(__('Code', 'discord-embed-creator')); ?>"><code>C</code></button>
                             <button type="button" class="md-btn" data-md="[text](url)" title="<?php echo esc_attr(__('Link', 'discord-embed-creator')); ?>">🔗</button>
                             <!-- Emoji loader for main editor -->
-                            <button type="button" id="load-emojis-main-btn" class="md-btn" title="<?php echo esc_attr(__('Load Emojis', 'discord-embed-creator')); ?>">🔍</button>
+                            <button type="button" class="md-btn open-emoji-picker" title="<?php echo esc_attr(__('Open Emoji Picker', 'discord-embed-creator')); ?>">😃</button>
                         </div>
                         <textarea id="embed-description" name="description" rows="4" placeholder="<?php echo esc_attr(__('Embed Description (Markdown supported)', 'discord-embed-creator')); ?>"></textarea>
                         <small><?php echo esc_html(__('Supports', 'discord-embed-creator')); ?>: **<?php echo esc_html(__('bold', 'discord-embed-creator')); ?>**, *<?php echo esc_html(__('italic', 'discord-embed-creator')); ?>*, __<?php echo esc_html(__('underlined', 'discord-embed-creator')); ?>__, ~~<?php echo esc_html(__('strikethrough', 'discord-embed-creator')); ?>~~, `<?php echo esc_html(__('code', 'discord-embed-creator')); ?>`, [<?php echo esc_html(__('links', 'discord-embed-creator')); ?>](url)</small>
+                        <div style="margin-top:8px;">
+                            <label style="display:block; font-weight:600; margin-bottom:4px;">Emoji Formatierung & Verwendung</label>
+                            <p style="color:#666; margin:0;">Benutze entweder das volle Emoji-Format <code>&lt;:name:ID&gt;</code> oder ein kurzer Platzhalter <code>:shortcode:</code>. Beispiel: <code>&lt;:twitch_logo:944912608136417293&gt;</code> oder <code>:twitch_logo:</code>.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -603,6 +607,8 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                                 <button type="button" class="md-btn" data-target="live-embed-description" data-md="__" title="Underlined"><u>U</u></button>
                                 <button type="button" class="md-btn" data-target="live-embed-description" data-md="~~" title="Strikethrough"><del>S</del></button>
                                 <button type="button" class="md-btn" data-target="live-embed-description" data-md="`" title="Code"><code>C</code></button>
+                                <!-- Emoji loader for live editor (same as main editor) -->
+                                <button type="button" class="md-btn open-emoji-picker" title="Open Emoji Picker">😃</button>
                             </div>
                             <textarea id="live-embed-description" rows="4" 
                                       placeholder="**{title}**&#10;&#10;Komm vorbei und schau zu!&#10;&#10;[Zum Stream]({url})"
@@ -657,12 +663,10 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                             Verhindert mehrfache Benachrichtigungen für den gleichen Stream
                         </small>
                     </div>
-                    <div class="form-row" style="margin-top:10px;">
+                            <div class="form-row" style="margin-top:10px;">
+                        <!-- Emoji hint for live embed editor and unified picker button is provided in the editor toolbar -->
                         <label style="display:block; font-weight:600; margin-bottom:6px;">Emoji Formatierung & Verwendung</label>
                         <p style="color:#666; margin:0 0 8px 0;">Benutze entweder das volle Emoji-Format <code>&lt;:name:ID&gt;</code> oder ein kurzer Platzhalter <code>:shortcode:</code>. Beispiel: <code>&lt;:twitch_logo:944912608136417293&gt;</code> oder <code>:twitch_logo:</code>.</p>
-                        <div style="margin-top:6px;">
-                            <button type="button" id="load-emojis-btn" class="button">🔍 Emojis laden</button>
-                        </div>
                     </div>
                 </div>
                 
