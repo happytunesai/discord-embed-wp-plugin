@@ -98,6 +98,14 @@
 └───────────────────────────────────────────────┘
 ```
 
+**⚠️ IMPORTANT:** Live Notifications currently require the **[StreamWeasels](https://www.streamweasels.com/)** plugins to function:
+- **[StreamWeasels Twitch Integration](https://www.streamweasels.com/product/streamweasels-twitch-integration/)** - For Twitch API credentials
+  - 🔗 **[GitHub Repository](https://github.com/common-repository/streamweasels-twitch-integration)**
+- **[StreamWeasels YouTube Integration](https://www.streamweasels.com/product/streamweasels-youtube-integration/)** - For YouTube API credentials
+  - 🔗 **[GitHub Repository](https://github.com/common-repository/streamweasels-youtube-integration)**
+
+*Thanks to StreamWeasels for providing the API integration foundation! 🙏*
+
 This plugin includes a Live Notifications module that can periodically check Twitch and YouTube for live streams and post a customizable Discord embed when a channel goes live.
 
 Features:
@@ -108,10 +116,14 @@ Features:
 - Per-channel cooldown (default 10 minutes) to avoid spamming.
 - Saved live templates with CRUD, per-template enable/disable and immediate send action.
 
-Setup:
-1. Ensure you updated the database (see Database section or run the included update script).
-2. Configure StreamWeasels credentials (optional) or provide channel identifiers.
-3. Go to Discord Embeds → Live Notifications and configure platform, webhook target and template.
+**📋 Setup Guide:**
+1. **Install StreamWeasels Plugins** (required):
+   - Install [StreamWeasels Twitch Integration](https://github.com/common-repository/streamweasels-twitch-integration) for Twitch monitoring
+   - Install [StreamWeasels YouTube Integration](https://github.com/common-repository/streamweasels-youtube-integration) for YouTube monitoring
+   - Configure your API credentials in the respective StreamWeasels plugins
+2. **Update Database:** Ensure you updated the database (see Database section or run the included update script)
+3. **Configure Webhook:** Set up your Discord webhook or bot token (see Requirements section for guides)
+4. **Setup Live Notifications:** Go to Discord Embeds → Live Notifications and configure platform, webhook target and template
 
 Cron:
 - Hook: `discord_embed_check_live_status`
@@ -164,9 +176,13 @@ Recent fixes and UX improvements related to emojis:
 ✅ Server Permissions    ✅ StreamWeasels (optional)
 ```
 
-- WordPress 5.0+ and PHP 7.4+
-- For "Server Webhook" mode: a Discord Bot with proper permissions and the bot added to your server
-- Outbound HTTP requests must be allowed from your WordPress host (wp_remote_* functions)
+- **WordPress 5.0+ and PHP 7.4+**
+- **For "Server Webhook" mode:** A Discord Bot with proper permissions and the bot added to your server
+  - 🤖 **[Discord Bot Creation Guide](https://discord.com/developers/docs/getting-started)**
+  - 🔑 **[Bot Token & Permissions Setup](https://discord.com/developers/docs/topics/oauth2#bots)**
+  - 🔗 **[Discord Webhook Setup Guide](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks)**
+- **Outbound HTTP requests** must be allowed from your WordPress host (wp_remote_* functions)
+- **For Live Notifications:** StreamWeasels plugins (see Live Notifications section)
 
 ---
 
