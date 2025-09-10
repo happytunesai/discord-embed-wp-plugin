@@ -46,8 +46,9 @@
 
 - **🎨 Embed Builder**
   - Title, description (Markdown), URL, color, timestamp, author, footer, images, custom fields
-  - Live preview styled like Discord
+  - Live preview styled like Discord with Discord Custom Emoji support
   - Role mentions helper (inserts <@&ROLEID>)
+  - Discord Custom Emojis display as 20x20px images in live preview
 
 - **📚 Template Management**
   - Save, load, and delete embed templates
@@ -66,7 +67,7 @@
 
 - **🔴 Live Notifications (optional)**
   - Monitor Twitch and YouTube channels and post live notifications automatically
-  - Integrates with StreamWeasels for Twitch/YouTube credentials (optional)
+  - **Requires StreamWeasels plugin** for Twitch/YouTube API integration
   - Configurable templates, role mentions and cooldown anti-spam
 
 - **😀 Emoji Fetcher**
@@ -90,7 +91,7 @@
 ```
 🔴 LIVE    📺 Twitch/YouTube Monitor    🔴 LIVE
 ┌───────────────────────────────────────────────┐
-│     ◉ StreamWeasels Integration  ✓           │
+│     ◉ StreamWeasels Integration  REQUIRED   │
 │     ◉ Twitch Helix API           ✓           │
 │     ◉ YouTube Data API v3        ✓           │
 │     ◉ WordPress Cron (3min)      ✓           │
@@ -101,7 +102,7 @@
 This plugin includes a Live Notifications module that can periodically check Twitch and YouTube for live streams and post a customizable Discord embed when a channel goes live.
 
 Features:
-- StreamWeasels integration: reads Twitch/YouTube credentials from the StreamWeasels plugin if present.
+- **StreamWeasels integration**: Requires StreamWeasels plugin for Twitch/YouTube API credentials and data access.
 - Twitch: Helix API checks for streams.
 - YouTube: Data API v3 checks for live videos.
 - Runs on a WordPress Cron every 3 minutes (custom interval `every_three_minutes`).
@@ -109,9 +110,10 @@ Features:
 - Saved live templates with CRUD, per-template enable/disable and immediate send action.
 
 Setup:
-1. Ensure you updated the database (see Database section or run the included update script).
-2. Configure StreamWeasels credentials (optional) or provide channel identifiers.
+1. **Install and configure StreamWeasels plugin** - Required for Twitch/YouTube API integration.
+2. Set up StreamWeasels credentials for the platforms you want to monitor.
 3. Go to Discord Embeds → Live Notifications and configure platform, webhook target and template.
+4. The plugin will automatically create the required database tables on activation.
 
 Cron:
 - Hook: `discord_embed_check_live_status`
