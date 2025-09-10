@@ -15,7 +15,7 @@
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**📊 Version:** 2.4.2 
+**📊 Version:** 2.4.3 
 **⚡ Requires PHP:** 7.4+  
 **🌐 Requires WordPress:** 5.0+  
 
@@ -344,7 +344,31 @@ Recent fixes you should know about:
 
 ## 📝 Changelog
 
-### 🚀 v2.4.2 (current)
+### 🚀 v2.4.3 (current)
+```
+🎯 DYNAMIC PLACEHOLDER SYSTEM ENHANCEMENT 🎯
+├─ ✅ Implemented dynamic placeholder replacement in Live Notifications
+├─ 🔄 Replaced static sample data with real form field extraction
+├─ 📊 Platform-specific URL generation (Twitch/YouTube channels)
+├─ 🖼️ Dynamic thumbnail URL generation based on platform selection
+├─ 🎪 Enhanced user experience with actual channel data in previews
+├─ 🧹 Improved template system responsiveness to user input changes
+└─ ✨ Eliminated hardcoded placeholder values for better UX
+```
+
+### 🚀 v2.4.2
+```
+🎨 EMBEDDED EDITOR DISCORD EMOJI INTEGRATION 🎨
+├─ ✅ Discord Custom Emojis now display in main Embed Editor live preview
+├─ 🖼️ Custom emoji support for Title, Description, Fields, Author, Footer
+├─ 📸 20x20px standard Discord emoji sizing with CDN integration
+├─ 🎯 Animated Discord emojis (<a:name:id>) fully supported
+├─ 🔗 Role mentions (<@&roleId>) displayed as styled pills
+├─ 🧹 Fixed JavaScript placeholder escaping bug
+└─ ✨ Complete feature parity between both live preview systems
+```
+
+### 🚀 v2.4.2 
 ```
 � EMBEDDED EDITOR DISCORD EMOJI INTEGRATION 🎨
 ├─ ✅ Discord Custom Emojis now display in main Embed Editor live preview

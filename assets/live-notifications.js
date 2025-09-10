@@ -1043,14 +1043,29 @@ jQuery(document).ready(function($) {
     function collectLiveEmbedData() {
         const embedData = {};
         
+        // Get real data from form fields
+        const platform = $('#live-template-platform').val() || 'twitch';
+        const twitchChannel = $('#twitch-channel').val();
+        const youtubeChannelId = $('#youtube-channel-id').val();
+        
+        // Determine the actual channel URL based on platform and available data
+        let channelUrl = '';
+        if (platform === 'youtube' && youtubeChannelId) {
+            channelUrl = `https://youtube.com/channel/${youtubeChannelId}`;
+        } else if (platform === 'twitch' && twitchChannel) {
+            channelUrl = `https://twitch.tv/${twitchChannel}`;
+        } else {
+            // Fallback if no data available
+            channelUrl = platform === 'youtube' ? 'https://youtube.com/channel/sample-channel' : 'https://twitch.tv/sample-channel';
+        }
+        
         // Basic data
         const title = $('#live-embed-title').val();
         if (title) {
-            // Replace placeholders with sample data for preview
+            // Replace placeholders with real or fallback data
             embedData.title = title
-                .replace(/\{platform\}/gi, 'Twitch')
-                .replace(/\{title\}/gi, 'The Mana Bar - 3rd Anniversary Special 🎉')
-                .replace(/STREAMER/gi, 'The Mana Bar');
+                .replace(/\{platform\}/gi, platform === 'youtube' ? 'YouTube' : 'Twitch')
+                .replace(/\{title\}/gi, 'Sample Stream Title'); // This would be replaced with real stream title in actual notification
         }
 
         const description = $('#live-embed-description').val();
@@ -1067,12 +1082,11 @@ jQuery(document).ready(function($) {
                 processedDescription = selectedRoles.join(' ') + '\n\n' + processedDescription;
             }
             
-            // Replace placeholders with sample data for preview
+            // Replace placeholders with real data from form fields
             embedData.description = processedDescription
-                .replace(/\{platform\}/gi, 'Twitch')
-                .replace(/\{url\}/gi, 'https://twitch.tv/themanabar')
-                .replace(/\{title\}/gi, 'The Mana Bar - 3rd Anniversary Special 🎉')
-                .replace(/STREAMER/gi, 'The Mana Bar')
+                .replace(/\{platform\}/gi, platform === 'youtube' ? 'YouTube' : 'Twitch')
+                .replace(/\{url\}/gi, channelUrl)
+                .replace(/\{title\}/gi, 'Sample Stream Title') // This would be replaced with real stream title in actual notification
                 .replace(/<@&(\d+)>/g, '<span style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@role</span>');
         }
 
@@ -1088,8 +1102,8 @@ jQuery(document).ready(function($) {
             embedData.footer = {};
             if (footerText) {
                 embedData.footer.text = footerText
-                    .replace(/\{platform\}/gi, 'Twitch')
-                    .replace(/\{title\}/gi, 'The Mana Bar - 3rd Anniversary Special 🎉');
+                    .replace(/\{platform\}/gi, platform === 'youtube' ? 'YouTube' : 'Twitch')
+                    .replace(/\{title\}/gi, 'Sample Stream Title'); // This would be replaced with real stream title in actual notification
             }
             if (footerIcon) {
                 embedData.footer.icon_url = footerIcon;
@@ -1100,10 +1114,16 @@ jQuery(document).ready(function($) {
         const image = $('#live-embed-image').val();
         if (image) {
             if (image.includes('{thumbnail}')) {
-                // Use a sample Twitch thumbnail for preview
-                embedData.image = { 
-                    url: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_themanabar-1920x1080.jpg'
-                };
+                // Use a sample thumbnail for preview - in real notification this would be the actual stream thumbnail
+                if (platform === 'youtube') {
+                    embedData.image = { 
+                        url: 'https://i.ytimg.com/vi/sample-video/maxresdefault.jpg'
+                    };
+                } else {
+                    embedData.image = { 
+                        url: `https://static-cdn.jtvnw.net/previews-ttv/live_user_${twitchChannel || 'sample-channel'}-1920x1080.jpg`
+                    };
+                }
             } else {
                 embedData.image = { url: image };
             }
