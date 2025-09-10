@@ -400,4 +400,3 @@ Recent fixes you should know about:
 └─────────────────────────────────────────────┘
 ```
 *Created with ❤️ + AI* ![EZ_STT_GUI_LOGO_50](https://github.com/user-attachments/assets/9ccc03b2-6c16-4956-aa49-76c95fdd323a)
-```
