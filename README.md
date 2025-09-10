@@ -15,7 +15,7 @@
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**📊 Version:** 2.3.8 
+**📊 Version:** 2.3.9 
 **⚡ Requires PHP:** 7.4+  
 **🌐 Requires WordPress:** 5.0+  
 
@@ -342,7 +342,18 @@ Recent fixes you should know about:
 
 ## 📝 Changelog
 
-### 🎉 v2.3.8 (current)
+### 🎉 v2.3.9 (current)
+```
+🎨 FIELD WIDTH & CHECKBOX FIXES 🎨
+├─ ✅ Fixed field width consistency across all scenarios
+├─ 🔧 Resolved field size shrinking when loading templates
+├─ ☑️ Enhanced checkbox visibility and styling
+├─ 📏 Unified field HTML structure for consistency
+├─ 🎯 Improved user experience in field editor
+└─ ✨ Better visual alignment and proportions
+```
+
+### 🎉 v2.3.8
 ```
 🎨 FOOTER ICON & UI IMPROVEMENTS 🎨
 ├─ ➕ Added Footer Icon URL to Live Notifications

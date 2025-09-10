@@ -79,29 +79,42 @@ jQuery(document).ready(function($) {
                 // First delete all existing fields
                 $('#fields-container').empty();
                 
-                // Then add new fields
+                // Then add new fields using the same structure as addField()
                 embed.fields.forEach(function(field, index) {
                     debugLog('Adding field', 'info', {index: index, field: field});
                     
-                    // Field HTML erstellen (wie im ui-fix.js addField)
+                    // Use the same field HTML structure as addField() function for consistency
                     const fieldHtml = `
-                        <div class="embed-field" data-field-index="${index}">
-                            <div class="field-header">
-                                <span class="field-number">Field ${index + 1}</span>
-                                <button type="button" class="remove-field" data-field="${index}">Remove</button>
+                        <div class="embed-field">
+                            <div class="field-actions">
+                                <button type="button" class="button remove-field">Remove</button>
                             </div>
-                            <div class="field-row">
-                                <label for="field-name-${index}">Field Name:</label>
-                                <input type="text" class="field-name" id="field-name-${index}" name="field_name_${index}" value="${field.name || ''}" placeholder="Field Name">
+                            <div class="field-inline-checkbox">
+                                <input type="checkbox" class="field-input inline-checkbox" ${field.inline ? 'checked' : ''}>
+                                <label>Display inline</label>
                             </div>
-                            <div class="field-row">
-                                <label for="field-value-${index}">Field Value:</label>
-                                <textarea class="field-value" id="field-value-${index}" name="field_value_${index}" rows="3" placeholder="Field Value">${field.value || ''}</textarea>
+                            <div class="form-row">
+                                <label>Field Name:</label>
+                                <div class="markdown-toolbar">
+                                    <button type="button" class="md-btn" data-md="**" title="Bold"><strong>B</strong></button>
+                                    <button type="button" class="md-btn" data-md="*" title="Italic"><em>I</em></button>
+                                    <button type="button" class="md-btn" data-md="__" title="Underlined"><u>U</u></button>
+                                    <button type="button" class="md-btn" data-md="~~" title="Strikethrough"><del>S</del></button>
+                                    <button type="button" class="md-btn" data-md="\`" title="Code"><code>C</code></button>
+                                </div>
+                                <input type="text" class="field-input field-name" value="${field.name || ''}" placeholder="Field Name">
                             </div>
-                            <div class="field-row">
-                                <label>
-                                    <input type="checkbox" class="inline-checkbox" name="field_inline_${index}" ${field.inline ? 'checked' : ''}> Display inline
-                                </label>
+                            <div class="form-row">
+                                <label>Field Value:</label>
+                                <div class="markdown-toolbar">
+                                    <button type="button" class="md-btn" data-md="**" title="Bold"><strong>B</strong></button>
+                                    <button type="button" class="md-btn" data-md="*" title="Italic"><em>I</em></button>
+                                    <button type="button" class="md-btn" data-md="__" title="Underlined"><u>U</u></button>
+                                    <button type="button" class="md-btn" data-md="~~" title="Strikethrough"><del>S</del></button>
+                                    <button type="button" class="md-btn" data-md="\`" title="Code"><code>C</code></button>
+                                    <button type="button" class="md-btn" data-md="[text](url)" title="Link">🔗</button>
+                                </div>
+                                <textarea class="field-input field-value" rows="3" placeholder="Field Value">${field.value || ''}</textarea>
                             </div>
                         </div>
                     `;
@@ -122,7 +135,7 @@ jQuery(document).ready(function($) {
             
             // 2. Also trigger field events if fields were loaded
             setTimeout(function() {
-                $('.field-name, .field-value, .field-inline').trigger('change');
+                $('.field-input').trigger('change');
                 debugLog('Triggered field change events', 'info');
             }, 50);
             
@@ -1627,29 +1640,42 @@ jQuery(document).ready(function($) {
                 // First delete all existing fields
                 $('#fields-container').empty();
                 
-                // Then add new fields
+                // Then add new fields using the same structure as addField()
                 embed.fields.forEach(function(field, index) {
                     debugLog('Adding field from history', 'info', {index: index, field: field});
                     
-                    // Field HTML erstellen (wie im ui-fix.js addField)
+                    // Use the same field HTML structure as addField() function for consistency
                     const fieldHtml = `
-                        <div class="embed-field" data-field-index="${index}">
-                            <div class="field-header">
-                                <span class="field-number">Field ${index + 1}</span>
-                                <button type="button" class="remove-field" data-field="${index}">Remove</button>
+                        <div class="embed-field">
+                            <div class="field-actions">
+                                <button type="button" class="button remove-field">Remove</button>
                             </div>
-                            <div class="field-row">
-                                <label for="field-name-${index}">Field Name:</label>
-                                <input type="text" class="field-name" id="field-name-${index}" name="field_name_${index}" value="${field.name || ''}" placeholder="Field Name">
+                            <div class="field-inline-checkbox">
+                                <input type="checkbox" class="field-input inline-checkbox" ${field.inline ? 'checked' : ''}>
+                                <label>Display inline</label>
                             </div>
-                            <div class="field-row">
-                                <label for="field-value-${index}">Field Value:</label>
-                                <textarea class="field-value" id="field-value-${index}" name="field_value_${index}" rows="3" placeholder="Field Value">${field.value || ''}</textarea>
+                            <div class="form-row">
+                                <label>Field Name:</label>
+                                <div class="markdown-toolbar">
+                                    <button type="button" class="md-btn" data-md="**" title="Bold"><strong>B</strong></button>
+                                    <button type="button" class="md-btn" data-md="*" title="Italic"><em>I</em></button>
+                                    <button type="button" class="md-btn" data-md="__" title="Underlined"><u>U</u></button>
+                                    <button type="button" class="md-btn" data-md="~~" title="Strikethrough"><del>S</del></button>
+                                    <button type="button" class="md-btn" data-md="\`" title="Code"><code>C</code></button>
+                                </div>
+                                <input type="text" class="field-input field-name" value="${field.name || ''}" placeholder="Field Name">
                             </div>
-                            <div class="field-row">
-                                <label>
-                                    <input type="checkbox" class="inline-checkbox" name="field_inline_${index}" ${field.inline ? 'checked' : ''}> Display inline
-                                </label>
+                            <div class="form-row">
+                                <label>Field Value:</label>
+                                <div class="markdown-toolbar">
+                                    <button type="button" class="md-btn" data-md="**" title="Bold"><strong>B</strong></button>
+                                    <button type="button" class="md-btn" data-md="*" title="Italic"><em>I</em></button>
+                                    <button type="button" class="md-btn" data-md="__" title="Underlined"><u>U</u></button>
+                                    <button type="button" class="md-btn" data-md="~~" title="Strikethrough"><del>S</del></button>
+                                    <button type="button" class="md-btn" data-md="\`" title="Code"><code>C</code></button>
+                                    <button type="button" class="md-btn" data-md="[text](url)" title="Link">🔗</button>
+                                </div>
+                                <textarea class="field-input field-value" rows="3" placeholder="Field Value">${field.value || ''}</textarea>
                             </div>
                         </div>
                     `;

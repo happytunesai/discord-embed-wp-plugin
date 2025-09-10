@@ -447,15 +447,66 @@
     color: #23282d;
 }
 
+/* Field inputs - Consistent width styling for all field inputs */
+.field-name,
+.field-value,
+.field-input {
+    width: 100% !important;
+    min-width: 200px !important;
+    box-sizing: border-box !important;
+}
+
 .field-inline-checkbox {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
     margin-bottom: 10px;
 }
 
 .field-inline-checkbox input[type="checkbox"] {
-    width: auto;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    margin: 0 !important;
+    border: 2px solid #ddd !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    cursor: pointer !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    position: relative !important;
+    vertical-align: middle !important;
+}
+
+.field-inline-checkbox input[type="checkbox"]:checked {
+    background: #5865f2 !important;
+    border-color: #5865f2 !important;
+}
+
+.field-inline-checkbox input[type="checkbox"]:checked::after {
+    content: '✓' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    color: white !important;
+    font-size: 12px !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
+}
+
+.field-inline-checkbox input[type="checkbox"]:hover {
+    border-color: #5865f2 !important;
+    box-shadow: 0 0 0 1px rgba(88, 101, 242, 0.2) !important;
+}
+
+.field-inline-checkbox label {
+    cursor: pointer !important;
+    user-select: none !important;
+    font-weight: normal !important;
+    margin: 0 !important;
 }
 
 /* Templates Grid */
