@@ -582,64 +582,88 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                     </div>
                 </div>
                 
-                <!-- Embed Template Editor -->
+                <!-- Live Notification Embed Editor with Preview -->
                 <div class="form-section" style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 20px 0;">
                     <h3>📝 <?php echo esc_html(__('Live Notification Embed Template', 'discord-embed-creator')); ?></h3>
                     <p style="color: #666; margin-bottom: 15px;">
                         <?php echo esc_html(__('Design the embed for live notifications. You can use the same fields as in the main editor.', 'discord-embed-creator')); ?>
                         <?php echo __('Available placeholders: <code>{platform}</code>, <code>{title}</code>, <code>{url}</code>, <code>{thumbnail}</code> - Use {thumbnail} in image field for live thumbnails', 'discord-embed-creator'); ?>
                     </p>
-                    
-                    <!-- Embed Template Fields (reusing existing embed editor components) -->
-                    <div class="embed-template-editor">
-                        <div class="form-row">
-                            <label for="live-embed-title"><?php echo esc_html(__('Template Title:', 'discord-embed-creator')); ?></label>
-                            <input type="text" id="live-embed-title" placeholder="✨ <?php echo esc_attr(__('STREAMER is Live!', 'discord-embed-creator')); ?>" 
-                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
+
+                    <!-- Live Notification Editor Container with Preview -->
+                    <div class="live-notification-editor-container" style="display: grid; grid-template-columns: 1fr 560px; gap: 20px; margin-top: 20px;">
                         
-                        <div class="form-row">
-                            <label for="live-embed-description"><?php echo esc_html(__('Template Description:', 'discord-embed-creator')); ?></label>
-                            <div class="markdown-toolbar">
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="**" title="<?php echo esc_attr(__('Bold', 'discord-embed-creator')); ?>"><strong>B</strong></button>
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="*" title="<?php echo esc_attr(__('Italic', 'discord-embed-creator')); ?>"><em>I</em></button>
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="__" title="<?php echo esc_attr(__('Underlined', 'discord-embed-creator')); ?>"><u>U</u></button>
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="~~" title="<?php echo esc_attr(__('Strikethrough', 'discord-embed-creator')); ?>"><del>S</del></button>
-                                <button type="button" class="md-btn" data-target="live-embed-description" data-md="`" title="<?php echo esc_attr(__('Code', 'discord-embed-creator')); ?>"><code>C</code></button>
-                                <!-- Emoji loader for live editor (same as main editor) -->
-                                <button type="button" class="md-btn open-emoji-picker" title="<?php echo esc_attr(__('Open Emoji Picker', 'discord-embed-creator')); ?>">😃</button>
+                        <!-- Live Embed Editor Fields -->
+                        <div class="live-embed-editor">
+                            <!-- Embed Template Fields (reusing existing embed editor components) -->
+                        <div class="embed-template-editor">
+                            <div class="form-row">
+                                <label for="live-embed-title"><?php echo esc_html(__('Template Title:', 'discord-embed-creator')); ?></label>
+                                <input type="text" id="live-embed-title" placeholder="✨ <?php echo esc_attr(__('STREAMER is Live!', 'discord-embed-creator')); ?>" 
+                                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                             </div>
-                            <textarea id="live-embed-description" rows="4" 
-                                      placeholder="✨ Hey , STREAMER is live now at:&#10;📺 {url} !&#10;&#10;<?php echo esc_attr(__('Come join the fun! 🚀', 'discord-embed-creator')); ?>"
-                                      style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                            
+                            <div class="form-row">
+                                <label for="live-embed-description"><?php echo esc_html(__('Template Description:', 'discord-embed-creator')); ?></label>
+                                <div class="markdown-toolbar">
+                                    <button type="button" class="md-btn" data-target="live-embed-description" data-md="**" title="<?php echo esc_attr(__('Bold', 'discord-embed-creator')); ?>"><strong>B</strong></button>
+                                    <button type="button" class="md-btn" data-target="live-embed-description" data-md="*" title="<?php echo esc_attr(__('Italic', 'discord-embed-creator')); ?>"><em>I</em></button>
+                                    <button type="button" class="md-btn" data-target="live-embed-description" data-md="__" title="<?php echo esc_attr(__('Underlined', 'discord-embed-creator')); ?>"><u>U</u></button>
+                                    <button type="button" class="md-btn" data-target="live-embed-description" data-md="~~" title="<?php echo esc_attr(__('Strikethrough', 'discord-embed-creator')); ?>"><del>S</del></button>
+                                    <button type="button" class="md-btn" data-target="live-embed-description" data-md="`" title="<?php echo esc_attr(__('Code', 'discord-embed-creator')); ?>"><code>C</code></button>
+                                    <!-- Emoji loader for live editor (same as main editor) -->
+                                    <button type="button" class="md-btn open-emoji-picker" title="<?php echo esc_attr(__('Open Emoji Picker', 'discord-embed-creator')); ?>">😃</button>
+                                </div>
+                                <textarea id="live-embed-description" rows="4" 
+                                          placeholder="✨ Hey , STREAMER is live now at:&#10;📺 {url} !&#10;&#10;<?php echo esc_attr(__('Come join the fun! 🚀', 'discord-embed-creator')); ?>"
+                                          style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+                            </div>
+                            
+                            <div class="form-row">
+                                <label for="live-embed-color"><?php echo esc_html(__('Embed Color:', 'discord-embed-creator')); ?></label>
+                                <input type="color" id="live-embed-color" value="#9146ff" style="width: 60px; height: 40px; border: none; border-radius: 4px;">
+                                <span id="live-color-preview" style="margin-left: 10px; padding: 5px 10px; background: #9146ff; color: white; border-radius: 4px;"><?php echo esc_html(__('Live Stream', 'discord-embed-creator')); ?></span>
+                            </div>
+                            
+                            <div class="form-row">
+                                <label for="live-embed-footer"><?php echo esc_html(__('Footer Text:', 'discord-embed-creator')); ?></label>
+                                <input type="text" id="live-embed-footer" placeholder="<?php echo esc_attr(__('Live now - Powered by Discord Embed Creator', 'discord-embed-creator')); ?>" 
+                                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                            
+                            <div class="form-row">
+                                <label for="live-footer-icon"><?php echo esc_html(__('Footer Icon URL:', 'discord-embed-creator')); ?></label>
+                                <input type="url" id="live-footer-icon" placeholder="<?php echo esc_attr(__('https://example.com/icon.png', 'discord-embed-creator')); ?>" 
+                                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            </div>
+                            
+                            <div class="form-row">
+                                <label for="live-embed-image"><?php echo esc_html(__('Image URL:', 'discord-embed-creator')); ?></label>
+                                <input type="url" id="live-embed-image" placeholder="<?php echo esc_attr(__('https://example.com/banner.png or use {thumbnail}', 'discord-embed-creator')); ?>" 
+                                       style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                <small style="color: #666; display: block; margin-top: 5px;">
+                                    <?php echo esc_html(__('Enter a fixed image URL or use {thumbnail} for live stream thumbnails. Leave empty for no image.', 'discord-embed-creator')); ?>
+                                </small>
+                            </div>
+                        </div>
                         </div>
                         
-                        <div class="form-row">
-                            <label for="live-embed-color"><?php echo esc_html(__('Embed Color:', 'discord-embed-creator')); ?></label>
-                            <input type="color" id="live-embed-color" value="#9146ff" style="width: 60px; height: 40px; border: none; border-radius: 4px;">
-                            <span id="live-color-preview" style="margin-left: 10px; padding: 5px 10px; background: #9146ff; color: white; border-radius: 4px;"><?php echo esc_html(__('Live Stream', 'discord-embed-creator')); ?></span>
+                        <!-- Live Notification Preview -->
+                        <div class="live-embed-preview" style="background: #36393f; padding: 20px; border-radius: 8px; color: #dcddde;">
+                            <h4 style="margin: 0 0 15px 0; color: #fff; font-size: 16px;"><?php echo esc_html(__('Live Preview', 'discord-embed-creator')); ?></h4>
+                            <div class="discord-mockup" style="background: transparent; border-radius: 4px; padding: 0;">
+                                <div class="discord-message" style="display: flex; align-items: flex-start;">
+                                    <div class="discord-avatar" style="width: 40px; height: 40px; border-radius: 50%; background: #5865f2; margin-right: 16px; flex-shrink: 0;"></div>
+                                    <div class="discord-content" style="flex: 1;">
+                                        <div class="discord-username" style="color: #ffffff; font-weight: 600; font-size: 16px; margin-bottom: 4px;">Webhook Bot</div>
+                                        <div class="discord-embed" id="live-embed-preview" style="background: #2f3136; border-left: 4px solid #9146ff; padding: 12px 16px 16px 12px; border-radius: 4px; margin-top: 8px; min-width: 432px; max-width: 520px; position: relative;">
+                                            <!-- Live preview will be rendered here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="form-row">
-                            <label for="live-embed-footer"><?php echo esc_html(__('Footer Text:', 'discord-embed-creator')); ?></label>
-                            <input type="text" id="live-embed-footer" placeholder="<?php echo esc_attr(__('Live now - Powered by Discord Embed Creator', 'discord-embed-creator')); ?>" 
-                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="live-footer-icon"><?php echo esc_html(__('Footer Icon URL:', 'discord-embed-creator')); ?></label>
-                            <input type="url" id="live-footer-icon" placeholder="<?php echo esc_attr(__('https://example.com/icon.png', 'discord-embed-creator')); ?>" 
-                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="live-embed-image"><?php echo esc_html(__('Image URL:', 'discord-embed-creator')); ?></label>
-                            <input type="url" id="live-embed-image" placeholder="<?php echo esc_attr(__('https://example.com/banner.png or use {thumbnail}', 'discord-embed-creator')); ?>" 
-                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            <small style="color: #666; display: block; margin-top: 5px;">
-                                <?php echo esc_html(__('Enter a fixed image URL or use {thumbnail} for live stream thumbnails. Leave empty for no image.', 'discord-embed-creator')); ?>
-                            </small>
-                        </div>
                     </div>
                 </div>
 
@@ -932,6 +956,16 @@ jQuery(document).ready(function($) {
         grid-column: 2;
         justify-self: end;
     }
+    
+    /* Make live notification editor responsive */
+    .live-notification-editor-container {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+    
+    .live-embed-preview {
+        order: -1; /* Show preview on top on mobile */
+    }
 }
 
 /* Loading states */
@@ -949,6 +983,152 @@ jQuery(document).ready(function($) {
 .platform-card.error {
     border-color: #dc3545;
     background: #f8d7da;
+}
+
+/* Live Notification Preview Styles */
+.live-embed-preview .discord-embed {
+    border-left: 4px solid #5865f2;
+    background: #2f3136;
+    border-radius: 4px;
+    padding: 16px;
+    margin-top: 2px;
+    max-width: 520px;
+}
+
+.live-embed-preview .embed-color-bar {
+    position: absolute;
+    left: -4px;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+}
+
+.live-embed-preview .embed-content {
+    position: relative;
+}
+
+.live-embed-preview .embed-title {
+    color: #00aff4;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.375;
+    margin-bottom: 8px;
+    text-decoration: none;
+}
+
+.live-embed-preview .embed-title:hover {
+    text-decoration: underline;
+}
+
+.live-embed-preview .embed-description {
+    color: #dcddde;
+    font-size: 14px;
+    line-height: 1.125;
+    white-space: pre-wrap;
+    margin-bottom: 8px;
+}
+
+.live-embed-preview .embed-description strong {
+    font-weight: 700;
+}
+
+.live-embed-preview .embed-description em {
+    font-style: italic;
+}
+
+.live-embed-preview .embed-description u {
+    text-decoration: underline;
+}
+
+.live-embed-preview .embed-description del {
+    text-decoration: line-through;
+}
+
+.live-embed-preview .embed-description code {
+    background: #202225;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+    font-size: 0.875em;
+}
+
+.live-embed-preview .embed-description a {
+    color: #00aff4;
+    text-decoration: none;
+}
+
+.live-embed-preview .embed-description a:hover {
+    text-decoration: underline;
+}
+
+.live-embed-preview .embed-footer {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.live-embed-preview .embed-footer-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 8px;
+    object-fit: cover;
+}
+
+.live-embed-preview .embed-footer-text {
+    color: #b9bbbe;
+    font-size: 12px;
+    line-height: 1.125;
+}
+
+.live-embed-preview .embed-image {
+    margin-top: 16px;
+}
+
+.live-embed-preview .embed-image img {
+    max-width: 400px;
+    max-height: 300px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.live-embed-preview .embed-thumbnail {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+}
+
+.live-embed-preview .embed-thumbnail img {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+/* Placeholder text styling */
+.live-embed-preview .embed-placeholder {
+    color: #72767d;
+    font-style: italic;
+}
+
+/* Animation for live preview updates */
+.live-embed-preview .discord-embed {
+    transition: border-left-color 0.3s ease;
+}
+
+.live-embed-preview .embed-content {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0.7;
+    }
+    to {
+        opacity: 1;
+    }
 }
 </style>
 

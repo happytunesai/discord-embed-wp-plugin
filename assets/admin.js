@@ -903,9 +903,57 @@ jQuery(document).ready(function($) {
     function parseMarkdown(text) {
         if (!text) return '';
         
-        // Escape HTML first
-        let html = escapeHtml(text);
+        // Extract Discord-specific content first to preserve it during HTML escaping
+        let discordElements = [];
+        let elementIndex = 0;
+        let html = text;
         
+        // Discord custom emojis (render as images)
+        html = html.replace(/<:([^:]+):(\d+)>/g, function(match, name, id) {
+            debugLog('Found custom emoji in main editor: ' + match, 'info', {name, id});
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = `<img src="https://cdn.discordapp.com/emojis/${id}.png" alt=":${name}:" class="discord-custom-emoji" style="width: 20px; height: 20px; vertical-align: middle; margin: 0 1px; object-fit: contain;">`;
+            elementIndex++;
+            return placeholder;
+        });
+        
+        // Animated Discord emojis
+        html = html.replace(/<a:([^:]+):(\d+)>/g, function(match, name, id) {
+            debugLog('Found animated emoji in main editor: ' + match, 'info', {name, id});
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = `<img src="https://cdn.discordapp.com/emojis/${id}.gif" alt=":${name}:" class="discord-custom-emoji" style="width: 20px; height: 20px; vertical-align: middle; margin: 0 1px; object-fit: contain;">`;
+            elementIndex++;
+            return placeholder;
+        });
+        
+        // Role mentions
+        html = html.replace(/<@&(\d+)>/g, function(match, roleId) {
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = `<span class="discord-role-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@role</span>`;
+            elementIndex++;
+            return placeholder;
+        });
+        
+        // User mentions  
+        html = html.replace(/<@!?(\d+)>/g, function(match, userId) {
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = `<span class="discord-user-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@user</span>`;
+            elementIndex++;
+            return placeholder;
+        });
+        
+        // Channel mentions
+        html = html.replace(/<#(\d+)>/g, function(match, channelId) {
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = `<span class="discord-channel-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">#channel</span>`;
+            elementIndex++;
+            return placeholder;
+        });
+        
+        // Now escape HTML for remaining content
+        html = escapeHtml(html);
+        
+        // Standard markdown
         // Bold
         html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         
@@ -927,6 +975,13 @@ jQuery(document).ready(function($) {
         // Line breaks
         html = html.replace(/\n/g, '<br>');
         
+        // Restore Discord elements
+        for (let i = 0; i < discordElements.length; i++) {
+            html = html.replace(`DISCORDPLACEHOLDER${i}ENDPLACEHOLDER`, discordElements[i]);
+        }
+        
+        debugLog('parseMarkdown result', 'info', {input: text.substring(0, 50), output: html.substring(0, 100)});
+        
         return html;
     }
 
@@ -944,7 +999,7 @@ jQuery(document).ready(function($) {
             html += `
                 <div class="embed-author">
                     ${embedData.author.icon_url ? `<img src="${embedData.author.icon_url}" class="embed-author-icon" alt="Author Icon">` : ''}
-                    ${embedData.author.url ? `<a href="${embedData.author.url}" class="embed-author-name" target="_blank">${escapeHtml(embedData.author.name)}</a>` : `<span class="embed-author-name">${escapeHtml(embedData.author.name)}</span>`}
+                    ${embedData.author.url ? `<a href="${embedData.author.url}" class="embed-author-name" target="_blank">${parseMarkdown(embedData.author.name)}</a>` : `<span class="embed-author-name">${parseMarkdown(embedData.author.name)}</span>`}
                 </div>
             `;
         }
@@ -952,8 +1007,8 @@ jQuery(document).ready(function($) {
         // Title
         if (embedData.title) {
             const titleHtml = embedData.url ? 
-                `<a href="${embedData.url}" class="embed-title" target="_blank">${escapeHtml(embedData.title)}</a>` :
-                `<div class="embed-title">${escapeHtml(embedData.title)}</div>`;
+                `<a href="${embedData.url}" class="embed-title" target="_blank">${parseMarkdown(embedData.title)}</a>` :
+                `<div class="embed-title">${parseMarkdown(embedData.title)}</div>`;
             html += titleHtml;
         }
         

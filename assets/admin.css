@@ -41,6 +41,255 @@
     border-color: #4752c4;
 }
 
+/* Live Notification Preview Styles - Updated to match main embed preview */
+.live-notification-editor-container {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.live-embed-preview {
+    background: #36393f;
+    padding: 20px;
+    border-radius: 8px;
+    color: #dcddde;
+    position: sticky;
+    top: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.live-embed-preview h4 {
+    margin: 0 0 15px 0;
+    color: #fff;
+    font-size: 16px;
+}
+
+.live-embed-preview .discord-mockup {
+    background: transparent; /* Remove background from mockup */
+    border-radius: 4px;
+    padding: 0;
+}
+
+.live-embed-preview .discord-message {
+    display: flex;
+    align-items: flex-start;
+}
+
+.live-embed-preview .discord-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #5865f2;
+    margin-right: 16px;
+    flex-shrink: 0;
+}
+
+.live-embed-preview .discord-content {
+    flex: 1;
+}
+
+.live-embed-preview .discord-username {
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.live-embed-preview .discord-embed {
+    border-left: 4px solid #9146ff;
+    background: #2f3136; /* Dark background stays inside embed */
+    padding: 12px 16px 16px 12px; /* More padding for proper spacing */
+    border-radius: 4px;
+    margin-top: 8px;
+    min-width: 432px; /* Increased minimum width */
+    max-width: 520px; /* Keep max-width constraint */
+    position: relative;
+    transition: border-left-color 0.3s ease;
+}
+
+.live-embed-preview .embed-content {
+    padding-left: 0; /* Remove extra padding */
+    animation: fadeIn 0.3s ease;
+}
+
+.live-embed-preview .embed-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #00b0f4;
+    margin-bottom: 8px;
+    text-decoration: none;
+    display: block;
+}
+
+.live-embed-preview .embed-description {
+    color: #dcddde;
+    font-size: 14px;
+    line-height: 1.375;
+    white-space: pre-wrap;
+    margin-bottom: 8px;
+}
+
+.live-embed-preview .embed-description strong {
+    color: #ffffff; /* Changed to white to match original */
+    font-weight: bold;
+}
+
+.live-embed-preview .embed-description em {
+    font-style: italic;
+}
+
+.live-embed-preview .embed-description u {
+    text-decoration: underline;
+}
+
+.live-embed-preview .embed-description del {
+    text-decoration: line-through;
+}
+
+.live-embed-preview .embed-description code {
+    background: #202225;
+    border-radius: 3px;
+    padding: 2px 4px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.85em;
+}
+
+.live-embed-preview .embed-description a {
+    color: #00b0f4; /* Changed to match original */
+    text-decoration: none;
+}
+
+.live-embed-preview .embed-description a:hover {
+    text-decoration: underline;
+}
+
+.live-embed-preview .embed-footer {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+    font-size: 12px; /* Added explicit font-size like original */
+    color: #72767d; /* Changed color to match original */
+}
+
+.live-embed-preview .embed-footer-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 8px;
+    object-fit: cover;
+}
+
+.live-embed-preview .embed-footer-text {
+    color: #72767d; /* Changed to match original footer color */
+    font-size: 12px;
+    line-height: 1.125;
+}
+
+/* Discord Custom Emojis and Mentions */
+.live-embed-preview .discord-custom-emoji {
+    width: 20px !important;
+    height: 20px !important;
+    vertical-align: middle !important;
+    margin: 0 1px !important;
+    object-fit: contain;
+}
+
+.live-embed-preview .discord-role-mention,
+.live-embed-preview .discord-user-mention,
+.live-embed-preview .discord-channel-mention {
+    color: #5865f2 !important;
+    background: rgba(88, 101, 242, 0.1) !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 500;
+    font-size: inherit;
+}
+
+/* Discord Custom Emojis and Mentions for Main Embed Preview */
+.embed-preview .discord-custom-emoji {
+    width: 20px !important;
+    height: 20px !important;
+    vertical-align: middle !important;
+    margin: 0 1px !important;
+    object-fit: contain;
+}
+
+.embed-preview .discord-role-mention,
+.embed-preview .discord-user-mention,
+.embed-preview .discord-channel-mention {
+    color: #5865f2 !important;
+    background: rgba(88, 101, 242, 0.1) !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-weight: 500;
+    font-size: inherit;
+}
+
+.live-embed-preview .embed-image {
+    width: 100%; /* Full width within embed */
+    max-width: 400px; /* Reasonable max-width for images */
+    border-radius: 4px;
+    margin: 8px 0;
+    overflow: hidden;
+}
+
+.live-embed-preview .embed-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+    max-height: 300px; /* Limit height to prevent overly tall images */
+    object-fit: cover; /* Crop if needed to maintain aspect ratio */
+}
+
+.live-embed-preview .embed-thumbnail {
+    float: right; /* Changed from position absolute to float */
+    max-width: 80px;
+    max-height: 80px;
+    border-radius: 4px;
+    margin-left: 16px; /* Added margin-left like original */
+    position: static; /* Reset position */
+}
+
+.live-embed-preview .embed-thumbnail img {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0.7;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive Design for Live Preview */
+@media (max-width: 1200px) {
+    .live-notification-editor-container {
+        grid-template-columns: 1fr 480px !important; /* Smaller preview on medium screens */
+        gap: 15px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .live-notification-editor-container {
+        grid-template-columns: 1fr !important; /* Single column on mobile */
+        gap: 15px !important;
+    }
+    
+    .live-embed-preview {
+        order: -1; /* Show preview on top on mobile */
+        position: static;
+        max-height: none;
+    }
+}
+
 .discord-embed-container {
     display: flex;
     gap: 20px;

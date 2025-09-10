@@ -24,6 +24,10 @@ jQuery(document).ready(function($) {
         // Initialize live notifications if switching to that tab
         if (targetTab === '#tab-live-notifications') {
             initializeLiveNotifications();
+            // Small delay to ensure elements are visible before updating preview
+            setTimeout(function() {
+                updateLivePreview();
+            }, 200);
         }
     });
     
@@ -39,6 +43,9 @@ jQuery(document).ready(function($) {
         
         // Setup event handlers if not already setup
         setupLiveNotificationHandlers();
+        
+        // Initialize live preview
+        initializeLivePreview();
     }
     
     // Check StreamWeasels integration status
@@ -153,9 +160,9 @@ jQuery(document).ready(function($) {
         if (settings.embed_template) {
             try {
                 const template = JSON.parse(settings.embed_template);
-                $('#live-embed-title').val(template.title || '');
-                $('#live-embed-description').val(template.description || '');
-                $('#live-embed-footer').val(template.footer?.text || '');
+                $('#live-embed-title').val(unescapeHtml(template.title || ''));
+                $('#live-embed-description').val(unescapeHtml(template.description || ''));
+                $('#live-embed-footer').val(unescapeHtml(template.footer?.text || ''));
                 $('#live-footer-icon').val(template.footer?.icon_url || '');
                 $('#live-embed-image').val(template.image?.url || '');
                 if (template.color) {
@@ -175,6 +182,11 @@ jQuery(document).ready(function($) {
         if (settings.bot_token && settings.server_id) {
             loadLiveRoles(settings.bot_token, settings.server_id, settings.selected_roles);
         }
+        
+        // Update live preview after populating settings
+        setTimeout(function() {
+            updateLivePreview();
+        }, 100);
     }
     
     // Setup event handlers for live notifications
@@ -203,6 +215,16 @@ jQuery(document).ready(function($) {
         // Color picker change
         $('#live-embed-color').on('change', function() {
             updateLiveColorPreview();
+        });
+        
+        // Live preview update handlers
+        $('#live-embed-title, #live-embed-description, #live-embed-footer, #live-footer-icon, #live-embed-image').on('input', function() {
+            updateLivePreview();
+        });
+        
+        $('#live-embed-color').on('change', function() {
+            updateLiveColorPreview();
+            updateLivePreview();
         });
         
         // Load channels button
@@ -539,6 +561,9 @@ jQuery(document).ready(function($) {
             } else {
                 label.css('background', '#fff');
             }
+            
+            // Update live preview when roles change
+            updateLivePreview();
         });
     }
     
@@ -889,9 +914,9 @@ jQuery(document).ready(function($) {
                     if (cfg.embed_template) {
                         try {
                             const t = JSON.parse(cfg.embed_template);
-                            $('#live-embed-title').val(t.title || '');
-                            $('#live-embed-description').val(t.description || '');
-                            $('#live-embed-footer').val(t.footer?.text || '');
+                            $('#live-embed-title').val(unescapeHtml(t.title || ''));
+                            $('#live-embed-description').val(unescapeHtml(t.description || ''));
+                            $('#live-embed-footer').val(unescapeHtml(t.footer?.text || ''));
                             $('#live-footer-icon').val(t.footer?.icon_url || '');
                             $('#live-embed-image').val(t.image?.url || '');
                             if (t.color) { $('#live-embed-color').val('#' + t.color.toString(16).padStart(6,'0')); updateLiveColorPreview(); }
@@ -912,6 +937,11 @@ jQuery(document).ready(function($) {
                     }
 
                     updateLiveWebhookTypeDisplay();
+                    
+                    // Update live preview after loading template
+                    setTimeout(function() {
+                        updateLivePreview();
+                    }, 100);
                 } else {
                     alert(discordEmbedL10n.errorLoadingTemplate);
                 }
@@ -989,6 +1019,9 @@ jQuery(document).ready(function($) {
         try { textarea.setSelectionRange(newCursorPos, newCursorPos); } catch (e) {}
         try { textarea.focus(); } catch (e) {}
         try { $(textarea).trigger('input'); } catch (e) {}
+        
+        // Trigger live preview update
+        updateLivePreview();
     }
     
     // Show notification
@@ -999,6 +1032,210 @@ jQuery(document).ready(function($) {
         } else {
             alert(message);
         }
+    }
+    
+    // Live Preview Functions for Live Notifications
+    function updateLivePreview() {
+        const liveEmbedData = collectLiveEmbedData();
+        renderLivePreview(liveEmbedData);
+    }
+    
+    function collectLiveEmbedData() {
+        const embedData = {};
+        
+        // Basic data
+        const title = $('#live-embed-title').val();
+        if (title) {
+            // Replace placeholders with sample data for preview
+            embedData.title = title
+                .replace(/\{platform\}/gi, 'Twitch')
+                .replace(/\{title\}/gi, 'The Mana Bar - 3rd Anniversary Special 🎉')
+                .replace(/STREAMER/gi, 'The Mana Bar');
+        }
+
+        const description = $('#live-embed-description').val();
+        if (description) {
+            // Add role mentions if selected (for preview)
+            let processedDescription = description;
+            const selectedRoles = [];
+            $('.live-role-checkbox:checked').each(function() {
+                const roleName = $(this).closest('label').find('span').text().trim();
+                selectedRoles.push(`<@&${$(this).val()}>`);
+            });
+            
+            if (selectedRoles.length > 0) {
+                processedDescription = selectedRoles.join(' ') + '\n\n' + processedDescription;
+            }
+            
+            // Replace placeholders with sample data for preview
+            embedData.description = processedDescription
+                .replace(/\{platform\}/gi, 'Twitch')
+                .replace(/\{url\}/gi, 'https://twitch.tv/themanabar')
+                .replace(/\{title\}/gi, 'The Mana Bar - 3rd Anniversary Special 🎉')
+                .replace(/STREAMER/gi, 'The Mana Bar')
+                .replace(/<@&(\d+)>/g, '<span style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@role</span>');
+        }
+
+        const color = $('#live-embed-color').val();
+        if (color) {
+            embedData.color = parseInt(color.replace('#', ''), 16);
+        }
+
+        // Footer
+        const footerText = $('#live-embed-footer').val();
+        const footerIcon = $('#live-footer-icon').val();
+        if (footerText || footerIcon) {
+            embedData.footer = {};
+            if (footerText) {
+                embedData.footer.text = footerText
+                    .replace(/\{platform\}/gi, 'Twitch')
+                    .replace(/\{title\}/gi, 'The Mana Bar - 3rd Anniversary Special 🎉');
+            }
+            if (footerIcon) {
+                embedData.footer.icon_url = footerIcon;
+            }
+        }
+
+        // Image - handle {thumbnail} placeholder
+        const image = $('#live-embed-image').val();
+        if (image) {
+            if (image.includes('{thumbnail}')) {
+                // Use a sample Twitch thumbnail for preview
+                embedData.image = { 
+                    url: 'https://static-cdn.jtvnw.net/previews-ttv/live_user_themanabar-1920x1080.jpg'
+                };
+            } else {
+                embedData.image = { url: image };
+            }
+        }
+
+        return embedData;
+    }
+    
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function unescapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.innerHTML = text;
+        return div.textContent || div.innerText || '';
+    }
+
+    function parseMarkdown(text) {
+        if (!text) return '';
+        
+        console.log('parseMarkdown input:', text);
+        
+        // Start with the original text
+        let html = text;
+        
+        // Discord custom emojis (render as images) - test this first
+        html = html.replace(/<:([^:]+):(\d+)>/g, function(match, name, id) {
+            console.log('Found custom emoji:', match, name, id);
+            return `<img src="https://cdn.discordapp.com/emojis/${id}.png" alt=":${name}:" class="discord-custom-emoji" style="width: 20px; height: 20px; vertical-align: middle; margin: 0 1px; object-fit: contain;">`;
+        });
+        
+        // Animated Discord emojis
+        html = html.replace(/<a:([^:]+):(\d+)>/g, function(match, name, id) {
+            console.log('Found animated emoji:', match, name, id);
+            return `<img src="https://cdn.discordapp.com/emojis/${id}.gif" alt=":${name}:" class="discord-custom-emoji" style="width: 20px; height: 20px; vertical-align: middle; margin: 0 1px; object-fit: contain;">`;
+        });
+        
+        // Role mentions
+        html = html.replace(/<@&(\d+)>/g, '<span class="discord-role-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@role</span>');
+        
+        // User mentions  
+        html = html.replace(/<@!?(\d+)>/g, '<span class="discord-user-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@user</span>');
+        
+        // Channel mentions
+        html = html.replace(/<#(\d+)>/g, '<span class="discord-channel-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">#channel</span>');
+        
+        // Standard markdown
+        // Bold
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        
+        // Italic
+        html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // Underline
+        html = html.replace(/__(.*?)__/g, '<u>$1</u>');
+        
+        // Strikethrough
+        html = html.replace(/~~(.*?)~~/g, '<del>$1</del>');
+        
+        // Code
+        html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+        
+        // Links
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        
+        // Line breaks
+        html = html.replace(/\n/g, '<br>');
+        
+        console.log('parseMarkdown output:', html);
+        
+        return html;
+    }
+
+    function renderLivePreview(embedData) {
+        let html = '';
+        
+        // Color bar (handled by CSS border-left)
+        html += '<div class="embed-content">';
+        
+        // Title
+        if (embedData.title) {
+            html += `<div class="embed-title">${parseMarkdown(embedData.title)}</div>`;
+        }
+        
+        // Description
+        if (embedData.description) {
+            html += `<div class="embed-description">${parseMarkdown(embedData.description)}</div>`;
+        }
+        
+        // Image
+        if (embedData.image && embedData.image.url) {
+            html += `<div class="embed-image"><img src="${embedData.image.url}" alt="Stream Preview" onError="this.style.display='none'"></div>`;
+        }
+        
+        // Footer
+        if (embedData.footer) {
+            html += `
+                <div class="embed-footer">
+                    ${embedData.footer.icon_url ? `<img src="${embedData.footer.icon_url}" class="embed-footer-icon" alt="Footer Icon" onError="this.style.display='none'">` : ''}
+                    <span class="embed-footer-text">${parseMarkdown(embedData.footer.text || '')}</span>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        
+        // Update the preview container and set the border color
+        const $preview = $('#live-embed-preview');
+        $preview.html(html);
+        
+        // Apply the border color to the embed container
+        const borderColor = embedData.color ? '#' + embedData.color.toString(16).padStart(6, '0') : '#9146ff';
+        $preview.css('border-left-color', borderColor);
+        
+        console.log('Live preview updated', embedData);
+    }
+    
+    // Initialize live preview when settings are loaded
+    let livePreviewInitialized = false;
+    function initializeLivePreview() {
+        if (livePreviewInitialized) return;
+        livePreviewInitialized = true;
+        
+        // Set up initial preview with default values
+        updateLivePreview();
+        
+        console.log('Live preview initialized');
     }
     
     console.log('Live Notifications JS setup complete');

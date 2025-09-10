@@ -3,7 +3,7 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.3.9
+ * Version: 2.4.2
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: HappyTunesAI
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.3.9');
+    define('DISCORD_EMBED_VERSION', '2.4.2');
 }
 
 class DiscordEmbedPlugin {
@@ -2155,12 +2155,6 @@ class DiscordEmbedPlugin {
             
             $template['description'] = implode(' ', $role_mentions) . "\n\n" . ($template['description'] ?? '');
         }
-
-        // Replace known emoji shortcodes and normalize escaped newlines (\n) into actual newlines for all string fields
-        $emoji_shortcodes = array(
-            ':twitch_logo:' => '<:twitch_logo:944912608136417293>',
-            ':youtube_logo:' => '<:youtube_logo:944960134080253992>'
-        );
 
         array_walk_recursive($template, function(&$value) use ($emoji_shortcodes, $settings) {
             if (is_string($value)) {

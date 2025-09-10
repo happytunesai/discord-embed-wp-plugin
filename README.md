@@ -15,7 +15,7 @@
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**📊 Version:** 2.3.9 
+**📊 Version:** 2.4.2 
 **⚡ Requires PHP:** 7.4+  
 **🌐 Requires WordPress:** 5.0+  
 
@@ -342,7 +342,44 @@ Recent fixes you should know about:
 
 ## 📝 Changelog
 
-### 🎉 v2.3.9 (current)
+### 🚀 v2.4.2 (current)
+```
+� EMBEDDED EDITOR DISCORD EMOJI INTEGRATION 🎨
+├─ ✅ Discord Custom Emojis now display in main Embed Editor live preview
+├─ 🖼️ Custom emoji support for Title, Description, Fields, Author, Footer
+├─ 📸 20x20px standard Discord emoji sizing with CDN integration
+├─ 🎯 Animated Discord emojis (<a:name:id>) fully supported
+├─ 🔗 Role mentions (<@&roleId>) displayed as styled pills
+├─ 🧹 Fixed JavaScript placeholder escaping bug
+└─ ✨ Complete feature parity between both live preview systems
+```
+
+### �🎉 v2.4.1
+```
+🔴 LIVE NOTIFICATION DISCORD EMOJI INTEGRATION 🔴
+├─ ✅ Discord Custom Emojis now display in Live Notification preview
+├─ 🖼️ Custom emoji support (<:name:id>) with CDN image rendering
+├─ 📸 20x20px standard Discord emoji sizing and styling
+├─ 🎯 Animated Discord emojis (<a:name:id>) fully supported
+├─ 🔗 Role mentions (<@&roleId>) displayed as styled pills
+├─ 🧹 Fixed template loading HTML escape bug causing broken previews
+└─ ✨ Enhanced preview styling to match main embed editor exactly
+```
+
+### 🎊 v2.4.0
+```
+🔴 LIVE NOTIFICATION EMBEDDED LIVE PREVIEW INTEGRATION 🔴
+├─ ✅ Added comprehensive live preview for Live Notifications
+├─ 🖥️ Two-column layout: Editor on left, Live Preview on right
+├─ ⚡ Real-time preview updates as you type and modify settings
+├─ 🎨 Discord-style mockup matching main embed editor appearance
+├─ 📱 Responsive design with mobile-friendly single column layout
+├─ 🔧 Enhanced template system with instant preview feedback
+├─ 📏 Optimized 560px preview width for perfect image scaling
+└─ ✨ Complete visual consistency across entire plugin interface
+```
+
+### 🎉 v2.3.9
 ```
 🎨 FIELD WIDTH & CHECKBOX FIXES 🎨
 ├─ ✅ Fixed field width consistency across all scenarios
