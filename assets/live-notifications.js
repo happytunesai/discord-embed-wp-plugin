@@ -156,6 +156,8 @@ jQuery(document).ready(function($) {
                 $('#live-embed-title').val(template.title || '');
                 $('#live-embed-description').val(template.description || '');
                 $('#live-embed-footer').val(template.footer?.text || '');
+                $('#live-footer-icon').val(template.footer?.icon_url || '');
+                $('#live-embed-image').val(template.image?.url || '');
                 if (template.color) {
                     $('#live-embed-color').val('#' + template.color.toString(16).padStart(6, '0'));
                     updateLiveColorPreview();
@@ -598,6 +600,18 @@ jQuery(document).ready(function($) {
             }
         };
         
+        // Add footer icon if provided
+        const footerIconUrl = $('#live-footer-icon').val();
+        if (footerIconUrl) {
+            embedTemplate.footer.icon_url = footerIconUrl;
+        }
+        
+        // Add image if provided
+        const imageUrl = $('#live-embed-image').val();
+        if (imageUrl) {
+            embedTemplate.image = { url: imageUrl };
+        }
+        
         const selectedRoles = [];
         $('.live-role-checkbox:checked').each(function() {
             selectedRoles.push($(this).val());
@@ -785,6 +799,18 @@ jQuery(document).ready(function($) {
             color: parseInt($('#live-embed-color').val().replace('#',''), 16),
             footer: { text: $('#live-embed-footer').val() }
         };
+        
+        // Add footer icon if provided
+        const footerIconUrl = $('#live-footer-icon').val();
+        if (footerIconUrl) {
+            embedTemplate.footer.icon_url = footerIconUrl;
+        }
+        
+        // Add image if provided
+        const imageUrl = $('#live-embed-image').val();
+        if (imageUrl) {
+            embedTemplate.image = { url: imageUrl };
+        }
 
         const selectedRoles = [];
         $('.live-role-checkbox:checked').each(function() { selectedRoles.push($(this).val()); });
@@ -866,6 +892,8 @@ jQuery(document).ready(function($) {
                             $('#live-embed-title').val(t.title || '');
                             $('#live-embed-description').val(t.description || '');
                             $('#live-embed-footer').val(t.footer?.text || '');
+                            $('#live-footer-icon').val(t.footer?.icon_url || '');
+                            $('#live-embed-image').val(t.image?.url || '');
                             if (t.color) { $('#live-embed-color').val('#' + t.color.toString(16).padStart(6,'0')); updateLiveColorPreview(); }
                         } catch (e) { console.error('Invalid embed_template in template', e); }
                     }

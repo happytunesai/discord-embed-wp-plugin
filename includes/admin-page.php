@@ -587,7 +587,7 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                     <h3>📝 <?php echo esc_html(__('Live Notification Embed Template', 'discord-embed-creator')); ?></h3>
                     <p style="color: #666; margin-bottom: 15px;">
                         <?php echo esc_html(__('Design the embed for live notifications. You can use the same fields as in the main editor.', 'discord-embed-creator')); ?>
-                        <?php echo __('Available placeholders: <code>{platform}</code>, <code>{title}</code>, <code>{url}</code>, <code>{thumbnail}</code>', 'discord-embed-creator'); ?>
+                        <?php echo __('Available placeholders: <code>{platform}</code>, <code>{title}</code>, <code>{url}</code>, <code>{thumbnail}</code> - Use {thumbnail} in image field for live thumbnails', 'discord-embed-creator'); ?>
                     </p>
                     
                     <!-- Embed Template Fields (reusing existing embed editor components) -->
@@ -625,6 +625,21 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                             <input type="text" id="live-embed-footer" placeholder="<?php echo esc_attr(__('Live now - Powered by Discord Embed Creator', 'discord-embed-creator')); ?>" 
                                    style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
                         </div>
+                        
+                        <div class="form-row">
+                            <label for="live-footer-icon"><?php echo esc_html(__('Footer Icon URL:', 'discord-embed-creator')); ?></label>
+                            <input type="url" id="live-footer-icon" placeholder="<?php echo esc_attr(__('https://example.com/icon.png', 'discord-embed-creator')); ?>" 
+                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+                        
+                        <div class="form-row">
+                            <label for="live-embed-image"><?php echo esc_html(__('Image URL:', 'discord-embed-creator')); ?></label>
+                            <input type="url" id="live-embed-image" placeholder="<?php echo esc_attr(__('https://example.com/banner.png or use {thumbnail}', 'discord-embed-creator')); ?>" 
+                                   style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <small style="color: #666; display: block; margin-top: 5px;">
+                                <?php echo esc_html(__('Enter a fixed image URL or use {thumbnail} for live stream thumbnails. Leave empty for no image.', 'discord-embed-creator')); ?>
+                            </small>
+                        </div>
                     </div>
                 </div>
 
@@ -635,13 +650,13 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
 
                     <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
                         <input type="hidden" id="live-template-id" value="0">
-                        <input type="text" id="live-template-name" placeholder="<?php echo esc_attr(__('Template Name', 'discord-embed-creator')); ?>" style="padding:8px; flex:1;">
-                        <select id="live-template-platform" style="padding:8px;">
+                        <input type="text" id="live-template-name" placeholder="<?php echo esc_attr(__('Template Name', 'discord-embed-creator')); ?>" style="padding:8px; flex:1; min-width:200px;">
+                        <select id="live-template-platform" style="padding:8px; min-width:100px;">
                             <option value="twitch">Twitch</option>
                             <option value="youtube">YouTube</option>
                         </select>
-                        <button type="button" id="save-live-template" class="button">💾 <?php echo esc_html(__('Save Current as Template', 'discord-embed-creator')); ?></button>
-                        <label style="display:flex; align-items:center; gap:6px; margin-left:6px; font-size:13px; color:#444;">
+                        <button type="button" id="save-live-template" class="button" style="white-space:nowrap; margin-left:5px;">💾 <?php echo esc_html(__('Save Current as Template', 'discord-embed-creator')); ?></button>
+                        <label style="display:flex; align-items:center; gap:6px; margin-left:10px; font-size:13px; color:#444; white-space:nowrap;">
                             <input type="checkbox" id="save-live-as-new" style="margin-right:6px;"> <?php echo esc_html(__('Save as New', 'discord-embed-creator')); ?>
                         </label>
                     </div>

@@ -918,7 +918,7 @@ jQuery(document).ready(function($) {
     }
 
     function renderPreview(embedData) {
-        let html = '<div class="discord-embed">';
+        let html = '';
         
         // Color bar
         const color = embedData.color ? '#' + embedData.color.toString(16).padStart(6, '0') : '#5865f2';
@@ -984,9 +984,15 @@ jQuery(document).ready(function($) {
             `;
         }
         
-        html += '</div></div>';
+        html += '</div>';
         
-        $('#embed-preview').html(html);
+        // Update the preview container and set the border color
+        const $preview = $('#embed-preview');
+        $preview.html(html);
+        
+        // Apply the border color to the outer container
+        const borderColor = embedData.color ? '#' + embedData.color.toString(16).padStart(6, '0') : '#5865f2';
+        $preview.css('border-left-color', borderColor);
     }
 
     function saveTemplate() {

@@ -15,7 +15,7 @@
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**📊 Version:** 2.3.5 
+**📊 Version:** 2.3.8 
 **⚡ Requires PHP:** 7.4+  
 **🌐 Requires WordPress:** 5.0+  
 
@@ -342,7 +342,37 @@ Recent fixes you should know about:
 
 ## 📝 Changelog
 
-### 🎉 v2.3.5 (current)
+### 🎉 v2.3.8 (current)
+```
+🎨 FOOTER ICON & UI IMPROVEMENTS 🎨
+├─ ➕ Added Footer Icon URL to Live Notifications
+├─ 🔧 Enhanced template system with footer icons
+├─ 📐 Fixed layout overlapping in template controls
+├─ ✨ Improved spacing and button positioning
+├─ 🎯 Better user experience consistency
+└─ 🔄 All template functions support footer icons
+```
+
+### 🎨 v2.3.7
+```
+🔧 LIVE PREVIEW FIXES 🔧
+├─ 🖼️ Fixed overlapping elements in Embed Editor
+├─ 📱 Improved Live Preview layout responsiveness
+├─ ✅ Better visual consistency across UI components
+├─ 🎯 Enhanced overall user interface stability
+└─ 🧹 Minor cosmetic improvements throughout
+```
+
+### 📦 v2.3.6
+```
+🛠️ MINOR COSMETIC UPDATES 🛠️
+├─ ✨ Small UI polish and refinements
+├─ 🔧 Code cleanup and optimization
+├─ 📋 Improved internal documentation
+└─ 🎨 Enhanced visual consistency
+```
+
+### 🎉 v2.3.5
 ```
 🗂️ PROJECT REORGANIZATION 🗂️
 ├─ 📁 Moved all CSS/JS files to assets/ folder

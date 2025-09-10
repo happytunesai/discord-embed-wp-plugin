@@ -3,7 +3,7 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.3.5
+ * Version: 2.3.8
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: HappyTunesAI
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.3.5');
+    define('DISCORD_EMBED_VERSION', '2.3.8');
 }
 
 class DiscordEmbedPlugin {
@@ -1741,7 +1741,9 @@ class DiscordEmbedPlugin {
                 'description' => "✨ " . __('Hey , STREAMER is live now at:', 'discord-embed-creator') . "\n📺 {url} !\n\n" . __('Come join the fun! 🚀', 'discord-embed-creator'),
                 'color' => 9442302, // Purple color
                 'thumbnail' => array('url' => '{thumbnail}'),
-                'footer' => array('text' => __('Live now - Powered by Discord Embed Creator', 'discord-embed-creator'))
+                'footer' => array(
+                    'text' => __('Live now - Powered by Discord Embed Creator', 'discord-embed-creator')
+                )
             )),
             'selected_roles' => array(),
             'cooldown_minutes' => 10
@@ -2125,9 +2127,21 @@ class DiscordEmbedPlugin {
         
         $template = json_decode(str_replace(array_keys($replacements), array_values($replacements), json_encode($template)), true);
         
-        // Add thumbnail if available
-        if (!empty($live_status['thumbnail'])) {
+        // Add thumbnail if available and no image already set
+        if (!empty($live_status['thumbnail']) && empty($template['image'])) {
             $template['thumbnail'] = array('url' => $live_status['thumbnail']);
+        }
+        
+        // Handle image field with placeholder replacement
+        if (!empty($template['image']['url'])) {
+            // If image URL contains {thumbnail} placeholder and we have thumbnail data, use it
+            if (strpos($template['image']['url'], '{thumbnail}') !== false && !empty($live_status['thumbnail'])) {
+                $template['image']['url'] = str_replace('{thumbnail}', $live_status['thumbnail'], $template['image']['url']);
+            }
+            // If image URL is just {thumbnail} and we don't have thumbnail data, remove image field
+            else if ($template['image']['url'] === '{thumbnail}' && empty($live_status['thumbnail'])) {
+                unset($template['image']);
+            }
         }
         
         // Add timestamp
