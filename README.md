@@ -15,7 +15,7 @@
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**📊 Version:** 2.3.4 
+**📊 Version:** 2.3.5 
 **⚡ Requires PHP:** 7.4+  
 **🌐 Requires WordPress:** 5.0+  
 
@@ -342,7 +342,18 @@ Recent fixes you should know about:
 
 ## 📝 Changelog
 
-### 🎉 v2.3.4 (current)
+### 🎉 v2.3.5 (current)
+```
+🗂️ PROJECT REORGANIZATION 🗂️
+├─ 📁 Moved all CSS/JS files to assets/ folder
+├─ 🔧 Updated all file references in plugin
+├─ 📋 Synchronized package-filelist.txt
+├─ ✅ Maintained full functionality
+├─ 🧹 Cleaner project structure
+└─ 📦 Better maintainability
+```
+
+### 🎉 v2.3.4
 ```
 🚀 MAJOR FEATURE UPDATE 🚀
 ├─ 🌍 Complete internationalization (EN/DE)

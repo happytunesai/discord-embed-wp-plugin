@@ -3,7 +3,7 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.3.4
+ * Version: 2.3.5
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: HappyTunesAI
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.3.4');
+    define('DISCORD_EMBED_VERSION', '2.3.5');
 }
 
 class DiscordEmbedPlugin {
@@ -199,14 +199,14 @@ class DiscordEmbedPlugin {
         }
         
         wp_enqueue_script('discord-embed-admin', DISCORD_EMBED_PLUGIN_URL . 'assets/admin.js', array('jquery'), DISCORD_EMBED_VERSION, true);
-        wp_enqueue_script('discord-webhook-config-modal', DISCORD_EMBED_PLUGIN_URL . 'webhook-config-modal.js', array('jquery'), DISCORD_EMBED_VERSION, true);
-        wp_enqueue_script('discord-role-manager', DISCORD_EMBED_PLUGIN_URL . 'role-manager.js', array('jquery'), DISCORD_EMBED_VERSION, true);
-        wp_enqueue_script('discord-toast-notifications', DISCORD_EMBED_PLUGIN_URL . 'toast-notifications.js', array('jquery'), DISCORD_EMBED_VERSION, true);
-        wp_enqueue_script('discord-autofill-prevention', DISCORD_EMBED_PLUGIN_URL . 'autofill-prevention.js', array('jquery'), DISCORD_EMBED_VERSION, true);
-        wp_enqueue_script('discord-ui-fix', DISCORD_EMBED_PLUGIN_URL . 'ui-fix.js', array('jquery', 'discord-embed-admin'), DISCORD_EMBED_VERSION, true);
-        wp_enqueue_script('discord-live-notifications', DISCORD_EMBED_PLUGIN_URL . 'live-notifications.js', array('jquery', 'discord-embed-admin'), DISCORD_EMBED_VERSION, true);
+        wp_enqueue_script('discord-webhook-config-modal', DISCORD_EMBED_PLUGIN_URL . 'assets/webhook-config-modal.js', array('jquery'), DISCORD_EMBED_VERSION, true);
+        wp_enqueue_script('discord-role-manager', DISCORD_EMBED_PLUGIN_URL . 'assets/role-manager.js', array('jquery'), DISCORD_EMBED_VERSION, true);
+        wp_enqueue_script('discord-toast-notifications', DISCORD_EMBED_PLUGIN_URL . 'assets/toast-notifications.js', array('jquery'), DISCORD_EMBED_VERSION, true);
+        wp_enqueue_script('discord-autofill-prevention', DISCORD_EMBED_PLUGIN_URL . 'assets/autofill-prevention.js', array('jquery'), DISCORD_EMBED_VERSION, true);
+        wp_enqueue_script('discord-ui-fix', DISCORD_EMBED_PLUGIN_URL . 'assets/ui-fix.js', array('jquery', 'discord-embed-admin'), DISCORD_EMBED_VERSION, true);
+        wp_enqueue_script('discord-live-notifications', DISCORD_EMBED_PLUGIN_URL . 'assets/live-notifications.js', array('jquery', 'discord-embed-admin'), DISCORD_EMBED_VERSION, true);
         wp_enqueue_style('discord-embed-admin', DISCORD_EMBED_PLUGIN_URL . 'assets/admin.css', array(), DISCORD_EMBED_VERSION);
-        wp_enqueue_style('discord-autofill-prevention', DISCORD_EMBED_PLUGIN_URL . 'autofill-prevention.css', array(), DISCORD_EMBED_VERSION);
+        wp_enqueue_style('discord-autofill-prevention', DISCORD_EMBED_PLUGIN_URL . 'assets/autofill-prevention.css', array(), DISCORD_EMBED_VERSION);
         
         wp_localize_script('discord-embed-admin', 'discordEmbed', array(
             'ajaxUrl' => admin_url('admin-ajax.php'),
