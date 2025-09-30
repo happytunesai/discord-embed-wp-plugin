@@ -57,102 +57,13 @@ jQuery(document).ready(function($) {
             
             debugLog('Parsed embed data', 'info', embed);
             
-            // Fill form fields
-            $('#template-name').val(templateName);
-            if (embed.title) $('#embed-title').val(embed.title);
-            if (embed.description) $('#embed-description').val(embed.description);
-            if (embed.url) $('#embed-url').val(embed.url);
-            if (embed.color) {
-                let colorValue = embed.color;
-                if (typeof colorValue === 'number') {
-                    colorValue = '#' + colorValue.toString(16).padStart(6, '0');
-                } else if (typeof colorValue === 'string' && !colorValue.startsWith('#')) {
-                    colorValue = '#' + colorValue;
-                }
-                $('#embed-color').val(colorValue);
-            }
+            // Fill form fields - Use loadTemplateData function for consistency
+            loadTemplateData(embed, templateName);
             
-            // IMPORTANT: Load fields if available
-            if (embed.fields && Array.isArray(embed.fields) && embed.fields.length > 0) {
-                debugLog('Loading fields from template', 'info', {fieldsCount: embed.fields.length, fields: embed.fields});
-                
-                // First delete all existing fields
-                $('#fields-container').empty();
-                
-                // Then add new fields using the same structure as addField()
-                embed.fields.forEach(function(field, index) {
-                    debugLog('Adding field', 'info', {index: index, field: field});
-                    
-                    // Use the same field HTML structure as addField() function for consistency
-                    const fieldHtml = `
-                        <div class="embed-field">
-                            <div class="field-actions">
-                                <button type="button" class="button remove-field">Remove</button>
-                            </div>
-                            <div class="field-inline-checkbox">
-                                <input type="checkbox" class="field-input inline-checkbox" ${field.inline ? 'checked' : ''}>
-                                <label>Display inline</label>
-                            </div>
-                            <div class="form-row">
-                                <label>Field Name:</label>
-                                <div class="markdown-toolbar">
-                                    <button type="button" class="md-btn" data-md="**" title="Bold"><strong>B</strong></button>
-                                    <button type="button" class="md-btn" data-md="*" title="Italic"><em>I</em></button>
-                                    <button type="button" class="md-btn" data-md="__" title="Underlined"><u>U</u></button>
-                                    <button type="button" class="md-btn" data-md="~~" title="Strikethrough"><del>S</del></button>
-                                    <button type="button" class="md-btn" data-md="\`" title="Code"><code>C</code></button>
-                                </div>
-                                <input type="text" class="field-input field-name" value="${field.name || ''}" placeholder="Field Name">
-                            </div>
-                            <div class="form-row">
-                                <label>Field Value:</label>
-                                <div class="markdown-toolbar">
-                                    <button type="button" class="md-btn" data-md="**" title="Bold"><strong>B</strong></button>
-                                    <button type="button" class="md-btn" data-md="*" title="Italic"><em>I</em></button>
-                                    <button type="button" class="md-btn" data-md="__" title="Underlined"><u>U</u></button>
-                                    <button type="button" class="md-btn" data-md="~~" title="Strikethrough"><del>S</del></button>
-                                    <button type="button" class="md-btn" data-md="\`" title="Code"><code>C</code></button>
-                                    <button type="button" class="md-btn" data-md="[text](url)" title="Link">🔗</button>
-                                </div>
-                                <textarea class="field-input field-value" rows="3" placeholder="Field Value">${field.value || ''}</textarea>
-                            </div>
-                        </div>
-                    `;
-                    
-                    $('#fields-container').append(fieldHtml);
-                });
-                
-                debugLog('Fields added to container', 'success', {fieldsInContainer: $('#fields-container .embed-field').length});
-            } else {
-                debugLog('No fields in template or fields empty', 'info');
-            }
-            
-            // Update preview - mehrere Ansätze probieren
+            // Update preview after template load
             debugLog('Updating preview after template load', 'info');
             
-            // 1. Trigger change events on relevant fields (like in history)
-            $('#embed-title, #embed-description, #embed-url, #embed-color').trigger('change');
-            
-            // 2. Also trigger field events if fields were loaded
-            setTimeout(function() {
-                $('.field-input').trigger('change');
-                debugLog('Triggered field change events', 'info');
-            }, 50);
-            
-            // 3. Call updatePreview directly if available
-            setTimeout(function() {
-                if (typeof window.updatePreview === 'function') {
-                    debugLog('Calling window.updatePreview()', 'info');
-                    window.updatePreview();
-                } else if (typeof updatePreview === 'function') {
-                    debugLog('Calling updatePreview()', 'info');
-                    updatePreview();
-                } else {
-                    debugLog('updatePreview not found, trying fallback', 'warning');
-                    // 4. Last fallback: trigger change events
-                    $('#embed-description').trigger('input');
-                }
-            }, 150);
+            // Preview update is handled by loadTemplateData function
             
             // Show success message
             showToast(__l('templateLoadedSuccessfully', 'Template "' + templateName + '" loaded successfully!'), 'success');
@@ -1118,13 +1029,21 @@ jQuery(document).ready(function($) {
         $('#embed-title').val(embedData.title || '');
         $('#embed-description').val(embedData.description || '');
         $('#embed-url').val(embedData.url || '');
-        $('#thumbnail-url').val(embedData.thumbnail ? embedData.thumbnail.url : '');
-        $('#image-url').val(embedData.image ? embedData.image.url : '');
+        $('#thumbnail-url').val(embedData.thumbnail ? embedData.thumbnail.url || '' : '');
+        $('#image-url').val(embedData.image ? embedData.image.url || '' : '');
         $('#template-name').val(templateName || '');
         
         if (embedData.color) {
-            const colorHex = '#' + embedData.color.toString(16).padStart(6, '0');
-            $('#embed-color').val(colorHex);
+            let colorValue = embedData.color;
+            if (typeof colorValue === 'number') {
+                colorValue = '#' + colorValue.toString(16).padStart(6, '0');
+            } else if (typeof colorValue === 'string' && !colorValue.startsWith('#')) {
+                colorValue = '#' + colorValue;
+            }
+            $('#embed-color').val(colorValue);
+        } else {
+            // Set default color if no color in template
+            $('#embed-color').val('#5865f2');
         }
         
         // Author fields
@@ -1132,12 +1051,18 @@ jQuery(document).ready(function($) {
             $('#author-name').val(embedData.author.name || '');
             $('#author-url').val(embedData.author.url || '');
             $('#author-icon').val(embedData.author.icon_url || '');
+        } else {
+            // Clear author fields if no author data
+            $('#author-name, #author-url, #author-icon').val('');
         }
         
         // Footer fields
         if (embedData.footer) {
             $('#footer-text').val(embedData.footer.text || '');
             $('#footer-icon').val(embedData.footer.icon_url || '');
+        } else {
+            // Clear footer fields if no footer data
+            $('#footer-text, #footer-icon').val('');
         }
         
         // Clear existing fields
