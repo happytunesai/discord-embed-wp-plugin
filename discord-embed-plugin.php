@@ -3,7 +3,7 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.4.4
+ * Version: 2.4.5
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: HappyTunesAI
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.4.4');
+    define('DISCORD_EMBED_VERSION', '2.4.5');
 }
 
 class DiscordEmbedPlugin {
@@ -68,6 +68,7 @@ class DiscordEmbedPlugin {
     // Debug helper to list live templates (admin only)
     add_action('wp_ajax_debug_list_live_templates', array($this, 'debug_list_live_templates'));
     add_action('wp_ajax_send_saved_live_notification', array($this, 'send_saved_live_notification'));
+    add_action('wp_ajax_load_live_notification_history', array($this, 'load_live_notification_history'));
         
         // Cron for live checking
         add_action('discord_embed_check_live_status', array($this, 'check_live_status'));
@@ -721,6 +722,70 @@ class DiscordEmbedPlugin {
         } else {
             wp_send_json_error('Send failed: ' . ($result['error'] ?? ($result['response_body'] ?? 'Unknown')));
         }
+    }
+
+    public function load_live_notification_history() {
+        check_ajax_referer('discord_embed_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized access');
+            return;
+        }
+        
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'discord_sent_messages';
+        
+        // Pagination parameters
+        $page = intval($_POST['page'] ?? 1);
+        $per_page = intval($_POST['per_page'] ?? 10);
+        $filter = sanitize_text_field($_POST['filter'] ?? 'all');
+        
+        // Calculate offset
+        $offset = ($page - 1) * $per_page;
+        
+        // Build WHERE clause based on filter - only show live notifications
+        // Live notifications are identified by having 'live' in their metadata or webhook_type
+        $base_where = "WHERE (webhook_type LIKE '%live%' OR embed_data LIKE '%\"platform\":%')";
+        
+        $where_clause = $base_where;
+        switch ($filter) {
+            case 'today':
+                $where_clause = "$base_where AND DATE(sent_at) = CURDATE()";
+                break;
+            case 'week':
+                $where_clause = "$base_where AND sent_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+                break;
+            case 'month':
+                $where_clause = "$base_where AND sent_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+                break;
+            case 'all':
+            default:
+                // Keep base where clause
+                break;
+        }
+        
+        // Get total count for pagination
+        $total_count = $wpdb->get_var("SELECT COUNT(*) FROM $table_name $where_clause");
+        
+        // Get messages with pagination
+        $query = "SELECT * FROM $table_name $where_clause ORDER BY sent_at DESC LIMIT $per_page OFFSET $offset";
+        $messages = $wpdb->get_results($query);
+        
+        if ($wpdb->last_error) {
+            wp_send_json_error('Database error: ' . $wpdb->last_error);
+            return;
+        }
+        
+        $has_more = ($offset + $per_page) < $total_count;
+        
+        wp_send_json_success(array(
+            'messages' => $messages,
+            'page' => $page,
+            'per_page' => $per_page,
+            'total' => $total_count,
+            'has_more' => $has_more,
+            'filter' => $filter
+        ));
     }
 
     public function load_embed_templates() {
@@ -2225,9 +2290,11 @@ class DiscordEmbedPlugin {
                 'Authorization' => 'Bot ' . $settings['bot_token'],
                 'Content-Type' => 'application/json'
             );
+            $channel_id = $settings['channel_id'];
         } else {
             $url = $settings['webhook_url'];
             $headers = array('Content-Type' => 'application/json');
+            $channel_id = null;
         }
         
         $payload = array('embeds' => array($embed_data));
@@ -2241,15 +2308,48 @@ class DiscordEmbedPlugin {
             'timeout' => 30
         ));
         
-        if (is_wp_error($response)) {
+        $is_error = is_wp_error($response);
+        $response_code = $is_error ? 0 : wp_remote_retrieve_response_code($response);
+        $response_body = $is_error ? '' : wp_remote_retrieve_body($response);
+        $success = ($response_code === 200 || $response_code === 204);
+        
+        // Parse Discord response to get message ID
+        $discord_message_id = null;
+        if ($success && $response_body) {
+            $discord_response = json_decode($response_body, true);
+            if (isset($discord_response['id'])) {
+                $discord_message_id = $discord_response['id'];
+            }
+        }
+        
+        // Log the live notification in sent messages table
+        global $wpdb;
+        $messages_table = $wpdb->prefix . 'discord_sent_messages';
+        
+        $wpdb->insert(
+            $messages_table,
+            array(
+                'discord_message_id' => $discord_message_id,
+                'embed_data' => json_encode($embed_data),
+                'webhook_url' => $url,
+                'channel_id' => $channel_id,
+                'sent_at' => current_time('mysql'),
+                'status' => $success ? 'sent' : 'failed',
+                'webhook_type' => isset($settings['webhook_type']) ? $settings['webhook_type'] : 'channel',
+                'error_message' => $success ? null : ($is_error ? $response->get_error_message() : $response_body)
+            ),
+            array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
+        );
+        
+        if ($is_error) {
             return array('success' => false, 'error' => $response->get_error_message());
         }
         
-        $response_code = wp_remote_retrieve_response_code($response);
         return array(
-            'success' => ($response_code === 200 || $response_code === 204),
+            'success' => $success,
             'response_code' => $response_code,
-            'response_body' => wp_remote_retrieve_body($response)
+            'response_body' => $response_body,
+            'message_id' => $discord_message_id
         );
     }
     

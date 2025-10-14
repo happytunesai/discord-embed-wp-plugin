@@ -1258,5 +1258,191 @@ jQuery(document).ready(function($) {
         console.log('Live preview initialized');
     }
     
+    // Live Notification History
+    let liveHistoryPage = 1;
+    let liveHistoryFilter = 'all';
+    let loadingLiveHistory = false;
+    
+    function loadLiveNotificationHistory(page = 1, filter = 'all') {
+        if (loadingLiveHistory) return;
+        loadingLiveHistory = true;
+        
+        console.log('Loading live notification history...', { page, filter });
+        
+        // Show loading indicator
+        const container = $('#live-notification-history');
+        if (page === 1) {
+            container.html('<div style="text-align: center; padding: 20px; color: #666;">📜 Loading history...</div>');
+        }
+        
+        $.ajax({
+            url: discordEmbed.ajaxUrl,
+            method: 'POST',
+            data: {
+                action: 'load_live_notification_history',
+                nonce: discordEmbed.nonce,
+                page: page,
+                per_page: 10,
+                filter: filter
+            },
+            success: function(response) {
+                console.log('Live notification history loaded:', response);
+                
+                if (response.success) {
+                    renderLiveNotificationHistory(response.data, page);
+                } else {
+                    container.html(`<div style="color: red; padding: 20px; text-align: center;">${discordEmbedL10n.errorLoadingHistory || 'Error loading history'}: ${response.data || 'Unknown error'}</div>`);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Live notification history load error:', error);
+                container.html(`<div style="color: red; padding: 20px; text-align: center;">Error loading history: ${error}</div>`);
+            },
+            complete: function() {
+                loadingLiveHistory = false;
+            }
+        });
+    }
+    
+    function renderLiveNotificationHistory(data, page) {
+        const container = $('#live-notification-history');
+        const messages = data.messages || [];
+        const hasMore = data.has_more || false;
+        
+        if (!messages || messages.length === 0) {
+            if (page === 1) {
+                container.html('<div style="text-align: center; padding: 20px; color: #666;">📭 No live notifications sent yet.<br><small>Live notifications will appear here after being sent.</small></div>');
+            }
+            return;
+        }
+        
+        let html = '';
+        
+        // Add filter controls if first page
+        if (page === 1) {
+            html += `
+                <div style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+                    <label style="font-weight: bold;">Filter:</label>
+                    <select id="live-history-filter" style="padding: 5px;">
+                        <option value="all" ${liveHistoryFilter === 'all' ? 'selected' : ''}>All</option>
+                        <option value="today" ${liveHistoryFilter === 'today' ? 'selected' : ''}>Today</option>
+                        <option value="week" ${liveHistoryFilter === 'week' ? 'selected' : ''}>Last 7 Days</option>
+                        <option value="month" ${liveHistoryFilter === 'month' ? 'selected' : ''}>Last 30 Days</option>
+                    </select>
+                    <span style="color: #666; margin-left: auto;">${data.total || 0} notifications sent</span>
+                </div>
+                <div id="live-history-list"></div>
+            `;
+            container.html(html);
+            
+            // Attach filter handler
+            $('#live-history-filter').on('change', function() {
+                liveHistoryFilter = $(this).val();
+                liveHistoryPage = 1;
+                loadLiveNotificationHistory(1, liveHistoryFilter);
+            });
+        }
+        
+        const listContainer = page === 1 ? $('#live-history-list') : $('#live-history-list');
+        html = '';
+        
+        messages.forEach(function(msg) {
+            try {
+                const embedData = msg.embed_data ? JSON.parse(msg.embed_data) : null;
+                const embed = embedData && embedData.embeds && embedData.embeds[0] ? embedData.embeds[0] : null;
+                
+                const title = embed?.title || 'Live Notification';
+                const description = embed?.description || '';
+                const color = embed?.color ? '#' + embed.color.toString(16).padStart(6, '0') : '#9146ff';
+                const url = embed?.url || msg.webhook_url || '';
+                const thumbnail = embed?.thumbnail?.url || embed?.image?.url || '';
+                const footer = embed?.footer?.text || '';
+                const sentAt = msg.sent_at ? new Date(msg.sent_at).toLocaleString() : 'Unknown';
+                const status = msg.status || 'sent';
+                
+                // Determine platform from embed data
+                let platform = 'Unknown';
+                if (description.toLowerCase().includes('twitch') || url.includes('twitch.tv')) {
+                    platform = 'Twitch';
+                } else if (description.toLowerCase().includes('youtube') || url.includes('youtube.com')) {
+                    platform = 'YouTube';
+                }
+                
+                // Status badge
+                const statusColor = status === 'sent' ? '#28a745' : (status === 'error' ? '#dc3545' : '#6c757d');
+                
+                html += `
+                    <div style="border: 1px solid #ddd; border-left: 4px solid ${color}; border-radius: 6px; padding: 15px; margin-bottom: 15px; background: #fff;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <div style="font-weight: bold; font-size: 15px; margin-bottom: 5px;">${escapeHtml(title)}</div>
+                                <div style="color: #666; font-size: 12px; display: flex; gap: 10px; align-items: center;">
+                                    <span>📅 ${sentAt}</span>
+                                    <span>📺 ${platform}</span>
+                                    <span style="background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${status.toUpperCase()}</span>
+                                </div>
+                            </div>
+                            ${thumbnail ? `<img src="${thumbnail}" style="width: 120px; height: 68px; object-fit: cover; border-radius: 4px; margin-left: 15px;" alt="Thumbnail">` : ''}
+                        </div>
+                        ${description ? `<div style="color: #333; font-size: 13px; margin-top: 10px; max-height: 60px; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(description.substring(0, 150))}${description.length > 150 ? '...' : ''}</div>` : ''}
+                        ${footer ? `<div style="color: #999; font-size: 11px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">${escapeHtml(footer)}</div>` : ''}
+                        ${msg.discord_message_id ? `<div style="margin-top: 10px;"><a href="${url}" target="_blank" style="font-size: 12px; color: #5865f2; text-decoration: none;">🔗 View on Discord</a></div>` : ''}
+                    </div>
+                `;
+            } catch (e) {
+                console.error('Error rendering history item:', e, msg);
+            }
+        });
+        
+        if (page === 1) {
+            listContainer.html(html);
+        } else {
+            listContainer.append(html);
+        }
+        
+        // Add load more button if there are more messages
+        $('#live-history-load-more').remove();
+        if (hasMore) {
+            listContainer.after(`
+                <div id="live-history-load-more" style="text-align: center; margin-top: 15px;">
+                    <button type="button" class="button button-secondary" onclick="loadMoreLiveHistory()">
+                        📜 Load More
+                    </button>
+                </div>
+            `);
+        }
+    }
+    
+    // Make function globally accessible
+    window.loadMoreLiveHistory = function() {
+        liveHistoryPage++;
+        loadLiveNotificationHistory(liveHistoryPage, liveHistoryFilter);
+    };
+    
+    // Load history when tab becomes visible
+    $(document).on('click', '.nav-tab[href="#tab-live-notifications"]', function() {
+        // Small delay to ensure tab content is visible
+        setTimeout(function() {
+            const historyContainer = $('#live-notification-history');
+            if (historyContainer.length && !historyContainer.data('loaded')) {
+                historyContainer.data('loaded', true);
+                liveHistoryPage = 1;
+                liveHistoryFilter = 'all';
+                loadLiveNotificationHistory(1, 'all');
+            }
+        }, 200);
+    });
+    
+    // If we're already on the live notifications tab, load history immediately
+    if ($('#tab-live-notifications').hasClass('active')) {
+        setTimeout(function() {
+            const historyContainer = $('#live-notification-history');
+            if (historyContainer.length && !historyContainer.data('loaded')) {
+                historyContainer.data('loaded', true);
+                loadLiveNotificationHistory(1, 'all');
+            }
+        }, 500);
+    }
+    
     console.log('Live Notifications JS setup complete');
 });

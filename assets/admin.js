@@ -1371,14 +1371,6 @@ jQuery(document).ready(function($) {
         const totalPages = Math.ceil(data.total / data.per_page);
         $paginationInfo.text(`Page ${data.page} of ${totalPages}`);
     }
-    
-    // Helper function to escape HTML
-    function escapeHtml(text) {
-        if (typeof text !== 'string') return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
 
     // Event handlers for pagination
     $('#load-more-messages').on('click', function() {
@@ -1400,56 +1392,6 @@ jQuery(document).ready(function($) {
         loadMessageHistory(1, currentHistoryFilter, false);
         showToast(__l('messagesUpdated', 'Messages updated'), 'success');
     });
-
-    function loadMessageHistoryLegacy() {
-        debugLog('Loading message history');
-        
-        $.ajax({
-            url: discordEmbed.ajaxUrl,
-            method: 'POST',
-            data: {
-                action: 'load_message_history',
-                nonce: discordEmbed.nonce
-            },
-            success: function(response) {
-                debugLog('Message history response', 'success', response);
-                if (response.success && response.data) {
-                    let html = '';
-                    response.data.forEach(function(message) {
-                        const date = new Date(message.sent_at).toLocaleString();
-                        const hasMessageId = message.discord_message_id && message.channel_id;
-                        const editButton = hasMessageId ? 
-                            `<button type="button" class="button button-small load-for-edit" 
-                                data-message-id="${message.discord_message_id}" 
-                                data-channel-id="${message.channel_id}"
-                                data-embed-data='${JSON.stringify(message.embed_data)}'>
-                                Bearbeiten
-                            </button>` : '';
-                        
-                        html += `
-                            <div class="history-item">
-                                <div class="history-header">
-                                    <span class="history-date">${date}</span>
-                                    <span class="history-channel">${escapeHtml(message.channel_id)}</span>
-                                    ${editButton}
-                                </div>
-                                <div class="history-content">
-                                    ${message.embed_data ? parseMarkdown(JSON.parse(message.embed_data).title || 'No Title') : 'No Data'}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    $('#message-history').html(html || '<p>No messages found.</p>');
-                } else {
-                    $('#message-history').html('<p>Error loading history.</p>');
-                }
-            },
-            error: function(xhr, status, error) {
-                debugLog('Error loading message history', 'error', {status, error, response: xhr.responseText});
-                $('#message-history').html('<p>Error loading history.</p>');
-            }
-        });
-    }
     
     // Load message from Discord URL
     $('#load-message').on('click', function() {

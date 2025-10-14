@@ -372,14 +372,6 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                 <span id="pagination-info-text"></span>
             </div>
         </div>
-        <div class="history-grid" id="history-container">
-            <!-- Legacy history container -->
-        </div>
-    </div>
-    
-    <!-- Enhanced Template Cards Container (will be populated by JavaScript) -->
-    <div class="template-cards-container" style="display: none;">
-        <!-- Template cards will be rendered here by ui-fix.js -->
     </div>
     
     <!-- Debug Console -->
