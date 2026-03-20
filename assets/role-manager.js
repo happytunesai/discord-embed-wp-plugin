@@ -5,6 +5,14 @@
 (function($) {
     'use strict';
     
+    // Escape HTML to prevent XSS
+    function escapeHtml(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+    
     // Get localized string helper function
     function __l(key, fallback) {
         return (typeof discordEmbedL10n !== 'undefined' && discordEmbedL10n[key]) ? discordEmbedL10n[key] : fallback;
@@ -73,8 +81,8 @@
             sortedRoles.forEach(role => {
                 const color = role.color ? `#${role.color.toString(16).padStart(6, '0')}` : '#99aab5';
                 html += `
-                    <option value="${role.id}" data-color="${color}" data-name="${role.name}">
-                        ${role.name}
+                    <option value="${escapeHtml(role.id)}" data-color="${escapeHtml(color)}" data-name="${escapeHtml(role.name)}">
+                        ${escapeHtml(role.name)}
                     </option>
                 `;
             });
@@ -156,7 +164,7 @@
                     }
                 }
                 
-                return `<span style="background: ${roleColor}; color: #ffffff; padding: 1px 4px; border-radius: 3px; font-weight: 500;">@${roleName}</span>`;
+                return `<span style="background: ${escapeHtml(roleColor)}; color: #ffffff; padding: 1px 4px; border-radius: 3px; font-weight: 500;">@${escapeHtml(roleName)}</span>`;
             });
         },
         

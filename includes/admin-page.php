@@ -204,7 +204,7 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                         <small><?php echo esc_html(__('Supports', 'discord-embed-creator')); ?>: **<?php echo esc_html(__('bold', 'discord-embed-creator')); ?>**, *<?php echo esc_html(__('italic', 'discord-embed-creator')); ?>*, __<?php echo esc_html(__('underlined', 'discord-embed-creator')); ?>__, ~~<?php echo esc_html(__('strikethrough', 'discord-embed-creator')); ?>~~, `<?php echo esc_html(__('code', 'discord-embed-creator')); ?>`, [<?php echo esc_html(__('links', 'discord-embed-creator')); ?>](url)</small>
                         <div style="margin-top:8px;">
                             <label style="display:block; font-weight:600; margin-bottom:4px;"><?php echo esc_html(__('Emoji Format & Usage', 'discord-embed-creator')); ?></label>
-                            <p style="color:#666; margin:0;"><?php echo __('Use either the full emoji format <code>&lt;:name:ID&gt;</code> or a short placeholder <code>:shortcode:</code>. Example: <code>&lt;:twitch_logo:944912608136417293&gt;</code> or <code>:twitch_logo:</code>.', 'discord-embed-creator'); ?></p>
+                            <p style="color:#666; margin:0;"><?php echo wp_kses(__('Use either the full emoji format <code>&lt;:name:ID&gt;</code> or a short placeholder <code>:shortcode:</code>. Example: <code>&lt;:twitch_logo:944912608136417293&gt;</code> or <code>:twitch_logo:</code>.', 'discord-embed-creator'), array('code' => array())); ?></p>
                         </div>
                     </div>
                 </div>
@@ -776,7 +776,7 @@ jQuery(document).ready(function($) {
             timestamp: new Date().toISOString(),
             templates_count: <?php echo count($templates); ?>,
             wp_version: '<?php echo get_bloginfo("version"); ?>',
-            plugin_version: '1.2.0',
+            plugin_version: '<?php echo esc_js(DISCORD_EMBED_VERSION); ?>',
             debug_content: $('#debug-content').text()
         };
         

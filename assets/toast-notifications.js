@@ -10,6 +10,14 @@
     function __l(key, fallback) {
         return (typeof discordEmbedL10n !== 'undefined' && discordEmbedL10n[key]) ? discordEmbedL10n[key] : fallback;
     }
+
+    // HTML escape helper to prevent XSS
+    function escapeHtmlToast(str) {
+        if (!str) return '';
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
     
     // Create toast container
     function createToastContainer() {
@@ -61,7 +69,7 @@
                     color: ${toastType.color};
                     font-weight: 500;
                     line-height: 1.4;
-                ">${message}</span>
+                ">${escapeHtmlToast(message)}</span>
                 <button onclick="closeToast('${toastId}')" style="
                     background: none;
                     border: none;
@@ -123,26 +131,28 @@
         `);
     }
     
-    // Override original alert() function
+    // Override alert() only on the Discord Embed admin page
     const originalAlert = window.alert;
     window.showToast = showToast;
     
-    // Alert replacement for known messages
-    window.alert = function(message) {
-        if (typeof message === 'string') {
-            if (message.includes('erfolgreich') || message.includes('successfully')) {
-                showToast(message, 'success');
-            } else if (message.includes('Fehler') || message.includes('Error') || message.includes('error')) {
-                showToast(message, 'error');
-            } else if (message.includes('Bitte') || message.includes('Please') || message.includes('geben Sie')) {
-                showToast(message, 'warning');
+    // Alert replacement - only active on our plugin page
+    if (document.querySelector('.discord-embed-container') || document.querySelector('#tab-embed-creator')) {
+        window.alert = function(message) {
+            if (typeof message === 'string') {
+                if (message.includes('erfolgreich') || message.includes('successfully')) {
+                    showToast(message, 'success');
+                } else if (message.includes('Fehler') || message.includes('Error') || message.includes('error')) {
+                    showToast(message, 'error');
+                } else if (message.includes('Bitte') || message.includes('Please') || message.includes('geben Sie')) {
+                    showToast(message, 'warning');
+                } else {
+                    showToast(message, 'info');
+                }
             } else {
-                showToast(message, 'info');
+                originalAlert(message);
             }
-        } else {
-            originalAlert(message);
-        }
-    };
+        };
+    }
     
     // Custom Confirm Dialog
     function showCustomConfirm(message, onConfirm, onCancel) {
@@ -168,7 +178,7 @@
                         color: #856404;
                         font-weight: 500;
                         line-height: 1.4;
-                    ">${message}</span>
+                    ">${escapeHtmlToast(message)}</span>
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button onclick="handleConfirmAction('${confirmId}', 'cancel')" style="
@@ -179,7 +189,7 @@
                         border-radius: 4px;
                         cursor: pointer;
                         font-weight: 500;
-                    ">${__l('cancel', 'Cancel')}</button>
+                    ">${escapeHtmlToast(__l('cancel', 'Cancel'))}</button>
                     <button onclick="handleConfirmAction('${confirmId}', 'confirm')" style="
                         background: #dc3545;
                         color: white;
@@ -188,7 +198,7 @@
                         border-radius: 4px;
                         cursor: pointer;
                         font-weight: 500;
-                    ">${__l('confirm', 'Confirm')}</button>
+                    ">${escapeHtmlToast(__l('confirm', 'Confirm'))}</button>
                 </div>
             </div>
         `;

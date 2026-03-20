@@ -1,6 +1,6 @@
 jQuery(document).ready(function($) {
     // Debug flag
-    window.discordEmbedDebug = true;
+    window.discordEmbedDebug = false;
     
     // Localization helper function
     function __l(key, fallback) {
@@ -346,10 +346,11 @@ jQuery(document).ready(function($) {
         grid.empty();
         emojis.forEach(function(e) {
             const code = (e.animated ? '<a:' : '<:') + e.name + ':' + e.id + '>';
+            const safeName = escapeHtml(e.name);
             const el = $(
-                `<div class="emoji-item" title="${e.name}" style="text-align:center; padding:6px; border:1px solid #eee; border-radius:6px; cursor:pointer;">
+                `<div class="emoji-item" title="${safeName}" style="text-align:center; padding:6px; border:1px solid #eee; border-radius:6px; cursor:pointer;">
                     <img src="${e.url}" style="width:48px; height:48px; object-fit:cover; display:block; margin:0 auto 4px;">
-                    <div style="font-size:11px; color:#333; word-break:break-word;">${e.name}</div>
+                    <div style="font-size:11px; color:#333; word-break:break-word;">${safeName}</div>
                 </div>`
             );
             el.on('click', function() {
@@ -419,27 +420,6 @@ jQuery(document).ready(function($) {
         }
     });
 
-    // Template management
-    $('#save-template').on('click', saveTemplate);
-    
-    // Send message
-    $('#send-embed').on('click', sendDiscordMessage);
-
-    // Load channels button
-    $('#load-channels').on('click', loadServerChannels);
-
-    // Load message history
-    $('#load-history').on('click', loadMessageHistory);
-
-    // Initialize with error handling
-    try {
-        updateColorPreview();
-        updatePreview();
-        debugLog('Initialization completed successfully');
-    } catch (error) {
-        debugLog('Initialization error', 'error', error);
-    }
-
     // Template management with robust error handling
     $('#save-template').off('click').on('click', function() {
         debugLog('Save template button clicked');
@@ -460,6 +440,21 @@ jQuery(document).ready(function($) {
             alert(__l('errorSending', 'Error sending: %s').replace('%s', error.message));
         }
     });
+
+    // Load channels button
+    $('#load-channels').on('click', loadServerChannels);
+
+    // Load message history
+    $('#load-history').on('click', loadMessageHistory);
+
+    // Initialize with error handling
+    try {
+        updateColorPreview();
+        updatePreview();
+        debugLog('Initialization completed successfully');
+    } catch (error) {
+        debugLog('Initialization error', 'error', error);
+    }
 
     // Global function is now provided by autofill-prevention.js
     // This ensures proper readonly field handling with autofill protection
@@ -717,7 +712,7 @@ jQuery(document).ready(function($) {
                         <button type="button" class="md-btn" data-md="~~" title="Strikethrough"><del>S</del></button>
                         <button type="button" class="md-btn" data-md="\`" title="Code"><code>C</code></button>
                     </div>
-                    <input type="text" class="field-input field-name" value="${name}" placeholder="Field Name">
+                    <input type="text" class="field-input field-name" value="${escapeHtml(name)}" placeholder="Field Name">
                 </div>
                 <div class="form-row">
                     <label>Field Value:</label>
@@ -729,7 +724,7 @@ jQuery(document).ready(function($) {
                         <button type="button" class="md-btn" data-md="\`" title="Code"><code>C</code></button>
                         <button type="button" class="md-btn" data-md="[text](url)" title="Link">🔗</button>
                     </div>
-                    <textarea class="field-input field-value" rows="3" placeholder="Field Value">${value}</textarea>
+                    <textarea class="field-input field-value" rows="3" placeholder="Field Value">${escapeHtml(value)}</textarea>
                 </div>
             </div>
         `;
@@ -880,8 +875,13 @@ jQuery(document).ready(function($) {
         // Code
         html = html.replace(/`(.*?)`/g, '<code>$1</code>');
         
-        // Links
-        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        // Links - only allow safe protocols (http/https)
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, linkText, url) {
+            if (/^https?:\/\//i.test(url)) {
+                return '<a href="' + url + '" target="_blank">' + linkText + '</a>';
+            }
+            return match; // Leave unsafe links as-is
+        });
         
         // Line breaks
         html = html.replace(/\n/g, '<br>');

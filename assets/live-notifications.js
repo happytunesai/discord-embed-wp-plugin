@@ -445,10 +445,11 @@ jQuery(document).ready(function($) {
         grid.empty();
         emojis.forEach(function(e) {
             const code = (e.animated ? '<a:' : '<:') + e.name + ':' + e.id + '>';
+            const safeName = escapeHtml(e.name);
             const el = $(`
-                <div class="emoji-item" title="${e.name}" style="text-align:center; padding:6px; border:1px solid #eee; border-radius:6px; cursor:pointer;">
+                <div class="emoji-item" title="${safeName}" style="text-align:center; padding:6px; border:1px solid #eee; border-radius:6px; cursor:pointer;">
                     <img src="${e.url}" style="width:48px; height:48px; object-fit:cover; display:block; margin:0 auto 4px;">
-                    <div style="font-size:11px; color:#333; word-break:break-word;">${e.name}</div>
+                    <div style="font-size:11px; color:#333; word-break:break-word;">${safeName}</div>
                 </div>
             `);
             el.on('click', function() {
@@ -502,7 +503,6 @@ jQuery(document).ready(function($) {
             loadServerEmojis();
         });
         $(document).on('click', '#close-emoji-picker', function() { closeEmojiPicker(); });
-    $(document).on('click', '#close-emoji-picker', function() { closeEmojiPicker(); });
 
     function openEmojiPicker() {
         const modal = $('#emoji-picker-modal');
@@ -1151,29 +1151,55 @@ jQuery(document).ready(function($) {
         
         console.log('parseMarkdown input:', text);
         
-        // Start with the original text
+        // Start with the original text - extract Discord elements first, then escape
         let html = text;
+        let discordElements = [];
+        let elementIndex = 0;
         
-        // Discord custom emojis (render as images) - test this first
+        // Discord custom emojis (render as images) - extract before escaping
         html = html.replace(/<:([^:]+):(\d+)>/g, function(match, name, id) {
             console.log('Found custom emoji:', match, name, id);
-            return `<img src="https://cdn.discordapp.com/emojis/${id}.png" alt=":${name}:" class="discord-custom-emoji" style="width: 20px; height: 20px; vertical-align: middle; margin: 0 1px; object-fit: contain;">`;
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = `<img src="https://cdn.discordapp.com/emojis/${id}.png" alt=":${escapeHtml(name)}:" class="discord-custom-emoji" style="width: 20px; height: 20px; vertical-align: middle; margin: 0 1px; object-fit: contain;">`;
+            elementIndex++;
+            return placeholder;
         });
         
         // Animated Discord emojis
         html = html.replace(/<a:([^:]+):(\d+)>/g, function(match, name, id) {
             console.log('Found animated emoji:', match, name, id);
-            return `<img src="https://cdn.discordapp.com/emojis/${id}.gif" alt=":${name}:" class="discord-custom-emoji" style="width: 20px; height: 20px; vertical-align: middle; margin: 0 1px; object-fit: contain;">`;
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = `<img src="https://cdn.discordapp.com/emojis/${id}.gif" alt=":${escapeHtml(name)}:" class="discord-custom-emoji" style="width: 20px; height: 20px; vertical-align: middle; margin: 0 1px; object-fit: contain;">`;
+            elementIndex++;
+            return placeholder;
         });
         
         // Role mentions
-        html = html.replace(/<@&(\d+)>/g, '<span class="discord-role-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@role</span>');
+        html = html.replace(/<@&(\d+)>/g, function(match, roleId) {
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = '<span class="discord-role-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@role</span>';
+            elementIndex++;
+            return placeholder;
+        });
         
         // User mentions  
-        html = html.replace(/<@!?(\d+)>/g, '<span class="discord-user-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@user</span>');
+        html = html.replace(/<@!?(\d+)>/g, function(match, userId) {
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = '<span class="discord-user-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">@user</span>';
+            elementIndex++;
+            return placeholder;
+        });
         
         // Channel mentions
-        html = html.replace(/<#(\d+)>/g, '<span class="discord-channel-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">#channel</span>');
+        html = html.replace(/<#(\d+)>/g, function(match, channelId) {
+            const placeholder = `DISCORDPLACEHOLDER${elementIndex}ENDPLACEHOLDER`;
+            discordElements[elementIndex] = '<span class="discord-channel-mention" style="color: #5865f2; background: rgba(88, 101, 242, 0.1); padding: 2px 4px; border-radius: 3px;">#channel</span>';
+            elementIndex++;
+            return placeholder;
+        });
+        
+        // Now escape HTML for remaining content
+        html = escapeHtml(html);
         
         // Standard markdown
         // Bold
@@ -1191,11 +1217,21 @@ jQuery(document).ready(function($) {
         // Code
         html = html.replace(/`(.*?)`/g, '<code>$1</code>');
         
-        // Links
-        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
+        // Links - only allow safe protocols
+        html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, linkText, url) {
+            if (/^https?:\/\//i.test(url)) {
+                return '<a href="' + url + '" target="_blank">' + linkText + '</a>';
+            }
+            return match;
+        });
         
         // Line breaks
         html = html.replace(/\n/g, '<br>');
+        
+        // Restore Discord elements
+        for (let i = 0; i < discordElements.length; i++) {
+            html = html.replace(`DISCORDPLACEHOLDER${i}ENDPLACEHOLDER`, discordElements[i]);
+        }
         
         console.log('parseMarkdown output:', html);
         
@@ -1291,12 +1327,12 @@ jQuery(document).ready(function($) {
                 if (response.success) {
                     renderLiveNotificationHistory(response.data, page);
                 } else {
-                    container.html(`<div style="color: red; padding: 20px; text-align: center;">${discordEmbedL10n.errorLoadingHistory || 'Error loading history'}: ${response.data || 'Unknown error'}</div>`);
+                    container.html(`<div style="color: red; padding: 20px; text-align: center;">${escapeHtml(discordEmbedL10n.errorLoadingHistory || 'Error loading history')}: ${escapeHtml(response.data || 'Unknown error')}</div>`);
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Live notification history load error:', error);
-                container.html(`<div style="color: red; padding: 20px; text-align: center;">Error loading history: ${error}</div>`);
+                container.html(`<div style="color: red; padding: 20px; text-align: center;">Error loading history: ${escapeHtml(error)}</div>`);
             },
             complete: function() {
                 loadingLiveHistory = false;
@@ -1349,7 +1385,15 @@ jQuery(document).ready(function($) {
         messages.forEach(function(msg) {
             try {
                 const embedData = msg.embed_data ? JSON.parse(msg.embed_data) : null;
-                const embed = embedData && embedData.embeds && embedData.embeds[0] ? embedData.embeds[0] : null;
+                // embed_data can be stored as a single embed object or as {embeds: [...]}
+                let embed = null;
+                if (embedData) {
+                    if (embedData.embeds && embedData.embeds[0]) {
+                        embed = embedData.embeds[0];
+                    } else if (embedData.title || embedData.description) {
+                        embed = embedData;
+                    }
+                }
                 
                 const title = embed?.title || 'Live Notification';
                 const description = embed?.description || '';
@@ -1382,7 +1426,7 @@ jQuery(document).ready(function($) {
                                     <span style="background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${status.toUpperCase()}</span>
                                 </div>
                             </div>
-                            ${thumbnail ? `<img src="${thumbnail}" style="width: 120px; height: 68px; object-fit: cover; border-radius: 4px; margin-left: 15px;" alt="Thumbnail">` : ''}
+                            ${thumbnail && /^https?:\/\//i.test(thumbnail) ? `<img src="${escapeHtml(thumbnail)}" style="width: 120px; height: 68px; object-fit: cover; border-radius: 4px; margin-left: 15px;" alt="Thumbnail">` : ''}
                         </div>
                         ${description ? `<div style="color: #333; font-size: 13px; margin-top: 10px; max-height: 60px; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(description.substring(0, 150))}${description.length > 150 ? '...' : ''}</div>` : ''}
                         ${footer ? `<div style="color: #999; font-size: 11px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">${escapeHtml(footer)}</div>` : ''}

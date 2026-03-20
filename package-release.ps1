@@ -57,13 +57,14 @@ try {
         $releaseId = $version
     }
 
-    # Ensure output dir exists
-    if (-not (Test-Path $outputDir)) {
-        New-Item -ItemType Directory -Path $outputDir | Out-Null
+    # Ensure output dir exists (use absolute paths so .NET APIs resolve correctly)
+    $outputDirAbs = Join-Path $root $outputDir
+    if (-not (Test-Path $outputDirAbs)) {
+        New-Item -ItemType Directory -Path $outputDirAbs | Out-Null
     }
 
     # Create a subfolder per release (version or timestamp)
-    $releaseDir = Join-Path $outputDir $releaseId
+    $releaseDir = Join-Path $outputDirAbs $releaseId
     if (-not (Test-Path $releaseDir)) { New-Item -ItemType Directory -Path $releaseDir | Out-Null }
 
     # Fixed zip name with Plugin Text Domain for unique WordPress identification

@@ -15,7 +15,7 @@
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**📊 Version:** 2.4.3 
+**📊 Version:** 2.5.1 
 **⚡ Requires PHP:** 7.4+  
 **🌐 Requires WordPress:** 5.0+  
 
@@ -344,7 +344,30 @@ Recent fixes you should know about:
 
 ## 📝 Changelog
 
-### 🚀 v2.4.3 (current)
+### 🚀 v2.5.1 (current)
+```
+🐛 LIVE NOTIFICATION HISTORY FIX 🐛
+├─ ✅ Fixed Live Notification History showing empty (wrong webhook_type filter)
+├─ 🔄 Live notifications now stored with 'live_server'/'live_channel' webhook_type
+├─ 🔍 History query matches both new and legacy entries (twitch.tv/youtube URLs)
+├─ 🧩 Fixed JS embed_data parsing (single embed vs {embeds:[...]} format)
+└─ ✨ History now correctly displays all sent live notifications
+```
+
+### 🚀 v2.5.0
+```
+🔴 LIVE NOTIFICATION EDIT & THUMBNAIL FIX 🔴
+├─ ✅ Live notifications now EDIT existing Discord message instead of posting duplicates
+├─ 🔄 PATCH request updates the original message while stream is live
+├─ 📸 Twitch & YouTube thumbnails now use cache-busting (?t=timestamp)
+├─ 🛡️ Fallback: if edit fails (message deleted), automatically sends new post
+├─ 🔁 Offline→Live transition always sends new message (bypasses cooldown)
+├─ 🗄️ New DB column 'current_message_id' tracks active live notification
+├─ 📊 Auto DB migration for existing installations (admin_init)
+└─ ✨ notification_count only increments on new posts, not edits
+```
+
+### 🚀 v2.4.3
 ```
 🎯 DYNAMIC PLACEHOLDER SYSTEM ENHANCEMENT 🎯
 ├─ ✅ Implemented dynamic placeholder replacement in Live Notifications

@@ -242,10 +242,33 @@ jQuery(document).ready(function($) {
         }
         
         // Simulate test (replace with actual test logic)
-        setTimeout(() => {
-            showToast('✅ Connection tested successfully!', 'success');
+        if (testData.bot_token && testData.server_id) {
+            $.ajax({
+                url: discordEmbed.ajaxUrl,
+                method: 'POST',
+                data: {
+                    action: 'load_server_channels',
+                    nonce: discordEmbed.nonce,
+                    bot_token: testData.bot_token,
+                    server_id: testData.server_id
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showToast('✅ Connection tested successfully!', 'success');
+                    } else {
+                        showToast('❌ Connection failed: ' + (response.data && response.data.message || 'Unknown error'), 'error');
+                    }
+                    $btn.text(originalText).prop('disabled', false);
+                },
+                error: function() {
+                    showToast('❌ Connection test failed (network error)', 'error');
+                    $btn.text(originalText).prop('disabled', false);
+                }
+            });
+        } else {
+            showToast('❌ Bot Token and Server ID are required for testing', 'error');
             $btn.text(originalText).prop('disabled', false);
-        }, 2000);
+        }
     });
     
     // Save webhook configuration
@@ -302,8 +325,7 @@ jQuery(document).ready(function($) {
                 if (response.success) {
                     currentWebhookData = newData;
                     
-                    // Update localStorage
-                    localStorage.setItem('discord_embed_webhook_settings', JSON.stringify(newData));
+                    // Settings saved to database - no localStorage needed
                     
                     // Update status indicators and hidden fields
                     updateStatusIndicators();
