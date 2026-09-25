@@ -580,6 +580,7 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                     <p style="color: #666; margin-bottom: 15px;">
                         <?php echo esc_html(__('Design the embed for live notifications. You can use the same fields as in the main editor.', 'discord-embed-creator')); ?>
                         <?php echo __('Available placeholders: <code>{platform}</code>, <code>{title}</code>, <code>{url}</code>, <code>{thumbnail}</code> - Use {thumbnail} in image field for live thumbnails', 'discord-embed-creator'); ?>
+                        <?php echo __('Also available: <code>{channel}</code>, <code>{game}</code> (Twitch), <code>{viewers}</code> (Twitch). Selected roles are pinged above the embed.', 'discord-embed-creator'); ?>
                     </p>
 
                     <!-- Live Notification Editor Container with Preview -->
