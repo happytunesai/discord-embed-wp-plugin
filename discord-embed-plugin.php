@@ -3,7 +3,7 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.5.1
+ * Version: 2.6.0
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: HappyTunesAI
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.5.1');
+    define('DISCORD_EMBED_VERSION', '2.6.0');
 }
 
 class DiscordEmbedPlugin {
@@ -76,6 +76,7 @@ class DiscordEmbedPlugin {
         
         // Auto-migrate DB schema on admin_init
         add_action('admin_init', array($this, 'maybe_upgrade_db'));
+        add_action('admin_init', array($this, 'ensure_cron_scheduled'));
         
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
@@ -89,6 +90,56 @@ class DiscordEmbedPlugin {
             $log_entry .= ' | Data: ' . print_r($data, true);
         }
         error_log($log_entry);
+    }
+
+    /**
+     * Read a boolean from $_POST. jQuery sends JS booleans as the strings
+     * "true"/"false", and (bool) "false" is true in PHP.
+     */
+    private function post_bool($key, $default = false) {
+        if (!isset($_POST[$key])) {
+            return $default;
+        }
+        return filter_var(wp_unslash($_POST[$key]), FILTER_VALIDATE_BOOLEAN);
+    }
+
+    /**
+     * Discord IDs (snowflakes) are purely numeric. Validating them keeps
+     * user input from altering the Discord API path.
+     */
+    private function is_valid_snowflake($id) {
+        return is_string($id) && preg_match('/^\d{15,25}$/', $id) === 1;
+    }
+
+    /**
+     * Only accept real Discord webhook URLs.
+     */
+    private function is_valid_webhook_url($url) {
+        return is_string($url) && preg_match('#^https://(?:(?:ptb|canary)\.)?discord(?:app)?\.com/api/(?:v\d+/)?webhooks/\d+/[\w-]+/?$#', $url) === 1;
+    }
+
+    /**
+     * Append ?wait=true so Discord returns the created message (incl. its ID)
+     * instead of an empty 204 response.
+     */
+    private function webhook_url_with_wait($url) {
+        return add_query_arg('wait', 'true', $url);
+    }
+
+    /**
+     * Build the message payload for a live notification. Role mentions go into
+     * "content" because mentions inside embeds never ping anyone.
+     */
+    private function build_live_payload($embed_data, $selected_roles) {
+        $payload = array('embeds' => array($embed_data));
+        $role_ids = array_values(array_filter((array) $selected_roles, array($this, 'is_valid_snowflake')));
+        if (!empty($role_ids)) {
+            $payload['content'] = implode(' ', array_map(function($role_id) {
+                return "<@&{$role_id}>";
+            }, $role_ids));
+            $payload['allowed_mentions'] = array('parse' => array(), 'roles' => $role_ids);
+        }
+        return $payload;
     }
 
     public function init() {
@@ -109,6 +160,16 @@ class DiscordEmbedPlugin {
     public function deactivate() {
         // Clear scheduled cron
         wp_clear_scheduled_hook('discord_embed_check_live_status');
+    }
+
+    /**
+     * Re-schedule the live check if it got lost (e.g. plugin files updated
+     * without re-activation, or the cron entry was cleared).
+     */
+    public function ensure_cron_scheduled() {
+        if (!wp_next_scheduled('discord_embed_check_live_status')) {
+            wp_schedule_event(time() + 180, 'every_three_minutes', 'discord_embed_check_live_status');
+        }
     }
 
     /**
@@ -595,7 +656,7 @@ class DiscordEmbedPlugin {
         }
 
         $template_id = intval($_POST['template_id'] ?? 0);
-        $enabled = (bool) ($_POST['enabled'] ?? false);
+        $enabled = $this->post_bool('enabled');
         if ($template_id <= 0) {
             wp_send_json_error('Invalid template id');
             return;
@@ -658,7 +719,8 @@ class DiscordEmbedPlugin {
                 $raw_embed = json_decode($config['embed_template'], true);
             }
         } else {
-            $raw_embed = is_string($settings['embed_template']) ? json_decode($settings['embed_template'], true) : $settings['embed_template'];
+            $global_template = $settings['embed_template'] ?? null;
+            $raw_embed = is_string($global_template) ? json_decode($global_template, true) : $global_template;
         }
 
         if (!$raw_embed || !is_array($raw_embed)) {
@@ -706,28 +768,13 @@ class DiscordEmbedPlugin {
             'thumbnail' => $live_thumbnail
         );
 
-        // Debug: log which embed_template source we're using and a preview of the embed
-        try {
-            $source = !empty($config['embed_template']) ? 'template_config' : 'global_settings';
-            // only log non-sensitive keys from settings
-            $safe_settings = $settings;
-            if (isset($safe_settings['bot_token'])) unset($safe_settings['bot_token']);
-            if (isset($safe_settings['webhook_url'])) unset($safe_settings['webhook_url']);
-
-            error_log('[DiscordEmbed] send_saved_live_notification: using embed template source=' . $source . ' for template_id=' . $row->id . ' platform=' . $row->platform);
-            error_log('[DiscordEmbed] send_saved_live_notification: raw_embed_preview=' . substr(is_string($raw_embed) ? $raw_embed : json_encode($raw_embed), 0, 800));
-            error_log('[DiscordEmbed] send_saved_live_notification: settings_preview=' . substr(json_encode($safe_settings), 0, 800));
-        } catch (Exception $e) {
-            // ignore logging errors
-        }
+        $this->log_debug('send_saved_live_notification', array(
+            'template_id' => $row->id,
+            'platform' => $row->platform,
+            'embed_source' => !empty($config['embed_template']) ? 'template_config' : 'global_settings'
+        ));
 
         $embed_data = $this->prepare_embed_data($live_status, $row->platform, $settings);
-
-        // Log final embed payload (shortened) to help debug template mismatches; exclude large binary data
-        try {
-            $preview = json_encode($embed_data);
-            error_log('[DiscordEmbed] send_saved_live_notification: final_embed_preview=' . substr($preview, 0, 1200));
-        } catch (Exception $e) {}
 
         $result = $this->send_live_notification($embed_data, $settings);
 
@@ -760,7 +807,14 @@ class DiscordEmbedPlugin {
         // Build WHERE clause based on filter - only show live notifications
         // Live notifications use webhook_type 'live_server' or 'live_channel' (new format)
         // Also match older entries with twitch/youtube content in embed_data
-        $base_where = "WHERE (webhook_type LIKE 'live_%' OR embed_data LIKE '%twitch.tv%' OR embed_data LIKE '%youtube.com/watch%')";
+        // Literal % in a query passed to $wpdb->prepare() must not appear in the SQL itself,
+        // so the LIKE patterns are passed as placeholders.
+        $base_where = $wpdb->prepare(
+            "WHERE (webhook_type LIKE %s OR embed_data LIKE %s OR embed_data LIKE %s)",
+            $wpdb->esc_like('live_') . '%',
+            '%' . $wpdb->esc_like('twitch.tv') . '%',
+            '%' . $wpdb->esc_like('youtube.com/watch') . '%'
+        );
         
         $where_clause = $base_where;
         switch ($filter) {
@@ -780,13 +834,12 @@ class DiscordEmbedPlugin {
         }
         
         // Get total count for pagination
-        $total_count = $wpdb->get_var("SELECT COUNT(*) FROM $table_name $where_clause");
+        $total_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table_name $where_clause");
         
-        // Get messages with pagination using prepared statement
-        $messages = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM $table_name $where_clause ORDER BY sent_at DESC LIMIT %d OFFSET %d",
-            $per_page, $offset
-        ));
+        // $where_clause is already prepared; LIMIT/OFFSET are validated integers
+        $messages = $wpdb->get_results(
+            "SELECT * FROM $table_name $where_clause ORDER BY sent_at DESC LIMIT " . intval($per_page) . " OFFSET " . intval($offset)
+        );
         
         if ($wpdb->last_error) {
             wp_send_json_error('Database error: ' . $wpdb->last_error);
@@ -966,6 +1019,10 @@ class DiscordEmbedPlugin {
                 wp_send_json_error('Bot token and channel ID are required for server webhooks. Please configure them in the settings.');
                 return;
             }
+            if (!$this->is_valid_snowflake($channel_id)) {
+                wp_send_json_error('Invalid channel ID.');
+                return;
+            }
             
             // Send via Discord Bot API
             $url = "https://discord.com/api/v10/channels/$channel_id/messages";
@@ -981,8 +1038,13 @@ class DiscordEmbedPlugin {
                 wp_send_json_error('Webhook URL is required. Please configure it in the settings.');
                 return;
             }
+            if (!$this->is_valid_webhook_url($webhook_url)) {
+                wp_send_json_error('Invalid Discord webhook URL. Expected: https://discord.com/api/webhooks/...');
+                return;
+            }
             
-            $url = $webhook_url;
+            // wait=true makes Discord return the message so its ID can be stored for later edits
+            $url = $this->webhook_url_with_wait($webhook_url);
             $headers = array('Content-Type' => 'application/json; charset=utf-8');
             $webhook_to_save = $webhook_url;
             $channel_id = null; // Not using a channel ID directly
@@ -998,14 +1060,17 @@ class DiscordEmbedPlugin {
         $username = sanitize_text_field($_POST['username'] ?? '');
         $avatar_url = esc_url_raw($_POST['avatar_url'] ?? '');
 
-        if (!empty($username)) {
-            $payload['username'] = $username;
-        }
-        if (!empty($avatar_url)) {
-            $payload['avatar_url'] = $avatar_url;
-        }
-
         $body = array('embeds' => array($payload));
+
+        // username/avatar_url are message-level webhook fields, not embed fields
+        if ($webhook_type !== 'server') {
+            if (!empty($username)) {
+                $body['username'] = $username;
+            }
+            if (!empty($avatar_url)) {
+                $body['avatar_url'] = $avatar_url;
+            }
+        }
         
         $response = wp_remote_post($url, array(
             'method' => 'POST',
@@ -1044,6 +1109,7 @@ class DiscordEmbedPlugin {
                 'discord_message_id' => $discord_message_id,
                 'embed_data' => $embed_data,
                 'webhook_url' => $webhook_type === 'server' ? $url : ($webhook_url ?? ''),
+                // Webhook messages can't be edited via the bot API, so no channel_id is stored for them
                 'channel_id' => $webhook_type === 'server' ? $channel_id : '',
                 'sent_at' => current_time('mysql'),
                 'status' => ($response_code === 200 || $response_code === 204) ? 'sent' : 'failed',
@@ -1146,6 +1212,10 @@ class DiscordEmbedPlugin {
         
         if (empty($server_id) || empty($bot_token)) {
             wp_send_json_error('Server ID and bot token are required');
+            return;
+        }
+        if (!$this->is_valid_snowflake($server_id)) {
+            wp_send_json_error('Invalid server ID.');
             return;
         }
         
@@ -1294,6 +1364,10 @@ class DiscordEmbedPlugin {
         
         if (empty($message_id) || empty($channel_id) || empty($bot_token)) {
             wp_send_json_error('Message ID, Channel ID and Bot Token are required for editing messages.');
+            return;
+        }
+        if (!$this->is_valid_snowflake($message_id) || !$this->is_valid_snowflake($channel_id)) {
+            wp_send_json_error('Invalid message or channel ID.');
             return;
         }
         
@@ -1476,6 +1550,10 @@ class DiscordEmbedPlugin {
             wp_send_json_error('Bot Token und Server ID sind erforderlich');
             return;
         }
+        if (!$this->is_valid_snowflake($server_id)) {
+            wp_send_json_error('Ungültige Server ID');
+            return;
+        }
         
         // Validate bot token format
         if (!preg_match('/^[A-Za-z0-9._-]+$/', $bot_token)) {
@@ -1642,6 +1720,10 @@ class DiscordEmbedPlugin {
             wp_send_json_error('Bot Token und Server ID sind erforderlich');
             return;
         }
+        if (!$this->is_valid_snowflake($server_id)) {
+            wp_send_json_error('Ungültige Server ID');
+            return;
+        }
 
         // Use transient caching to avoid rate limits
         $transient_key = 'discord_embed_emojis_' . md5($server_id);
@@ -1778,9 +1860,9 @@ class DiscordEmbedPlugin {
         }
         
         $settings = array(
-            'enabled' => (bool) ($_POST['enabled'] ?? false),
-            'twitch_enabled' => (bool) ($_POST['twitch_enabled'] ?? false),
-            'youtube_enabled' => (bool) ($_POST['youtube_enabled'] ?? false),
+            'enabled' => $this->post_bool('enabled'),
+            'twitch_enabled' => $this->post_bool('twitch_enabled'),
+            'youtube_enabled' => $this->post_bool('youtube_enabled'),
             'twitch_channel' => sanitize_text_field($_POST['twitch_channel'] ?? ''),
             'youtube_channel_id' => sanitize_text_field($_POST['youtube_channel_id'] ?? ''),
             'webhook_type' => sanitize_text_field($_POST['webhook_type'] ?? 'channel'),
@@ -1789,13 +1871,24 @@ class DiscordEmbedPlugin {
             'server_id' => sanitize_text_field($_POST['server_id'] ?? ''),
             'channel_id' => sanitize_text_field($_POST['channel_id'] ?? ''),
             'embed_template' => wp_unslash($_POST['embed_template'] ?? '{}'),
-            'selected_roles' => array_map('sanitize_text_field', $_POST['selected_roles'] ?? array()),
-            'cooldown_minutes' => intval($_POST['cooldown_minutes'] ?? 10)
+            'selected_roles' => array_values(array_filter(array_map('sanitize_text_field', (array) ($_POST['selected_roles'] ?? array())), array($this, 'is_valid_snowflake'))),
+            'cooldown_minutes' => max(1, intval($_POST['cooldown_minutes'] ?? 10))
         );
+        
+        if (!empty($settings['webhook_url']) && !$this->is_valid_webhook_url($settings['webhook_url'])) {
+            wp_send_json_error('Invalid Discord webhook URL. Expected: https://discord.com/api/webhooks/...');
+            return;
+        }
+        foreach (array('server_id', 'channel_id') as $id_key) {
+            if (!empty($settings[$id_key]) && !$this->is_valid_snowflake($settings[$id_key])) {
+                wp_send_json_error('Invalid ' . $id_key . '.');
+                return;
+            }
+        }
         
         update_option('discord_live_notification_settings', $settings);
         
-        $this->log_debug('Live notification settings saved', $settings);
+        $this->log_debug('Live notification settings saved', array_diff_key($settings, array('bot_token' => 1, 'webhook_url' => 1)));
         wp_send_json_success('Settings saved successfully');
     }
     
@@ -1980,14 +2073,9 @@ class DiscordEmbedPlugin {
             );
         }
 
-        // Add role mentions if selected
-        $selected_roles = $_POST['selected_roles'] ?? $settings['selected_roles'] ?? array();
-        if (!empty($selected_roles)) {
-            $role_mentions = array_map(function($role_id) {
-                return "<@&{$role_id}>";
-            }, $selected_roles);
-
-            $test_embed['description'] = implode(' ', $role_mentions) . "\n\n" . $test_embed['description'];
+        // Role mentions (sent as message content so they actually ping)
+        if (isset($_POST['selected_roles'])) {
+            $settings['selected_roles'] = array_map('sanitize_text_field', (array) wp_unslash($_POST['selected_roles']));
         }
 
         // Send
@@ -2010,7 +2098,7 @@ class DiscordEmbedPlugin {
             return;
         }
         
-        $enabled = (bool) ($_POST['enabled'] ?? false);
+        $enabled = $this->post_bool('enabled');
         $settings = get_option('discord_live_notification_settings', array());
         $settings['enabled'] = $enabled;
         
@@ -2032,92 +2120,86 @@ class DiscordEmbedPlugin {
             return;
         }
         
-        $credentials = $this->get_streamweasels_credentials();
-        
-        // Check Twitch if enabled
-        if (!empty($settings['twitch_enabled']) && !empty($settings['twitch_channel'])) {
-            $this->check_and_notify_twitch($settings['twitch_channel'], $credentials['twitch'], $settings);
+        // WP-Cron can run the same event in overlapping requests, which would
+        // send duplicate notifications. add_option() is atomic, so use it as a lock.
+        $lock_key = 'discord_embed_live_check_lock';
+        if (!add_option($lock_key, time(), '', 'no')) {
+            $locked_at = intval(get_option($lock_key));
+            if ($locked_at > time() - 5 * MINUTE_IN_SECONDS) {
+                return;
+            }
+            // Stale lock from a crashed run
+            update_option($lock_key, time(), false);
         }
         
-        // Check YouTube if enabled
-        if (!empty($settings['youtube_enabled']) && !empty($settings['youtube_channel_id'])) {
-            $this->check_and_notify_youtube($settings['youtube_channel_id'], $credentials['youtube'], $settings);
+        try {
+            $credentials = $this->get_streamweasels_credentials();
+            
+            // Check Twitch if enabled
+            if (!empty($settings['twitch_enabled']) && !empty($settings['twitch_channel'])) {
+                $channel = $settings['twitch_channel'];
+                $live_status = $this->check_twitch_live_status($channel, $credentials['twitch']);
+                $this->handle_live_status('twitch', $channel, $live_status, $settings);
+            }
+            
+            // Check YouTube if enabled
+            if (!empty($settings['youtube_enabled']) && !empty($settings['youtube_channel_id'])) {
+                $channel = $settings['youtube_channel_id'];
+                $live_status = $this->check_youtube_live_status($channel, $credentials['youtube']);
+                $this->handle_live_status('youtube', $channel, $live_status, $settings);
+            }
+        } finally {
+            delete_option($lock_key);
         }
     }
     
     /**
-     * Check Twitch live status and send notification if needed.
-     * On first detection (offline->live): sends a new Discord message.
-     * On subsequent checks while still live: edits the existing message.
-     * On going offline: clears stored message ID.
+     * Decide what to do with a live status result.
+     * - New stream session (offline->live, cooldown expired): send a new Discord message.
+     * - Still live, or back live within the cooldown: edit the existing message.
+     * - Offline: mark offline (message ID is kept so a short reconnect can reuse it).
+     * - API error: change nothing, so a failed check never looks like "went offline".
      */
-    private function check_and_notify_twitch($channel, $credentials, $settings) {
-        $live_status = $this->check_twitch_live_status($channel, $credentials);
-        
-        if ($live_status['is_live']) {
-            $embed_data = $this->prepare_embed_data($live_status, 'twitch', $settings);
-            $existing_message_id = $this->get_current_live_message_id('twitch', $channel);
-            
-            if ($existing_message_id && $settings['webhook_type'] === 'server') {
-                // Stream still live — try to edit existing Discord message
-                $edit_result = $this->edit_live_notification($existing_message_id, $embed_data, $settings);
-                if ($edit_result['success']) {
-                    $this->update_notification_status('twitch', $channel, true, $existing_message_id);
-                } else {
-                    // Edit failed (message deleted?) — clear stored ID and send new message
-                    $this->clear_current_message_id('twitch', $channel);
-                    $result = $this->send_live_notification($embed_data, $settings);
-                    if ($result['success']) {
-                        $this->update_notification_status('twitch', $channel, true, $result['message_id'] ?? null);
-                    }
-                }
-            } elseif (!$this->was_previously_live('twitch', $channel) || !$this->was_recently_notified('twitch', $channel, $settings['cooldown_minutes'])) {
-                // New stream session (offline→live) OR cooldown expired — send new message
-                $result = $this->send_live_notification($embed_data, $settings);
-                if ($result['success']) {
-                    $this->update_notification_status('twitch', $channel, true, $result['message_id'] ?? null);
-                }
-            }
-        } else {
-            $this->update_notification_status('twitch', $channel, false);
+    private function handle_live_status($platform, $channel, $live_status, $settings) {
+        if (!empty($live_status['error'])) {
+            $this->log_debug('Live check failed for ' . $platform, $live_status['error']);
+            return;
         }
-    }
-    
-    /**
-     * Check YouTube live status and send notification if needed.
-     * On first detection (offline->live): sends a new Discord message.
-     * On subsequent checks while still live: edits the existing message.
-     * On going offline: clears stored message ID.
-     */
-    private function check_and_notify_youtube($channel_id, $credentials, $settings) {
-        $live_status = $this->check_youtube_live_status($channel_id, $credentials);
         
-        if ($live_status['is_live']) {
-            $embed_data = $this->prepare_embed_data($live_status, 'youtube', $settings);
-            $existing_message_id = $this->get_current_live_message_id('youtube', $channel_id);
-            
-            if ($existing_message_id && $settings['webhook_type'] === 'server') {
-                // Stream still live — try to edit existing Discord message
-                $edit_result = $this->edit_live_notification($existing_message_id, $embed_data, $settings);
-                if ($edit_result['success']) {
-                    $this->update_notification_status('youtube', $channel_id, true, $existing_message_id);
-                } else {
-                    // Edit failed (message deleted?) — clear stored ID and send new message
-                    $this->clear_current_message_id('youtube', $channel_id);
-                    $result = $this->send_live_notification($embed_data, $settings);
-                    if ($result['success']) {
-                        $this->update_notification_status('youtube', $channel_id, true, $result['message_id'] ?? null);
-                    }
-                }
-            } elseif (!$this->was_previously_live('youtube', $channel_id) || !$this->was_recently_notified('youtube', $channel_id, $settings['cooldown_minutes'])) {
-                // New stream session (offline→live) OR cooldown expired — send new message
+        if (empty($live_status['is_live'])) {
+            $this->update_notification_status($platform, $channel, false);
+            return;
+        }
+        
+        $embed_data = $this->prepare_embed_data($live_status, $platform, $settings);
+        $cooldown = max(1, intval($settings['cooldown_minutes'] ?? 10));
+        $was_live = $this->was_previously_live($platform, $channel);
+        $recently_notified = $this->was_recently_notified($platform, $channel, $cooldown);
+        $existing_message_id = $this->get_current_live_message_id($platform, $channel);
+        
+        if (!$was_live && !$recently_notified) {
+            // New stream session — send a new message
+            $result = $this->send_live_notification($embed_data, $settings);
+            if ($result['success']) {
+                $this->update_notification_status($platform, $channel, true, $result['message_id'] ?? null);
+            }
+        } elseif ($existing_message_id) {
+            // Still live (or reconnected within cooldown) — update the existing message
+            $edit_result = $this->edit_live_notification($existing_message_id, $embed_data, $settings);
+            if ($edit_result['success']) {
+                $this->update_notification_status($platform, $channel, true, $existing_message_id);
+            } elseif (in_array($edit_result['response_code'], array(403, 404), true)) {
+                // Message was deleted or can't be edited anymore — post a new one
+                $this->clear_current_message_id($platform, $channel);
                 $result = $this->send_live_notification($embed_data, $settings);
                 if ($result['success']) {
-                    $this->update_notification_status('youtube', $channel_id, true, $result['message_id'] ?? null);
+                    $this->update_notification_status($platform, $channel, true, $result['message_id'] ?? null);
                 }
             }
+            // Other errors (rate limit, network): retry on the next run
         } else {
-            $this->update_notification_status('youtube', $channel_id, false);
+            // Live, but nothing to edit and within cooldown — don't spam, just remember the state
+            $this->mark_live($platform, $channel);
         }
     }
     
@@ -2143,43 +2225,156 @@ class DiscordEmbedPlugin {
             return array('error' => $response->get_error_message(), 'is_live' => false);
         }
         
+        $response_code = wp_remote_retrieve_response_code($response);
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body, true);
         
+        // e.g. 401 when the StreamWeasels access token expired
+        if ($response_code !== 200 || !is_array($data) || !isset($data['data'])) {
+            return array('error' => 'Twitch API error: ' . $response_code, 'is_live' => false);
+        }
+        
         $is_live = !empty($data['data'][0]);
+        $stream = $is_live ? $data['data'][0] : array();
         
         return array(
             'is_live' => $is_live,
-            'title' => $is_live ? ($data['data'][0]['title'] ?? 'Live auf Twitch') : '',
-            'game' => $is_live ? ($data['data'][0]['game_name'] ?? '') : '',
-            'viewer_count' => $is_live ? ($data['data'][0]['viewer_count'] ?? 0) : 0,
-            'thumbnail' => $is_live ? str_replace(['{width}', '{height}'], ['1920', '1080'], $data['data'][0]['thumbnail_url'] ?? '') . '?t=' . time() : '',
+            'title' => $is_live ? ($stream['title'] ?? 'Live auf Twitch') : '',
+            'game' => $stream['game_name'] ?? '',
+            'viewer_count' => $stream['viewer_count'] ?? 0,
+            'channel' => $stream['user_name'] ?? $channel,
+            'thumbnail' => $is_live ? str_replace(['{width}', '{height}'], ['1920', '1080'], $stream['thumbnail_url'] ?? '') . '?t=' . time() : '',
             'url' => 'https://twitch.tv/' . $channel,
             'platform' => 'Twitch'
         );
     }
     
     /**
-     * Check YouTube live status via API
+     * Headers for YouTube Data API requests. API keys restricted by HTTP referrer
+     * need a referer; in cron there is no browser request, so use the site URL.
      */
-    private function check_youtube_live_status($channel_id, $credentials) {
+    private function youtube_request_headers() {
+        return array('Referer' => home_url('/'));
+    }
+    
+    /**
+     * Turn a channel ID, @handle or channel URL into a YouTube channel ID (UC...).
+     * Handle lookups are cached for a week.
+     */
+    private function resolve_youtube_channel_id($channel, $api_key) {
+        $channel = trim($channel);
+        if (preg_match('/^UC[\w-]{22}$/', $channel)) {
+            return $channel;
+        }
+        if (preg_match('#/channel/(UC[\w-]{22})#', $channel, $m)) {
+            return $m[1];
+        }
+        if (preg_match('#youtube\.com/(@[\w.-]+)#i', $channel, $m)) {
+            $channel = $m[1];
+        }
+        $handle = ltrim($channel, '@');
+        if ($handle === '') {
+            return '';
+        }
+        
+        $cache_key = 'discord_embed_yt_channel_' . md5(strtolower($handle));
+        $cached = get_transient($cache_key);
+        if ($cached) {
+            return $cached;
+        }
+        
+        $url = 'https://www.googleapis.com/youtube/v3/channels?' . http_build_query(array(
+            'part' => 'id',
+            'forHandle' => '@' . $handle,
+            'key' => $api_key
+        ));
+        $response = wp_remote_get($url, array('headers' => $this->youtube_request_headers(), 'timeout' => 15));
+        if (is_wp_error($response) || wp_remote_retrieve_response_code($response) !== 200) {
+            return '';
+        }
+        $data = json_decode(wp_remote_retrieve_body($response), true);
+        $channel_id = $data['items'][0]['id'] ?? '';
+        if ($channel_id) {
+            set_transient($cache_key, $channel_id, WEEK_IN_SECONDS);
+        }
+        return $channel_id;
+    }
+    
+    /**
+     * Check YouTube live status via API.
+     *
+     * search.list costs 100 quota units per call; at one check every 3 minutes that
+     * is 48,000 units/day, far above the default 10,000 quota. Instead read the
+     * channel's uploads playlist (1 unit) and check those videos (1 unit).
+     * search.list is only used as a fallback.
+     */
+    private function check_youtube_live_status($channel, $credentials) {
         if (empty($credentials['api_key'])) {
             return array('error' => 'Missing YouTube API key', 'is_live' => false);
         }
+        $api_key = $credentials['api_key'];
         
-        // First, get the channel's live videos
+        $channel_id = $this->resolve_youtube_channel_id($channel, $api_key);
+        if (empty($channel_id)) {
+            return array('error' => 'Could not resolve YouTube channel: ' . $channel, 'is_live' => false);
+        }
+        
+        $headers = $this->youtube_request_headers();
+        
+        // Uploads playlist ID is the channel ID with "UC" replaced by "UU"
+        $playlist_url = 'https://www.googleapis.com/youtube/v3/playlistItems?' . http_build_query(array(
+            'part' => 'contentDetails',
+            'playlistId' => 'UU' . substr($channel_id, 2),
+            'maxResults' => 10,
+            'key' => $api_key
+        ));
+        $response = wp_remote_get($playlist_url, array('headers' => $headers, 'timeout' => 15));
+        
+        if (!is_wp_error($response) && wp_remote_retrieve_response_code($response) === 200) {
+            $data = json_decode(wp_remote_retrieve_body($response), true);
+            $video_ids = array();
+            foreach (($data['items'] ?? array()) as $item) {
+                if (!empty($item['contentDetails']['videoId'])) {
+                    $video_ids[] = $item['contentDetails']['videoId'];
+                }
+            }
+            
+            if (empty($video_ids)) {
+                return array('is_live' => false, 'platform' => 'YouTube');
+            }
+            
+            $videos_url = 'https://www.googleapis.com/youtube/v3/videos?' . http_build_query(array(
+                'part' => 'snippet',
+                'id' => implode(',', $video_ids),
+                'key' => $api_key
+            ));
+            $response = wp_remote_get($videos_url, array('headers' => $headers, 'timeout' => 15));
+            if (is_wp_error($response)) {
+                return array('error' => $response->get_error_message(), 'is_live' => false);
+            }
+            $response_code = wp_remote_retrieve_response_code($response);
+            if ($response_code !== 200) {
+                $this->log_debug('YouTube API error', array('code' => $response_code, 'body' => wp_remote_retrieve_body($response)));
+                return array('error' => 'YouTube API error: ' . $response_code, 'is_live' => false);
+            }
+            $data = json_decode(wp_remote_retrieve_body($response), true);
+            foreach (($data['items'] ?? array()) as $video) {
+                if (($video['snippet']['liveBroadcastContent'] ?? '') === 'live') {
+                    return $this->youtube_live_result($video['id'], $video['snippet']);
+                }
+            }
+            return array('is_live' => false, 'platform' => 'YouTube');
+        }
+        
+        // Fallback: search.list (expensive, 100 units)
         $search_url = 'https://www.googleapis.com/youtube/v3/search?' . http_build_query(array(
             'part' => 'snippet',
             'channelId' => $channel_id,
             'eventType' => 'live',
             'type' => 'video',
             'maxResults' => 1,
-            'key' => $credentials['api_key']
+            'key' => $api_key
         ));
-        
-        $headers = array(
-            'referer' => isset($_SERVER['HTTP_REFERER']) ? sanitize_text_field($_SERVER['HTTP_REFERER']) : '',
-        );
         
         $response = wp_remote_get($search_url, array(
             'headers' => $headers,
@@ -2197,29 +2392,35 @@ class DiscordEmbedPlugin {
             return array('error' => 'YouTube API error: ' . $response_code, 'is_live' => false);
         }
         
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true);
+        $data = json_decode(wp_remote_retrieve_body($response), true);
         
-        $is_live = !empty($data['items'][0]);
-        
-        if ($is_live) {
+        if (!empty($data['items'][0]['id']['videoId'])) {
             $video = $data['items'][0];
-            $video_id = $video['id']['videoId'];
-            
-            return array(
-                'is_live' => true,
-                'title' => $video['snippet']['title'] ?? 'Live auf YouTube',
-                'description' => $video['snippet']['description'] ?? '',
-                'thumbnail' => ($video['snippet']['thumbnails']['high']['url'] ?? ($video['snippet']['thumbnails']['medium']['url'] ?? '')) . '?t=' . time(),
-                'url' => 'https://www.youtube.com/watch?v=' . $video_id,
-                'platform' => 'YouTube',
-                'channel_title' => $video['snippet']['channelTitle'] ?? ''
-            );
+            return $this->youtube_live_result($video['id']['videoId'], $video['snippet'] ?? array());
         }
         
         return array(
             'is_live' => false,
             'platform' => 'YouTube'
+        );
+    }
+    
+    /**
+     * Build the live status array for a live YouTube video
+     */
+    private function youtube_live_result($video_id, $snippet) {
+        $thumbs = $snippet['thumbnails'] ?? array();
+        $thumbnail = $thumbs['maxres']['url'] ?? ($thumbs['high']['url'] ?? ($thumbs['medium']['url'] ?? ''));
+        
+        return array(
+            'is_live' => true,
+            'title' => $snippet['title'] ?? 'Live auf YouTube',
+            'description' => $snippet['description'] ?? '',
+            'thumbnail' => $thumbnail ? $thumbnail . '?t=' . time() : '',
+            'url' => 'https://www.youtube.com/watch?v=' . $video_id,
+            'platform' => 'YouTube',
+            'channel' => $snippet['channelTitle'] ?? '',
+            'channel_title' => $snippet['channelTitle'] ?? ''
         );
     }
     
@@ -2234,120 +2435,103 @@ class DiscordEmbedPlugin {
             $template = $raw_template;
         }
 
-        if (!$template) {
+        if (!$template || !is_array($template)) {
             $template = array(
-                'title' => 'ᴛᴡɪᴛᴄʜ � 🅻🅸🆅🅴 🎧',
+                'title' => '🔴 {platform} LIVE',
                 'description' => '✨ Hey , STREAMER is live now at:\n📺 {url} !\n\nCome join the fun! 🚀',
                 'color' => 9442302
             );
         }
         
-        // Replace placeholders
+        // Replace placeholders on each string value. (Replacing inside the JSON-encoded
+        // template broke the whole embed as soon as a stream title contained " or \.)
         $replacements = array(
-            '{platform}' => $live_status['platform'],
-            '{title}' => $live_status['title'],
-            '{url}' => $live_status['url'],
-            '{thumbnail}' => $live_status['thumbnail'] ?? ''
+            '{platform}' => (string) ($live_status['platform'] ?? ucfirst($platform)),
+            '{title}' => (string) ($live_status['title'] ?? ''),
+            '{url}' => (string) ($live_status['url'] ?? ''),
+            '{thumbnail}' => (string) ($live_status['thumbnail'] ?? ''),
+            '{game}' => (string) ($live_status['game'] ?? ''),
+            '{viewers}' => (string) ($live_status['viewer_count'] ?? ''),
+            '{channel}' => (string) ($live_status['channel'] ?? '')
         );
-        
-        $template = json_decode(str_replace(array_keys($replacements), array_values($replacements), json_encode($template)), true);
+        array_walk_recursive($template, function(&$value) use ($replacements) {
+            if (is_string($value)) {
+                $value = strtr($value, $replacements);
+            }
+        });
         
         // Add thumbnail if available and no image already set
-        if (!empty($live_status['thumbnail']) && empty($template['image'])) {
+        if (!empty($live_status['thumbnail']) && empty($template['image']['url'])) {
             $template['thumbnail'] = array('url' => $live_status['thumbnail']);
         }
         
-        // Handle image field with placeholder replacement
-        if (!empty($template['image']['url'])) {
-            // If image URL contains {thumbnail} placeholder and we have thumbnail data, use it
-            if (strpos($template['image']['url'], '{thumbnail}') !== false && !empty($live_status['thumbnail'])) {
-                $template['image']['url'] = str_replace('{thumbnail}', $live_status['thumbnail'], $template['image']['url']);
+        // Discord rejects empty URLs (e.g. an unfilled {thumbnail}), so drop them
+        foreach (array('image', 'thumbnail') as $media_key) {
+            if (isset($template[$media_key]) && empty($template[$media_key]['url'])) {
+                unset($template[$media_key]);
             }
-            // If image URL is just {thumbnail} and we don't have thumbnail data, remove image field
-            else if ($template['image']['url'] === '{thumbnail}' && empty($live_status['thumbnail'])) {
-                unset($template['image']);
-            }
+        }
+        if (isset($template['url']) && $template['url'] === '') {
+            unset($template['url']);
         }
         
         // Add timestamp
         $template['timestamp'] = wp_date('c');
-        
-        // Add role mentions to description if selected
-        if (!empty($settings['selected_roles'])) {
-            $role_mentions = array_map(function($role_id) {
-                return "<@&{$role_id}>";
-            }, $settings['selected_roles']);
-            
-            $template['description'] = implode(' ', $role_mentions) . "\n\n" . ($template['description'] ?? '');
-        }
 
         // Known emoji shortcodes mapping
         $emoji_shortcodes = array(
-            ':heart:' => '\u2764\uFE0F',
-            ':fire:' => '\uD83D\uDD25',
-            ':star:' => '\u2B50',
-            ':check:' => '\u2705',
-            ':x:' => '\u274C',
-            ':warning:' => '\u26A0\uFE0F',
-            ':rocket:' => '\uD83D\uDE80',
-            ':tada:' => '\uD83C\uDF89',
-            ':eyes:' => '\uD83D\uDC40',
-            ':thumbsup:' => '\uD83D\uDC4D',
+            ':heart:' => "\u{2764}\u{FE0F}",
+            ':fire:' => "\u{1F525}",
+            ':star:' => "\u{2B50}",
+            ':check:' => "\u{2705}",
+            ':x:' => "\u{274C}",
+            ':warning:' => "\u{26A0}\u{FE0F}",
+            ':rocket:' => "\u{1F680}",
+            ':tada:' => "\u{1F389}",
+            ':eyes:' => "\u{1F440}",
+            ':thumbsup:' => "\u{1F44D}",
         );
 
-        array_walk_recursive($template, function(&$value) use ($emoji_shortcodes, $settings) {
-            if (is_string($value)) {
-                // convert literal backslash-n sequences to real newlines
-                $value = str_replace('\\n', "\n", $value);
-                // convert Windows style \r\n as well
-                $value = str_replace('\\r\\n', "\r\n", $value);
+        // Server emojis are fetched at most once per embed (and cached in a transient)
+        $emoji_map = null;
+        $bot_token = $settings['bot_token'] ?? '';
+        $server_id = $settings['server_id'] ?? '';
 
-                // Replace explicit known emoji shortcodes first
-                foreach ($emoji_shortcodes as $short => $emoji) {
-                    if (strpos($value, $short) !== false) {
-                        $value = str_replace($short, $emoji, $value);
-                    }
+        array_walk_recursive($template, function(&$value) use ($emoji_shortcodes, &$emoji_map, $bot_token, $server_id) {
+            if (!is_string($value)) {
+                return;
+            }
+            // convert literal backslash sequences to real newlines (\r\n first)
+            $value = str_replace(array('\\r\\n', '\\n'), array("\r\n", "\n"), $value);
+
+            // Replace explicit known emoji shortcodes first
+            $value = strtr($value, $emoji_shortcodes);
+
+            // Resolve remaining :shortcode: occurrences to server emojis when possible,
+            // but skip ones that are already part of a full emoji code like <:name:id>
+            if (!preg_match_all('/:([A-Za-z0-9_]+):/', $value, $matches)) {
+                return;
+            }
+            if ($emoji_map === null) {
+                $emoji_map = (!empty($bot_token) && $this->is_valid_snowflake($server_id))
+                    ? $this->get_server_emojis($bot_token, $server_id)
+                    : array();
+            }
+            if (empty($emoji_map)) {
+                return;
+            }
+
+            foreach (array_unique($matches[1]) as $short) {
+                if (!isset($emoji_map[$short])) {
+                    continue;
                 }
-
-                // Replace any :shortcode: occurrences by resolving server emojis when possible
-                // but avoid replacing when the shortcode is already inside a full emoji code like <:name:id> or <a:name:id>
-                if (preg_match_all('/:([A-Za-z0-9_]+):/', $value, $matches)) {
-                    $shorts = $matches[1];
-
-                    // try to fetch server emojis if webhook/bot settings are available
-                    $botToken = $settings['bot_token'] ?? ($settings['bot_token'] ?? '');
-                    $serverId = $settings['server_id'] ?? ($settings['server_id'] ?? '');
-                    $emoji_map = array();
-                    if (!empty($botToken) && !empty($serverId)) {
-                        $emoji_map = $this->get_server_emojis($botToken, $serverId);
-                    }
-
-                    foreach ($shorts as $short) {
-                        // If already replaced by earlier known shortcodes, skip
-                        if (strpos($value, ':' . $short . ':') === false) continue;
-
-                        // If this shortcode appears inside an existing full emoji code, skip replacement for this occurrence
-                        // i.e. patterns like <:name:123> or <a:name:123>
-                        $pattern_inside = '/<a?:' . preg_quote($short, '/') . ':[0-9]+>/';
-                        if (preg_match($pattern_inside, $value)) {
-                            // if the shortcode is already part of a full emoji code, do not replace
-                            continue;
-                        }
-
-                        // If server emoji map contains it, replace with full code (<:name:id> or <a:name:id>)
-                        if (!empty($emoji_map) && isset($emoji_map[$short])) {
-                            $e = $emoji_map[$short];
-                            $code = ($e['animated'] ? '<a:' : '<:') . $e['name'] . ':' . $e['id'] . '>';
-                            // Only replace if the exact full emoji code isn't already present
-                            if (strpos($value, $code) === false) {
-                                $value = str_replace(':' . $short . ':', $code, $value);
-                            }
-                            continue;
-                        }
-
-                        // otherwise leave the shortcode as-is (it might be intended as plain text)
-                    }
+                $pattern_inside = '/<a?:' . preg_quote($short, '/') . ':[0-9]+>/';
+                if (preg_match($pattern_inside, $value)) {
+                    continue;
                 }
+                $e = $emoji_map[$short];
+                $code = ($e['animated'] ? '<a:' : '<:') . $e['name'] . ':' . $e['id'] . '>';
+                $value = str_replace(':' . $short . ':', $code, $value);
             }
         });
         
@@ -2358,25 +2542,36 @@ class DiscordEmbedPlugin {
      * Send live notification to Discord
      */
     private function send_live_notification($embed_data, $settings) {
-        if ($settings['webhook_type'] === 'server') {
-            $url = "https://discord.com/api/v10/channels/{$settings['channel_id']}/messages";
+        $webhook_type = $settings['webhook_type'] ?? 'channel';
+        
+        if ($webhook_type === 'server') {
+            $channel_id = $settings['channel_id'] ?? '';
+            if (!$this->is_valid_snowflake($channel_id) || empty($settings['bot_token'])) {
+                return array('success' => false, 'error' => 'Bot token or channel ID missing/invalid');
+            }
+            $url = "https://discord.com/api/v10/channels/{$channel_id}/messages";
+            $request_url = $url;
             $headers = array(
                 'Authorization' => 'Bot ' . $settings['bot_token'],
                 'Content-Type' => 'application/json'
             );
-            $channel_id = $settings['channel_id'];
         } else {
-            $url = $settings['webhook_url'];
+            $url = $settings['webhook_url'] ?? '';
+            if (!$this->is_valid_webhook_url($url)) {
+                return array('success' => false, 'error' => 'Webhook URL missing/invalid');
+            }
+            // wait=true returns the message ID, so webhook notifications can be edited too
+            $request_url = $this->webhook_url_with_wait($url);
             $headers = array('Content-Type' => 'application/json');
             $channel_id = null;
         }
         
-        $payload = array('embeds' => array($embed_data));
+        $payload = $this->build_live_payload($embed_data, $settings['selected_roles'] ?? array());
 
         // Use WordPress' wp_json_encode to avoid PHP's json_encode default hex-escaping of < and >
         $body = wp_json_encode($payload);
 
-        $response = wp_remote_post($url, array(
+        $response = wp_remote_post($request_url, array(
             'headers' => $headers,
             'body' => $body,
             'timeout' => 30
@@ -2401,13 +2596,13 @@ class DiscordEmbedPlugin {
         $messages_table = $wpdb->prefix . 'discord_sent_messages';
         
         // Use 'live_' prefix for webhook_type so live notification history can filter them
-        $live_webhook_type = 'live_' . (isset($settings['webhook_type']) ? $settings['webhook_type'] : 'channel');
+        $live_webhook_type = 'live_' . $webhook_type;
         
         $wpdb->insert(
             $messages_table,
             array(
                 'discord_message_id' => $discord_message_id,
-                'embed_data' => json_encode($embed_data),
+                'embed_data' => wp_json_encode($embed_data),
                 'webhook_url' => $url,
                 'channel_id' => $channel_id,
                 'sent_at' => current_time('mysql'),
@@ -2452,16 +2647,30 @@ class DiscordEmbedPlugin {
     }
     
     /**
-     * Get the stored Discord message ID for a currently live stream
+     * Get the stored Discord message ID of the last live notification
      */
     private function get_current_live_message_id($platform, $channel) {
         global $wpdb;
         $table = $wpdb->prefix . 'discord_live_notifications';
         
         return $wpdb->get_var($wpdb->prepare(
-            "SELECT current_message_id FROM $table WHERE platform = %s AND channel_name = %s AND last_live_status = 1",
+            "SELECT current_message_id FROM $table WHERE platform = %s AND channel_name = %s",
             $platform, $channel
         ));
+    }
+    
+    /**
+     * Mark a channel as live without sending or editing a message
+     */
+    private function mark_live($platform, $channel) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'discord_live_notifications';
+        
+        $wpdb->update($table,
+            array('last_live_status' => 1, 'last_check' => current_time('mysql')),
+            array('platform' => $platform, 'channel_name' => $channel),
+            array('%d', '%s'), array('%s', '%s')
+        );
     }
     
     /**
@@ -2492,21 +2701,34 @@ class DiscordEmbedPlugin {
     }
     
     /**
-     * Edit an existing live notification message in Discord (PATCH)
+     * Edit an existing live notification message in Discord (PATCH).
+     * Works for bot messages (server type) and webhook messages.
      */
     private function edit_live_notification($message_id, $embed_data, $settings) {
-        if ($settings['webhook_type'] !== 'server' || empty($settings['channel_id']) || empty($settings['bot_token'])) {
-            return array('success' => false, 'error' => 'Editing requires bot API (server webhook type)');
+        if (!$this->is_valid_snowflake((string) $message_id)) {
+            return array('success' => false, 'response_code' => 404, 'error' => 'Invalid message ID');
         }
         
-        $url = "https://discord.com/api/v10/channels/{$settings['channel_id']}/messages/{$message_id}";
-        $headers = array(
-            'Authorization' => 'Bot ' . $settings['bot_token'],
-            'Content-Type' => 'application/json'
-        );
+        if (($settings['webhook_type'] ?? 'channel') === 'server') {
+            if (!$this->is_valid_snowflake($settings['channel_id'] ?? '') || empty($settings['bot_token'])) {
+                return array('success' => false, 'response_code' => 0, 'error' => 'Bot token or channel ID missing/invalid');
+            }
+            $url = "https://discord.com/api/v10/channels/{$settings['channel_id']}/messages/{$message_id}";
+            $headers = array(
+                'Authorization' => 'Bot ' . $settings['bot_token'],
+                'Content-Type' => 'application/json'
+            );
+        } else {
+            $webhook_url = $settings['webhook_url'] ?? '';
+            if (!$this->is_valid_webhook_url($webhook_url)) {
+                return array('success' => false, 'response_code' => 0, 'error' => 'Webhook URL missing/invalid');
+            }
+            $url = rtrim($webhook_url, '/') . '/messages/' . $message_id;
+            $headers = array('Content-Type' => 'application/json');
+        }
         
-        $payload = array('embeds' => array($embed_data));
-        $body = wp_json_encode($payload);
+        // Only the embed is updated; the role mention content stays as is (edits never re-ping)
+        $body = wp_json_encode(array('embeds' => array($embed_data)));
         
         $response = wp_remote_request($url, array(
             'method' => 'PATCH',
@@ -2556,15 +2778,15 @@ class DiscordEmbedPlugin {
                     array('%s', '%s')
                 );
             } else {
-                // Going offline — clear stored message ID
+                // Going offline — keep the message ID so a reconnect within the
+                // cooldown edits the same message instead of posting a new one
                 $wpdb->update($table, 
                     array(
                         'last_live_status' => 0,
-                        'last_check' => current_time('mysql'),
-                        'current_message_id' => null
+                        'last_check' => current_time('mysql')
                     ),
                     array('platform' => $platform, 'channel_name' => $channel),
-                    array('%d', '%s', '%s'), array('%s', '%s')
+                    array('%d', '%s'), array('%s', '%s')
                 );
             }
         } else {

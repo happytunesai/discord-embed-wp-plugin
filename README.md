@@ -15,7 +15,7 @@
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**📊 Version:** 2.5.1 
+**📊 Version:** 2.6.0 
 **⚡ Requires PHP:** 7.4+  
 **🌐 Requires WordPress:** 5.0+  
 
@@ -274,16 +274,17 @@ Authorization: Bearer {twitch_access_token}
 
 ### YouTube API (Data v3)
 ```php
-// Endpoint  
-GET https://www.googleapis.com/youtube/v3/search
+// 1) Uploads playlist (1 quota unit)
+GET https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId=UU{channel_id without "UC"}&maxResults=10
 
-// Parameters
-part=snippet
-channelId={channel_id}
-eventType=live
-type=video
-key={youtube_api_key}
+// 2) Check which of those videos is live (1 quota unit)
+GET https://www.googleapis.com/youtube/v3/videos?part=snippet&id={video_ids}
+// -> snippet.liveBroadcastContent === "live"
+
+// Fallback only: search.list (100 quota units)
+GET https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={channel_id}&eventType=live&type=video
 ```
+@handles are resolved once via `channels?forHandle=` and cached for a week.
 
 ---
 
@@ -344,7 +345,24 @@ Recent fixes you should know about:
 
 ## 📝 Changelog
 
-### 🚀 v2.5.1 (current)
+### 🚀 v2.6.0 (current)
+```
+🐛 LIVE NOTIFICATION RELIABILITY & SECURITY 🐛
+├─ ✅ Unchecking "enabled"/Twitch/YouTube now actually disables them ("false" was saved as true)
+├─ 🔔 Selected roles are now really pinged (mentions sent as message content, not inside the embed)
+├─ 📉 YouTube check uses ~2 quota units instead of 100 per run (default quota no longer exhausted)
+├─ 🔗 YouTube channel can be a UC… ID, @handle or channel URL
+├─ ✏️ Webhook mode now edits the live message too, no more repost every cooldown period
+├─ 🛡️ API errors (e.g. expired Twitch token) no longer count as "went offline" → no duplicate posts
+├─ 🔒 Cron lock prevents duplicate notifications from overlapping cron runs
+├─ 🧩 Stream titles with quotes/backslashes no longer break the embed
+├─ ✨ New placeholders: {channel}, {game}, {viewers}
+├─ 😀 Emoji shortcodes like :fire: now produce real emojis
+├─ 🔒 Validation of Discord IDs and webhook URLs; fixed LIKE query in live history
+└─ ⏰ Cron event is re-scheduled automatically if it got lost
+```
+
+### 🚀 v2.5.1
 ```
 🐛 LIVE NOTIFICATION HISTORY FIX 🐛
 ├─ ✅ Fixed Live Notification History showing empty (wrong webhook_type filter)
