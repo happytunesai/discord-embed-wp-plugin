@@ -15,7 +15,7 @@
 ╚═══════════════════════════════════════════════════════════════╝
 ```
 
-**📊 Version:** 2.6.0 
+**📊 Version:** 2.6.1 
 **⚡ Requires PHP:** 7.4+  
 **🌐 Requires WordPress:** 5.0+  
 
@@ -345,7 +345,17 @@ Recent fixes you should know about:
 
 ## 📝 Changelog
 
-### 🚀 v2.6.0 (current)
+### 🚀 v2.6.1 (current)
+```
+🔒 SECURITY & EDITOR HARDENING 🔒
+├─ 🛡️ Fixed DOM-XSS in embed preview and live notification preview (URL whitelist + attribute escaping)
+├─ 🛡️ Fixed stored XSS via embed_data in message history (re-encoded before storing, escaped on output)
+├─ 🛡️ Markdown links in previews: attribute-escaped, http/https only, rel=noopener
+├─ 🛡️ Live notification history: thumbnail and message links are escaped
+└─ 🧹 Editor cleanup: null-safe escaping, safe color handling, escaped template dates
+```
+
+### 🚀 v2.6.0
 ```
 🐛 LIVE NOTIFICATION RELIABILITY & SECURITY 🐛
 ├─ ✅ Unchecking "enabled"/Twitch/YouTube now actually disables them ("false" was saved as true)

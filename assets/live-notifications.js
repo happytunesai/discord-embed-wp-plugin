@@ -1139,6 +1139,26 @@ jQuery(document).ready(function($) {
         return div.innerHTML;
     }
 
+    // Escape a value for use inside a double-quoted HTML attribute.
+    // (escapeHtml/textContent does NOT escape quotes, so it is unsafe for attributes.)
+    function escapeAttr(text) {
+        if (text === null || text === undefined) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    // Only allow absolute http/https URLs into src/href. Anything else
+    // (javascript:, data:, protocol-relative, attribute breakouts) -> ''.
+    function safeUrl(url) {
+        if (!url) return '';
+        const s = String(url).trim();
+        return /^https?:\/\/[^\s"'<>]+$/i.test(s) ? s : '';
+    }
+
     function unescapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -1217,10 +1237,11 @@ jQuery(document).ready(function($) {
         // Code
         html = html.replace(/`(.*?)`/g, '<code>$1</code>');
         
-        // Links - only allow safe protocols
+        // Links - only allow safe http/https URLs, attribute-escaped
         html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, linkText, url) {
-            if (/^https?:\/\//i.test(url)) {
-                return '<a href="' + url + '" target="_blank">' + linkText + '</a>';
+            const clean = safeUrl(url);
+            if (clean) {
+                return '<a href="' + escapeAttr(clean) + '" target="_blank" rel="noopener noreferrer">' + linkText + '</a>';
             }
             return match;
         });
@@ -1255,15 +1276,15 @@ jQuery(document).ready(function($) {
         }
         
         // Image
-        if (embedData.image && embedData.image.url) {
-            html += `<div class="embed-image"><img src="${embedData.image.url}" alt="Stream Preview" onError="this.style.display='none'"></div>`;
+        if (embedData.image && safeUrl(embedData.image.url)) {
+            html += `<div class="embed-image"><img src="${escapeAttr(safeUrl(embedData.image.url))}" alt="Stream Preview" onError="this.style.display='none'"></div>`;
         }
-        
+
         // Footer
         if (embedData.footer) {
             html += `
                 <div class="embed-footer">
-                    ${embedData.footer.icon_url ? `<img src="${embedData.footer.icon_url}" class="embed-footer-icon" alt="Footer Icon" onError="this.style.display='none'">` : ''}
+                    ${safeUrl(embedData.footer.icon_url) ? `<img src="${escapeAttr(safeUrl(embedData.footer.icon_url))}" class="embed-footer-icon" alt="Footer Icon" onError="this.style.display='none'">` : ''}
                     <span class="embed-footer-text">${parseMarkdown(embedData.footer.text || '')}</span>
                 </div>
             `;
@@ -1426,11 +1447,11 @@ jQuery(document).ready(function($) {
                                     <span style="background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px;">${status.toUpperCase()}</span>
                                 </div>
                             </div>
-                            ${thumbnail && /^https?:\/\//i.test(thumbnail) ? `<img src="${escapeHtml(thumbnail)}" style="width: 120px; height: 68px; object-fit: cover; border-radius: 4px; margin-left: 15px;" alt="Thumbnail">` : ''}
+                            ${safeUrl(thumbnail) ? `<img src="${escapeAttr(safeUrl(thumbnail))}" style="width: 120px; height: 68px; object-fit: cover; border-radius: 4px; margin-left: 15px;" alt="Thumbnail">` : ''}
                         </div>
                         ${description ? `<div style="color: #333; font-size: 13px; margin-top: 10px; max-height: 60px; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(description.substring(0, 150))}${description.length > 150 ? '...' : ''}</div>` : ''}
                         ${footer ? `<div style="color: #999; font-size: 11px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">${escapeHtml(footer)}</div>` : ''}
-                        ${msg.discord_message_id ? `<div style="margin-top: 10px;"><a href="${url}" target="_blank" style="font-size: 12px; color: #5865f2; text-decoration: none;">🔗 View on Discord</a></div>` : ''}
+                        ${msg.discord_message_id && safeUrl(url) ? `<div style="margin-top: 10px;"><a href="${escapeAttr(safeUrl(url))}" target="_blank" rel="noopener noreferrer" style="font-size: 12px; color: #5865f2; text-decoration: none;">🔗 View on Discord</a></div>` : ''}
                     </div>
                 `;
             } catch (e) {

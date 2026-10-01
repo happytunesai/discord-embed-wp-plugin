@@ -801,9 +801,42 @@ jQuery(document).ready(function($) {
     }
 
     function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
         const div = document.createElement('div');
-        div.textContent = text;
+        div.textContent = String(text);
         return div.innerHTML;
+    }
+
+    // Escape a value for use inside a double-quoted HTML attribute.
+    // (escapeHtml/textContent does NOT escape quotes, so it is unsafe for attributes.)
+    function escapeAttr(text) {
+        if (text === null || text === undefined) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    // Only allow absolute http/https URLs into src/href. Anything else
+    // (javascript:, data:, protocol-relative, attribute breakouts) -> ''.
+    function safeUrl(url) {
+        if (!url) return '';
+        const s = String(url).trim();
+        return /^https?:\/\/[^\s"'<>]+$/i.test(s) ? s : '';
+    }
+
+    // Render a color value (number or "#hex"/"hex" string) to a safe CSS color.
+    function safeColor(color) {
+        if (color === null || color === undefined || color === '') return '#5865f2';
+        let n = color;
+        if (typeof n === 'string') {
+            n = n.charAt(0) === '#' ? parseInt(n.slice(1), 16) : parseInt(n, 16);
+        }
+        n = Number(n);
+        if (!Number.isFinite(n) || n < 0 || n > 0xFFFFFF) return '#5865f2';
+        return '#' + (n & 0xFFFFFF).toString(16).padStart(6, '0');
     }
 
     function parseMarkdown(text) {
@@ -875,12 +908,13 @@ jQuery(document).ready(function($) {
         // Code
         html = html.replace(/`(.*?)`/g, '<code>$1</code>');
         
-        // Links - only allow safe protocols (http/https)
+        // Links - only allow safe http/https URLs, attribute-escaped
         html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, linkText, url) {
-            if (/^https?:\/\//i.test(url)) {
-                return '<a href="' + url + '" target="_blank">' + linkText + '</a>';
+            const clean = safeUrl(url);
+            if (clean) {
+                return '<a href="' + escapeAttr(clean) + '" target="_blank" rel="noopener noreferrer">' + linkText + '</a>';
             }
-            return match; // Leave unsafe links as-is
+            return match; // Leave unsafe links as-is (already HTML-escaped)
         });
         
         // Line breaks
@@ -900,7 +934,7 @@ jQuery(document).ready(function($) {
         let html = '';
         
         // Color bar
-        const color = embedData.color ? '#' + embedData.color.toString(16).padStart(6, '0') : '#5865f2';
+        const color = safeColor(embedData.color);
         html += `<div class="embed-color-bar" style="background-color: ${color};"></div>`;
         
         html += '<div class="embed-content">';
@@ -909,16 +943,17 @@ jQuery(document).ready(function($) {
         if (embedData.author) {
             html += `
                 <div class="embed-author">
-                    ${embedData.author.icon_url ? `<img src="${embedData.author.icon_url}" class="embed-author-icon" alt="Author Icon">` : ''}
-                    ${embedData.author.url ? `<a href="${embedData.author.url}" class="embed-author-name" target="_blank">${parseMarkdown(embedData.author.name)}</a>` : `<span class="embed-author-name">${parseMarkdown(embedData.author.name)}</span>`}
+                    ${safeUrl(embedData.author.icon_url) ? `<img src="${escapeAttr(safeUrl(embedData.author.icon_url))}" class="embed-author-icon" alt="Author Icon">` : ''}
+                    ${safeUrl(embedData.author.url) ? `<a href="${escapeAttr(safeUrl(embedData.author.url))}" class="embed-author-name" target="_blank" rel="noopener noreferrer">${parseMarkdown(embedData.author.name)}</a>` : `<span class="embed-author-name">${parseMarkdown(embedData.author.name)}</span>`}
                 </div>
             `;
         }
         
         // Title
         if (embedData.title) {
-            const titleHtml = embedData.url ? 
-                `<a href="${embedData.url}" class="embed-title" target="_blank">${parseMarkdown(embedData.title)}</a>` :
+            const titleUrl = safeUrl(embedData.url);
+            const titleHtml = titleUrl ?
+                `<a href="${escapeAttr(titleUrl)}" class="embed-title" target="_blank" rel="noopener noreferrer">${parseMarkdown(embedData.title)}</a>` :
                 `<div class="embed-title">${parseMarkdown(embedData.title)}</div>`;
             html += titleHtml;
         }
@@ -945,19 +980,21 @@ jQuery(document).ready(function($) {
         
         // Thumbnail
         if (embedData.thumbnail && embedData.thumbnail.url) {
-            html += `<div class="embed-thumbnail"><img src="${embedData.thumbnail.url}" alt="Thumbnail"></div>`;
+            const tUrl = safeUrl(embedData.thumbnail.url);
+            if (tUrl) html += `<div class="embed-thumbnail"><img src="${escapeAttr(tUrl)}" alt="Thumbnail"></div>`;
         }
         
         // Image
         if (embedData.image && embedData.image.url) {
-            html += `<div class="embed-image"><img src="${embedData.image.url}" alt="Image"></div>`;
+            const iUrl = safeUrl(embedData.image.url);
+            if (iUrl) html += `<div class="embed-image"><img src="${escapeAttr(iUrl)}" alt="Image"></div>`;
         }
         
         // Footer
         if (embedData.footer) {
             html += `
                 <div class="embed-footer">
-                    ${embedData.footer.icon_url ? `<img src="${embedData.footer.icon_url}" class="embed-footer-icon" alt="Footer Icon">` : ''}
+                    ${safeUrl(embedData.footer.icon_url) ? `<img src="${escapeAttr(safeUrl(embedData.footer.icon_url))}" class="embed-footer-icon" alt="Footer Icon">` : ''}
                     <span class="embed-footer-text">${escapeHtml(embedData.footer.text)}</span>
                 </div>
             `;
@@ -970,8 +1007,7 @@ jQuery(document).ready(function($) {
         $preview.html(html);
         
         // Apply the border color to the outer container
-        const borderColor = embedData.color ? '#' + embedData.color.toString(16).padStart(6, '0') : '#5865f2';
-        $preview.css('border-left-color', borderColor);
+        $preview.css('border-left-color', color);
     }
 
     function saveTemplate() {
@@ -1317,7 +1353,7 @@ jQuery(document).ready(function($) {
                                         ${message.channel_id ? `<br><small>Channel: ${escapeHtml(message.channel_id)}</small>` : ''}
                                         ${message.error_message ? `<br><small style="color: #d63384;">Error: ${escapeHtml(message.error_message)}</small>` : ''}
                                     </div>
-                                    <script type="application/json" class="embed-data">${message.embed_data}</script>
+                                    <script type="application/json" class="embed-data">${String(message.embed_data || '').replace(/</g, '\\u003c')}</script>
                                 </div>
                             `;
                         });

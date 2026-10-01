@@ -3,7 +3,7 @@
  * Plugin Name: Discord Embed Creator
  * Plugin URI: https://github.com/happytunesai/discord-embed-wp-plugin
  * Description: Create and send Discord embeds with live preview and template management. Perfect for community managers and server administrators.
- * Version: 2.6.0
+ * Version: 2.6.1
  * Requires at least: 5.0
  * Requires PHP: 7.4
  * Author: HappyTunesAI
@@ -28,7 +28,7 @@ if (!defined('DISCORD_EMBED_PLUGIN_PATH')) {
     define('DISCORD_EMBED_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 if (!defined('DISCORD_EMBED_VERSION')) {
-    define('DISCORD_EMBED_VERSION', '2.6.0');
+    define('DISCORD_EMBED_VERSION', '2.6.1');
 }
 
 class DiscordEmbedPlugin {
@@ -1107,7 +1107,9 @@ class DiscordEmbedPlugin {
             $messages_table,
             array(
                 'discord_message_id' => $discord_message_id,
-                'embed_data' => $embed_data,
+                // Store a re-encoded copy (not the raw POST string) so the value
+                // cannot break out of the <script> tag used in the history view.
+                'embed_data' => wp_json_encode($payload),
                 'webhook_url' => $webhook_type === 'server' ? $url : ($webhook_url ?? ''),
                 // Webhook messages can't be edited via the bot API, so no channel_id is stored for them
                 'channel_id' => $webhook_type === 'server' ? $channel_id : '',

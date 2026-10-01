@@ -35,8 +35,8 @@ $templates = $wpdb->get_results("SELECT * FROM $embeds_table ORDER BY updated_at
                     <div class="template-card" style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 8px; padding: 15px; transition: all 0.2s ease;">
                         <h4 style="margin: 0 0 8px 0; color: #23282d;"><?php echo esc_html($template->name); ?></h4>
                         <p style="color: #666; font-size: 12px; margin: 0 0 10px 0;">
-                            <?php echo esc_html(__('Created', 'discord-embed-creator')); ?>: <?php echo date('d.m.Y H:i', strtotime($template->created_at)); ?><br>
-                            <?php echo esc_html(__('Modified', 'discord-embed-creator')); ?>: <?php echo date('d.m.Y H:i', strtotime($template->updated_at)); ?>
+                            <?php echo esc_html(__('Created', 'discord-embed-creator')); ?>: <?php echo esc_html(mysql2date('d.m.Y H:i', $template->created_at)); ?><br>
+                            <?php echo esc_html(__('Modified', 'discord-embed-creator')); ?>: <?php echo esc_html(mysql2date('d.m.Y H:i', $template->updated_at)); ?>
                         </p>
                         <div style="display: flex; gap: 8px;">
                             <button type="button" class="button button-primary load-template" 
